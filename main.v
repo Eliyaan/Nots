@@ -114,7 +114,28 @@ fn on_frame(mut app App) {
 									output.state = !elem.state
 									new_queue << elem.output
 								}
-								// TODO
+								Wire {
+									if elem.state {
+										if updated !in app.wire_groups[output.id_glob_wire].inputs {
+											if app.wire_groups[output.id_glob_wire].inputs.len == 0 {
+												app.queue_gwires << output.id_glob_wire
+											}
+											app.wire_groups[output.id_glob_wire].inputs << updated
+										}
+									} else {
+										mut is_in := false
+										for i, input_id in app.wire_groups[output.id_glob_wire].inputs {
+											if input_id == updated {
+												app.wire_groups[output.id_glob_wire].inputs.delete(i)
+												is_in = true
+												break
+											}
+										}
+										if app.wire_groups[output.id_glob_wire].inputs.len == 0 && is_in {
+											app.queue_gwires << output.id_glob_wire
+										}										
+									}
+								}
 								else {}
 							}
 						}
@@ -123,6 +144,7 @@ fn on_frame(mut app App) {
 				else {}
 			}
 		}
+		mut new_queue_gwires := []i64{}
 		for updated in app.queue_gwires {
 			mut gwire := &app.wire_groups[updated]
 			for output_id in gwire.outputs {
@@ -138,6 +160,7 @@ fn on_frame(mut app App) {
 			}
 		}
 		app.queue = new_queue.clone()
+		app.queue_gwires = new_queue_gwires.clone()
 	}
 
     //Draw
@@ -168,7 +191,7 @@ fn on_frame(mut app App) {
 							app.gg.draw_polygon_filled(f32(element.x*tile_size)+tile_size/2.0, f32(element.y*tile_size)+tile_size/2.0, tile_size/2.0, 3, rotation, color)
 						}
 						Wire {
-							color := if app.wire_groups[element.id_glob_wire].state {gg.Color{255, 255, 0, 255}} else {gx.black}
+							color := if app.wire_groups[element.id_glob_wire].inputs.len > 0 {gg.Color{255, 255, 0, 255}} else {gx.black}
 							app.gg.draw_square_filled(f32(element.x*tile_size), f32(element.y*tile_size), tile_size, color)
 						}
 						else {}
