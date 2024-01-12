@@ -94,6 +94,7 @@ fn main() {
     )
 	app.build_selected_type = .wire
 	app.build_orientation = .west
+	
 	app.place_in(0, 1) or {panic(err)}
 	app.build_selected_type = .not
 	for i in 1..98 {
@@ -208,7 +209,6 @@ fn on_frame(mut app App) {
 							app.gg.draw_polygon_filled(f32(element.x*tile_size)+tile_size/2.0, f32(element.y*tile_size)+tile_size/2.0, tile_size/2.0, 3, rotation, color)
 						}
 						Wire {
-							//seems like the id_glob_wire didn't get updated properly
 							color := if app.wire_groups[element.id_glob_wire].inputs.len > 0 {gg.Color{255, 255, 0, 255}} else {gx.black}
 							app.gg.draw_square_filled(f32(element.x*tile_size), f32(element.y*tile_size), tile_size, color)
 						}
@@ -224,8 +224,7 @@ fn on_frame(mut app App) {
 }
 
 fn on_event(e &gg.Event, mut app App){
-	app.mouse_x, app.mouse_y 
-	= mouse_to_coords(e.mouse_x, e.mouse_y)
+	app.mouse_x, app.mouse_y = mouse_to_coords(e.mouse_x, e.mouse_y)
     match e.typ {
         .key_down {
             match e.key_code {
@@ -337,8 +336,53 @@ fn (mut app App) delete_in(x int, y int) ! {
 									to_process << elem_id
 								}
 								Not {
-									if elem.output == old_id {
-										elem.output = -1
+									// Check si alligné, si aligné si input, enlever l'output du not, si output si fil était ON update
+									match pos {
+										[0, 1] {
+											match elem.orientation {
+												.north { elem.output = -1 }
+												.south { if app.wire_groups[destroyed.id_glob_wire].state { 
+														app.queue << elem_id 
+														elem.state = true
+													} 
+												}
+												else {}
+											}
+										}
+										[0, -1] {
+											match elem.orientation {
+												.south { elem.output = -1 }
+												.north { if app.wire_groups[destroyed.id_glob_wire].state { 
+														app.queue << elem_id 
+														elem.state = true
+													} 
+												}
+												else {}
+											}
+										}
+										[1, 0] {
+											match elem.orientation {
+												.west { elem.output = -1 }
+												.east { if app.wire_groups[destroyed.id_glob_wire].state { 
+														app.queue << elem_id 
+														elem.state = true
+													} 
+												}
+												else {}
+											}
+										}
+										[-1, 0] {
+											match elem.orientation {
+												.east { elem.output = -1 }
+												.west { if app.wire_groups[destroyed.id_glob_wire].state { 
+														app.queue << elem_id 
+														elem.state = true
+													} 
+												}
+												else {}
+											}
+										}
+										else {}
 									}
 								}
 								else {}
@@ -471,13 +515,13 @@ fn (mut app App) delete_in(x int, y int) ! {
 						id_gwires = tmp_map.keys()
 						id_gwires.sort()
 						if id_gwires.len > 1 {
-							assert id_gwires.len <= 4
 							for id in id_gwires[1..] {
 								final_wires[id_gwires[0]].wires << final_wires[id].wires
 								final_wires[id_gwires[0]].inputs << final_wires[id].inputs
 								final_wires[id_gwires[0]].outputs << final_wires[id].outputs
+								final_wires.delete(id)
 							}
-							id_gwires = [id_gwires[0]]
+
 							final_wires[id_gwires[0]].wires << element_id
 							final_wires[id_gwires[0]].inputs << inputs
 							final_wires[id_gwires[0]].outputs << outputs
@@ -495,7 +539,17 @@ fn (mut app App) delete_in(x int, y int) ! {
 				}
 				for i, mut fwire in final_wires {
 					fwire.state = fwire.inputs.len > 0
+					mut fwire_id := i64(-1)
+					if i > 0 {
+						fwire_id = app.wire_groups.len - 1 + i
+					} else {
+						fwire_id = destroyed.id_glob_wire
+					}
+					
 					if !fwire.state && app.wire_groups[destroyed.id_glob_wire].state {
+						// if destroyed.id_glob_wire in app.queue_gwires {
+						// 	app.queue_gwires << fwire_id
+						// }
 						for output_id in fwire.outputs {
 							mut output := &app.elements[output_id]
 							if mut output is Not {
@@ -503,17 +557,34 @@ fn (mut app App) delete_in(x int, y int) ! {
 							}
 							app.queue << output_id
 						}
+					} 
+					if fwire.state {
+						if destroyed.id_glob_wire in app.queue_gwires {
+							app.queue_gwires << fwire_id
+						}
 					}
 					for wire_id in fwire.wires {
 						mut wire := &app.elements[wire_id]
 						if mut wire is Wire {
-							wire.id_glob_wire = app.wire_groups.len - 1 + i
+							wire.id_glob_wire = fwire_id
 						}
 					}
-					// TODO update the estinguished outputs
 				}
-				app.wire_groups[destroyed.id_glob_wire] = final_wires[0]
-				app.wire_groups << final_wires#[1..]
+				if final_wires.len > 0 {
+					app.wire_groups[destroyed.id_glob_wire] = final_wires[0]
+					app.wire_groups << final_wires#[1..]
+					dump(app.wire_groups)
+				} else {
+					for gwire in app.wire_groups[destroyed.id_glob_wire+1..] {
+						for wire_id in gwire.wires {
+							mut wire := &app.elements[wire_id]
+							if mut wire is Wire {
+								wire.id_glob_wire -= 1
+							}
+						}
+					}
+					app.wire_groups.delete(destroyed.id_glob_wire)
+				}
 			}
 			else {}
 		}
@@ -771,12 +842,23 @@ fn (mut app App) place_in(x int, y int) ! {
 					if app.wire_groups[glob_wire_id].inputs.len == inputs.len {
 						app.queue_gwires << glob_wire_id // update all the wire as it changed of state
 					} else {
-							for id_output in outputs {
+						for id_output in outputs {
 							mut elem := &app.elements[id_output]
 							if mut elem is Not 	{
 								elem.state = false
 								app.queue << id_output
 							}
+						}
+					}
+				} else {
+					app.wire_groups[glob_wire_id].state = false
+					for id_output in outputs {
+						mut elem := &app.elements[id_output]
+						if mut elem is Not 	{
+							if !elem.state {
+								elem.state = true
+								app.queue << id_output
+							}					
 						}
 					}
 				}
