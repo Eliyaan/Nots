@@ -543,6 +543,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 								final_wires[id_gwires[0]].inputs << final_wires[id].inputs
 								final_wires[id_gwires[0]].outputs << final_wires[id].outputs
 								final_wires.delete(id)
+								id_gwires[0] -= 1
 							}
 
 							final_wires[id_gwires[0]].wires << element_id
