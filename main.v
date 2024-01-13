@@ -1,8 +1,19 @@
 import gg
 import gx
+import ggui
 import math
 
 const tile_size = 10
+const theme     = ggui.CatppuchinMocha{}
+const buttons_shape	= ggui.RoundedShape{20, 20, 5, .top_left}
+
+enum Id {
+	@none
+}
+
+fn id(id Id) int {
+	return int(id)
+}
 
 enum Variant as u8 {
 	@none
@@ -71,6 +82,10 @@ mut:
 	queue []i64
 	queue_gwires []i64
 
+	gui		&ggui.Gui = unsafe { nil }
+	clickables []ggui.Clickable
+	gui_elements []ggui.Element
+
 	mouse_x int
 	mouse_y int
 
@@ -82,6 +97,7 @@ mut:
 
 fn main() {
     mut app := &App{}
+	app.gui = &ggui.Gui(app)
     app.gg = gg.new_context(
         fullscreen: true
         create_window: true
@@ -117,6 +133,7 @@ fn main() {
 	app.place_in(10, 11)!
 	dump(app.wire_groups)
 	*/
+	/*
 	app.place_in(10, 10)!
 	app.place_in(10, 11)!
 	app.place_in(11, 10)!
@@ -126,14 +143,33 @@ fn main() {
 	app.place_in(13, 10)!
 	app.update()
 	app.delete_in(11, 10)!
+	*/
 
 
+	not_text := ggui.Text{0, 0, 0, "!", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}
+	wire_text := ggui.Text{0, 0, 0, "-", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}
+	_ := gx.TextCfg{color:theme.text, size:20, align:.right, vertical_align:.top}
 
+	app.clickables << ggui.Button{0, 50, 5, buttons_shape, wire_text, theme.red, wire_select}
+	app.clickables << ggui.Button{0, 75, 5, buttons_shape, not_text, theme.green, not_select}
 
-	app.build_selected_type = .wire
-	
+    app.gui_elements << ggui.Rect{x:0, y:0, shape:ggui.RoundedShape{160, 30, 5, .top_left}, color:theme.mantle}
+
+	app.build_selected_type = .wire	
     //lancement du programme/de la fenêtre
     app.gg.run()
+}
+
+fn wire_select(mut app ggui.Gui) {
+	if mut app is App {
+		app.build_selected_type = .wire
+	}
+}
+
+fn not_select(mut app ggui.Gui) {
+	if mut app is App {
+		app.build_selected_type = .not
+	}
 }
 
 fn (mut app App) update() {
@@ -242,6 +278,7 @@ fn on_frame(mut app App) {
 		}
 	}
 	app.gg.draw_square_filled(f32(app.mouse_x*tile_size), f32(app.mouse_y*tile_size), tile_size, gg.Color{100, 100, 100, 100})
+	app.gui.render()
 	app.gg.show_fps()
     app.gg.end()
 }
@@ -267,16 +304,20 @@ fn on_event(e &gg.Event, mut app App){
             }
         }
         .mouse_up {
-            match e.mouse_button{
-                .left{
-					app.place_in(app.mouse_x, app.mouse_y) or {println(err)}
+			if !(e.mouse_x < 160 && e.mouse_y < 30) {
+				match e.mouse_button{
+					.left{
+						app.place_in(app.mouse_x, app.mouse_y) or {println(err)}
+					}
+					.right {
+						app.delete_in(app.mouse_x, app.mouse_y) or {println(err)}
+					}
+					else{}
 				}
-				.right {
-					
-					app.delete_in(app.mouse_x, app.mouse_y) or {println(err)}
-				}
-                else{}
-        }}
+			} else {
+				app.gui.check_clicks(e.mouse_x, e.mouse_y)
+			}
+		}
         else {}
     }
 }
@@ -324,7 +365,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 						else {}
 					}
 				}
-				if destroyed.output > 0 {
+				if destroyed.output >= 0 {
 					mut output_elem := &app.elements[destroyed.output]
 					match mut output_elem {
 						Wire {
