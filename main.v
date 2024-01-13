@@ -94,7 +94,7 @@ fn main() {
     )
 	app.build_selected_type = .wire
 	app.build_orientation = .west
-	
+	/*
 	app.place_in(0, 1) or {panic(err)}
 	app.build_selected_type = .not
 	for i in 1..98 {
@@ -108,6 +108,29 @@ fn main() {
 		app.place_in(i, 2) or {panic(err)}
 		app.update()
 	}
+	*/
+
+	/*
+	app.place_in(10, 10)!
+	app.place_in(11, 11)!
+	app.place_in(12, 10)!
+	app.place_in(10, 11)!
+	dump(app.wire_groups)
+	*/
+	app.place_in(10, 10)!
+	app.place_in(10, 11)!
+	app.place_in(11, 10)!
+	app.place_in(11, 11)!
+	app.place_in(12, 10)!
+	app.build_selected_type = .not
+	app.place_in(13, 10)!
+	app.update()
+	app.delete_in(11, 10)!
+
+
+
+
+	app.build_selected_type = .wire
 	
     //lancement du programme/de la fenêtre
     app.gg.run()
@@ -513,7 +536,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 							tmp_map[k] = false
 						}
 						id_gwires = tmp_map.keys()
-						id_gwires.sort()
+						id_gwires.sort(a>b)
 						if id_gwires.len > 1 {
 							for id in id_gwires[1..] {
 								final_wires[id_gwires[0]].wires << final_wires[id].wires
@@ -712,9 +735,9 @@ fn (mut app App) place_in(x int, y int) ! {
 			if app.destroyed.len == 0 {
 				id = app.elements.len
 			} else {
+				// replace element
 				id = app.destroyed[0]
 				app.destroyed.delete(0)
-				// remplacer l'element
 			}
 			mut place_chunk := app.get_chunk_at_coords(x, y)
 			if place_chunk.tiles[math.abs(y-place_chunk.y*16)][math.abs(x-place_chunk.x*16)] < 0 {
@@ -723,102 +746,83 @@ fn (mut app App) place_in(x int, y int) ! {
 				return error("Not in an empty space")
 			}
 
-			mut chunk := app.get_chunk_at_coords(x-1, y)
-			left := chunk.tiles[math.abs(y-chunk.y*16)][math.abs(x-1-chunk.x*16)]
-			chunk = app.get_chunk_at_coords(x+1, y)
-			right := chunk.tiles[math.abs(y-chunk.y*16)][math.abs(x+1-chunk.x*16)]
-			chunk = app.get_chunk_at_coords(x, y-1)
-			top := chunk.tiles[math.abs(y-1-chunk.y*16)][math.abs(x-chunk.x*16)]
-			chunk = app.get_chunk_at_coords(x, y+1)		
-			bot := chunk.tiles[math.abs(y+1-chunk.y*16)][math.abs(x-chunk.x*16)]
-
 			mut glob_wire_ids := []i64{}
-			mut inputs :=  []i64{}
-			mut outputs :=  []i64{}
-			if left >= 0 {
-				mut left_elem := &app.elements[left]
-				if !left_elem.destroyed {
-					if mut left_elem is Wire {
-						glob_wire_ids << left_elem.id_glob_wire
-					} else if mut left_elem is Not {
-						match left_elem.orientation {
-							.east {
-								if left_elem.state {
-									inputs << left
+			mut inputs := []i64{}
+			mut outputs := []i64{}
+
+			for pos in [[0, 1], [0, -1], [1, 0], [-1,0]] {
+				chunk := app.get_chunk_at_coords(int(x+pos[0]), int(y+pos[1]))
+				elem_id := chunk.tiles[math.abs(int(y)+pos[1]-chunk.y*16)][math.abs(int(x)+pos[0]-chunk.x*16)]
+				if elem_id >= 0 {
+					mut elem := &app.elements[elem_id]
+					if !elem.destroyed {
+						if mut elem is Wire {
+							glob_wire_ids << elem.id_glob_wire
+						} else if mut elem is Not {
+							match pos {
+								[-1, 0] {
+									match elem.orientation {
+										.east {
+											if elem.state {
+												inputs << elem_id
+											}
+											elem.output = id
+										}
+										.west {
+											outputs << elem_id
+										}
+										else{}
+									}
 								}
-								left_elem.output = id
+								[1, 0] {
+									match elem.orientation {
+										.west {
+											if elem.state {
+												inputs << elem_id
+											}
+											elem.output = id
+										}
+										.east {
+											outputs << elem_id
+										}
+										else{}
+									}
+								}
+								[0, 1] {
+									match elem.orientation {
+										.north {
+											if elem.state {
+												inputs << elem_id
+											}
+											elem.output = id
+										} 
+										.south {
+											outputs << elem_id
+										}
+										else{}
+									}
+								}
+								[0, -1] {
+									match elem.orientation {
+										.south {
+											if elem.state {
+												inputs << elem_id
+											}
+											elem.output = id
+										}
+										.north {
+											outputs << elem_id
+										}
+										else{}
+									}
+								}
+								else{}
 							}
-							.west {
-								outputs << left
-							}
-							else{}
 						}
 					}
 				}
 			}
-			if right >= 0 {
-				mut right_elem := &app.elements[right]
-				if !right_elem.destroyed {
-					if mut right_elem is Wire {
-						glob_wire_ids << right_elem.id_glob_wire
-					} else if mut right_elem is Not {
-						match right_elem.orientation {
-							.west {
-								if right_elem.state {
-									inputs << right
-								}
-								right_elem.output = id
-							}
-							.east {
-								outputs << right
-							}
-							else{}
-						}
-					}
-				}
-			}
-			if top >= 0 {
-				mut top_elem := &app.elements[top]
-				if !top_elem.destroyed {
-					if mut top_elem is Wire {
-						glob_wire_ids << top_elem.id_glob_wire
-					} else if mut top_elem is Not {
-						match top_elem.orientation {
-							.south {
-								if top_elem.state {
-									inputs << top
-								}
-								top_elem.output = id
-							}
-							.north {
-								outputs << top
-							}
-							else{}
-						}
-					}
-				}
-			}
-			if bot >= 0 {
-				mut bot_elem := &app.elements[bot]
-				if !bot_elem.destroyed {
-					if mut bot_elem is Wire {
-						glob_wire_ids << bot_elem.id_glob_wire
-					} else if mut bot_elem is Not {
-						match bot_elem.orientation {
-							.north {
-								if bot_elem.state {
-									inputs << bot
-								}
-								bot_elem.output = id
-							} 
-							.south {
-								outputs << bot
-							}
-							else{}
-						}
-					}
-				}
-			}
+
 			mut glob_wire_id := i64(0)
 			if glob_wire_ids.len == 0 {
 				println('new glob wire')
@@ -837,12 +841,12 @@ fn (mut app App) place_in(x int, y int) ! {
 				app.wire_groups[glob_wire_id].wires << id
 				app.wire_groups[glob_wire_id].inputs << inputs
 				app.wire_groups[glob_wire_id].outputs << outputs
-				if app.wire_groups[glob_wire_id].inputs.len > 0 {
-					app.wire_groups[glob_wire_id].state = true
+				app.wire_groups[glob_wire_id].state =  app.wire_groups[glob_wire_id].inputs.len > 0 
+				if app.wire_groups[glob_wire_id].state {
 					if app.wire_groups[glob_wire_id].inputs.len == inputs.len {
-						app.queue_gwires << glob_wire_id // update all the wire as it changed of state
+						app.queue_gwires << glob_wire_id // update the wire as it changed of state
 					} else {
-						for id_output in outputs {
+						for id_output in outputs { // new outputs
 							mut elem := &app.elements[id_output]
 							if mut elem is Not 	{
 								elem.state = false
@@ -851,7 +855,6 @@ fn (mut app App) place_in(x int, y int) ! {
 						}
 					}
 				} else {
-					app.wire_groups[glob_wire_id].state = false
 					for id_output in outputs {
 						mut elem := &app.elements[id_output]
 						if mut elem is Not 	{
@@ -868,6 +871,7 @@ fn (mut app App) place_in(x int, y int) ! {
 					tmp_map[k] = false
 				}
 				glob_wire_ids = tmp_map.keys()
+				glob_wire_ids.sort(a>b)
 				for i in 1..glob_wire_ids.len {
 					app.wire_groups[glob_wire_ids[0]].inputs << app.wire_groups[glob_wire_ids[i]].inputs
 					app.wire_groups[glob_wire_ids[0]].outputs << app.wire_groups[glob_wire_ids[i]].outputs
@@ -877,29 +881,25 @@ fn (mut app App) place_in(x int, y int) ! {
 				app.wire_groups[glob_wire_ids[0]].outputs << outputs
 				app.wire_groups[glob_wire_ids[0]].state = app.wire_groups[glob_wire_ids[0]].inputs.len > 0
 				if app.wire_groups[glob_wire_ids[0]].state {
-					for id_output in outputs {
+					for id_output in app.wire_groups[glob_wire_ids[0]].outputs {
 						mut elem := &app.elements[id_output]
 						if mut elem is Not {
-							elem.state = false
-							app.queue << id_output
-						}
-					}
-					for i in 1..glob_wire_ids.len {
-						for id_output in app.wire_groups[glob_wire_ids[i]].outputs {
-							mut elem := &app.elements[id_output]
-							if mut elem is Not {
+							if elem.state {
 								elem.state = false
 								app.queue << id_output
 							}
 						}
-						
 					}
 				}
 				for i in 1..glob_wire_ids.len {
 					app.wire_groups.delete(glob_wire_ids[i])
-					for mut j in glob_wire_ids {
-						if j > glob_wire_ids[i] {
-							j -= 1
+					glob_wire_ids[0] -= 1  // offset the greatest
+					for wg in app.wire_groups[glob_wire_ids[i]+1..] {
+						for wire_id in wg.wires {
+							mut wire := &app.elements[wire_id]
+							if mut wire is Wire {
+								wire.id_glob_wire -= 1
+							}
 						}
 					}
 				}
@@ -907,6 +907,7 @@ fn (mut app App) place_in(x int, y int) ! {
 					mut elem := &app.elements[id_wire]
 					if mut elem is Wire {
 						elem.id_glob_wire = glob_wire_ids[0]
+						dump(elem.id_glob_wire)
 					}else{
 						panic("Not a wire in a wiregroup")
 					}
