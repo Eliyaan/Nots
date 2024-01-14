@@ -3,7 +3,6 @@ module main
 import math
 
 
-
 fn (mut app App) delete_in(x int, y int) ! {
 	mut place_chunk := app.get_chunk_at_coords(x, y)
 	old_id := place_chunk.tiles[math.abs(y-place_chunk.y*16)][math.abs(x-place_chunk.x*16)] 
@@ -16,20 +15,16 @@ fn (mut app App) delete_in(x int, y int) ! {
 			Not {
 				input := match destroyed.orientation {
 					.north {
-						chunk := app.get_chunk_at_coords(x, y+1)
-						chunk.tiles[math.abs(y+1-chunk.y*16)][math.abs(x-chunk.x*16)]
+						app.get_tile_id_at(x, y+1)
 					}
 					.south {
-						chunk := app.get_chunk_at_coords(x, y-1)
-						chunk.tiles[math.abs(y-1-chunk.y*16)][math.abs(x-chunk.x*16)]
+						app.get_tile_id_at(x, y-1)
 					}
 					.east {
-						chunk := app.get_chunk_at_coords(x-1, y)
-						chunk.tiles[math.abs(y-chunk.y*16)][math.abs(x-1-chunk.x*16)]
+						app.get_tile_id_at(x-1, y)
 					}
 					.west {
-						chunk := app.get_chunk_at_coords(x+1, y)
-						chunk.tiles[math.abs(y-chunk.y*16)][math.abs(x+1-chunk.x*16)]
+						app.get_tile_id_at(x+1, y)
 					}
 				}
 				if input != -1 {
@@ -72,8 +67,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 				mut to_process := []i64{}
 				mut final_wires := []GlobalWire{}
 				for pos in [[0, 1], [0, -1], [1, 0], [-1,0]] {
-					chunk := app.get_chunk_at_coords(x+pos[0], y+pos[1])
-					elem_id := chunk.tiles[math.abs(y+pos[1]-chunk.y*16)][math.abs(x+pos[0]-chunk.x*16)]
+					elem_id := app.get_tile_id_at(x+pos[0], y+pos[1])
 					if elem_id >= 0 {
 						mut elem := &app.elements[elem_id]
 						if !elem.destroyed {
@@ -142,8 +136,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 						final_wires << GlobalWire{}
 						final_wires[0].wires << element_id
 						for pos in [[0, 1], [0, -1], [1, 0], [-1,0]] {
-							chunk := app.get_chunk_at_coords(int(current.x+pos[0]), int(current.y+pos[1]))
-							elem_id := chunk.tiles[math.abs(int(current.y)+pos[1]-chunk.y*16)][math.abs(int(current.x)+pos[0]-chunk.x*16)]
+							elem_id := app.get_tile_id_at(int(current.x+pos[0]), int(current.y+pos[1]))
 							if elem_id >= 0 {
 								mut elem := &app.elements[elem_id]
 								if !elem.destroyed {
@@ -194,9 +187,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 						mut inputs := []i64{}
 						mut outputs := []i64{}
 						for pos in [[0, 1], [0, -1], [1, 0], [-1, 0]] {
-							chunk := app.get_chunk_at_coords(int(current.x)+pos[0], int(current.y)+pos[1])
-							elem_id := chunk.tiles[math.abs(int(current.y)+pos[1]-chunk.y*16)][math.abs(int(current.x)+pos[0]-chunk.x*16)]
-
+							elem_id := app.get_tile_id_at(int(current.x+pos[0]), int(current.y+pos[1]))
 							if elem_id >= 0 {
 								mut elem := &app.elements[elem_id]
 								if !elem.destroyed {

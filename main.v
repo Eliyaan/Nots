@@ -163,18 +163,10 @@ fn on_frame(mut app App) {
 							color := if element.state {gx.green} else {gx.red}
 							app.gg.draw_square_filled(f32(element.x*tile_size), f32(element.y*tile_size), tile_size, gx.black)
 							rotation := match element.orientation {
-								.north {
-									-90
-								}
-								.south {
-									90
-								}
-								.east {
-									0
-								}
-								.west {
-									180
-								}
+								.north { -90 }
+								.south { 90 }
+								.east { 0 }
+								.west { 180 }
 							}
 							app.gg.draw_polygon_filled(f32(element.x*tile_size)+tile_size/2.0, f32(element.y*tile_size)+tile_size/2.0, tile_size/2.0, 3, rotation, color)
 						}
@@ -246,6 +238,45 @@ fn (mut app App) get_chunk_at_coords(x int, y int) &Chunk {
 	return &app.chunks[app.chunks.len-1]
 }
 
+fn (mut app App) get_tile_id_at(x int, y int) i64 {
+	chunk := app.get_chunk_at_coords(x, y)
+	return chunk.tiles[math.abs(y-chunk.y*16)][math.abs(x-chunk.x*16)]
+}
+
 fn mouse_to_coords(x f32, y f32) (int, int) {
 	return int(x)/tile_size, int(y)/tile_size
+}
+
+fn input_coords_from_orientation(ori Orientation) (int, int) {
+	return match ori {
+		.north {
+			0, 1
+		}
+		.south {
+			0, -1
+		}
+		.east {
+			-1, 0
+		}
+		.west {
+			1, 0
+		}
+	}
+}
+
+fn output_coords_from_orientation(ori Orientation) (int, int) {
+	return match ori {
+		.north {
+			0, -1
+		}
+		.south {
+			0, 1
+		}
+		.east {
+			1, 0
+		}
+		.west {
+			-1, 0
+		}
+	}
 }
