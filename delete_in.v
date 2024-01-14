@@ -46,7 +46,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 					mut output_elem := &app.elements[destroyed.output]
 					match mut output_elem {
 						Wire {
-							if destroyed.state {
+							if destroyed.state && old_id !in app.queue {
 								i := app.wire_groups[output_elem.id_glob_wire].inputs.index(old_id)
 								app.wire_groups[output_elem.id_glob_wire].inputs.delete(i)
 								if app.wire_groups[output_elem.id_glob_wire].inputs.len == 0 {
