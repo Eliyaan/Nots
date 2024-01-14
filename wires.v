@@ -2,7 +2,6 @@ module main
 
 struct GlobalWire {
 mut:
-	state bool
 	wires []i64
 	inputs []i64
 	outputs []i64

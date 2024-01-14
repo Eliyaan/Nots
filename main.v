@@ -247,6 +247,7 @@ fn mouse_to_coords(x f32, y f32) (int, int) {
 	return int(x)/tile_size, int(y)/tile_size
 }
 
+// returns the relative coordinates of the input of a not gate
 fn input_coords_from_orientation(ori Orientation) (int, int) {
 	return match ori {
 		.north {
@@ -264,6 +265,8 @@ fn input_coords_from_orientation(ori Orientation) (int, int) {
 	}
 }
 
+
+// returns the relative coordinates of the output of a not gate
 fn output_coords_from_orientation(ori Orientation) (int, int) {
 	return match ori {
 		.north {

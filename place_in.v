@@ -63,7 +63,7 @@ fn (mut app App) not_place_in(x int, y int) ! {
 				}
 			}
 			Wire {
-				state = !app.wire_groups[elem_input.id_glob_wire].state
+				state = !(app.wire_groups[elem_input.id_glob_wire].inputs.len > 0)
 				app.wire_groups[elem_input.id_glob_wire].outputs << id
 			}
 			else {}
@@ -124,64 +124,15 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 				if mut elem is Wire {
 					glob_wire_ids << elem.id_glob_wire
 				} else if mut elem is Not {
-					match pos {
-						[-1, 0] {
-							match elem.orientation {
-								.east {
-									if elem.state {
-										inputs << elem_id
-									}
-									elem.output = id
-								}
-								.west {
-									outputs << elem_id
-								}
-								else{}
-							}
+					output_x, output_y := output_coords_from_orientation(elem.orientation)
+					input_x, input_y := input_coords_from_orientation(elem.orientation)
+					if pos[0] == output_x && pos[1] == output_y {
+						outputs << elem_id
+					} else if pos[0] == input_x && pos[1] == input_y {
+						if elem.state {
+							inputs << elem_id
 						}
-						[1, 0] {
-							match elem.orientation {
-								.west {
-									if elem.state {
-										inputs << elem_id
-									}
-									elem.output = id
-								}
-								.east {
-									outputs << elem_id
-								}
-								else{}
-							}
-						}
-						[0, 1] {
-							match elem.orientation {
-								.north {
-									if elem.state {
-										inputs << elem_id
-									}
-									elem.output = id
-								} 
-								.south {
-									outputs << elem_id
-								}
-								else{}
-							}
-						}
-						[0, -1] {
-							match elem.orientation {
-								.south {
-									if elem.state {
-										inputs << elem_id
-									}
-									elem.output = id
-								}
-								.north {
-									outputs << elem_id
-								}
-								else{}
-							}
-						}
-						else{}
+						elem.output = id
 					}
 				}
 			}
@@ -193,7 +144,6 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		println('new glob wire')
 		glob_wire_id = app.wire_groups.len
 		app.wire_groups << GlobalWire {
-			state: inputs.len > 0
 			wires: [id]
 			inputs: inputs
 			outputs: outputs
@@ -206,8 +156,7 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		app.wire_groups[glob_wire_id].wires << id
 		app.wire_groups[glob_wire_id].inputs << inputs
 		app.wire_groups[glob_wire_id].outputs << outputs
-		app.wire_groups[glob_wire_id].state =  app.wire_groups[glob_wire_id].inputs.len > 0 
-		if app.wire_groups[glob_wire_id].state {
+		if app.wire_groups[glob_wire_id].inputs.len > 0 {
 			if app.wire_groups[glob_wire_id].inputs.len == inputs.len {
 				app.queue_gwires << glob_wire_id // update the wire as it changed of state
 			} else {
@@ -244,8 +193,7 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		}
 		app.wire_groups[glob_wire_ids[0]].inputs << inputs
 		app.wire_groups[glob_wire_ids[0]].outputs << outputs
-		app.wire_groups[glob_wire_ids[0]].state = app.wire_groups[glob_wire_ids[0]].inputs.len > 0
-		if app.wire_groups[glob_wire_ids[0]].state {
+		if app.wire_groups[glob_wire_ids[0]].inputs.len > 0 {
 			for id_output in app.wire_groups[glob_wire_ids[0]].outputs {
 				mut elem := &app.elements[id_output]
 				if mut elem is Not {

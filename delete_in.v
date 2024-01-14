@@ -50,7 +50,6 @@ fn (mut app App) delete_in(x int, y int) ! {
 								i := app.wire_groups[output_elem.id_glob_wire].inputs.index(old_id)
 								app.wire_groups[output_elem.id_glob_wire].inputs.delete(i)
 								if app.wire_groups[output_elem.id_glob_wire].inputs.len == 0 {
-									app.wire_groups[output_elem.id_glob_wire].state = false
 									app.queue_gwires << output_elem.id_glob_wire
 								}
 							}
@@ -76,53 +75,15 @@ fn (mut app App) delete_in(x int, y int) ! {
 									to_process << elem_id
 								}
 								Not {
-									// Check si alligné, si aligné si input, enlever l'output du not, si output si fil était ON update
-									match pos {
-										[0, 1] {
-											match elem.orientation {
-												.north { elem.output = -1 }
-												.south { if app.wire_groups[destroyed.id_glob_wire].state { 
-														app.queue << elem_id 
-														elem.state = true
-													} 
-												}
-												else {}
-											}
+									output_x, output_y := output_coords_from_orientation(elem.orientation)
+									input_x, input_y := input_coords_from_orientation(elem.orientation)
+									if pos[0] == output_x && pos[1] == output_y {
+										if app.wire_groups[destroyed.id_glob_wire].inputs.len > 0 { 
+											app.queue << elem_id 
+											elem.state = true
 										}
-										[0, -1] {
-											match elem.orientation {
-												.south { elem.output = -1 }
-												.north { if app.wire_groups[destroyed.id_glob_wire].state { 
-														app.queue << elem_id 
-														elem.state = true
-													} 
-												}
-												else {}
-											}
-										}
-										[1, 0] {
-											match elem.orientation {
-												.west { elem.output = -1 }
-												.east { if app.wire_groups[destroyed.id_glob_wire].state { 
-														app.queue << elem_id 
-														elem.state = true
-													} 
-												}
-												else {}
-											}
-										}
-										[-1, 0] {
-											match elem.orientation {
-												.east { elem.output = -1 }
-												.west { if app.wire_groups[destroyed.id_glob_wire].state { 
-														app.queue << elem_id 
-														elem.state = true
-													} 
-												}
-												else {}
-											}
-										}
-										else {}
+									} else if pos[0] == input_x && pos[1] == input_y {
+										elem.output = -1
 									}
 								}
 								else {}
@@ -276,7 +237,6 @@ fn (mut app App) delete_in(x int, y int) ! {
 					}
 				}
 				for i, mut fwire in final_wires {
-					fwire.state = fwire.inputs.len > 0
 					mut fwire_id := i64(-1)
 					if i > 0 {
 						fwire_id = app.wire_groups.len - 1 + i
@@ -284,7 +244,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 						fwire_id = destroyed.id_glob_wire
 					}
 					
-					if !fwire.state && app.wire_groups[destroyed.id_glob_wire].state {
+					if !(fwire.inputs.len > 0) && app.wire_groups[destroyed.id_glob_wire].inputs.len > 0 {
 						// if destroyed.id_glob_wire in app.queue_gwires {
 						// 	app.queue_gwires << fwire_id
 						// }
@@ -296,7 +256,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 							app.queue << output_id
 						}
 					} 
-					if fwire.state {
+					if fwire.inputs.len > 0 {
 						if destroyed.id_glob_wire in app.queue_gwires {
 							app.queue_gwires << fwire_id
 						}
