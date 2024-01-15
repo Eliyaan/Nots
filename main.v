@@ -243,7 +243,24 @@ fn on_frame(mut app App) {
 			}
 		}
 	}
-	app.gg.draw_square_filled(f32(app.mouse_x*tile_size), f32(app.mouse_y*tile_size), tile_size, gg.Color{100, 100, 100, 100})
+	match app.build_selected_type {
+		.not {
+			color := gg.Color{50, 100, 100, 100}
+			app.gg.draw_square_filled(f32(app.mouse_x*tile_size), f32(app.mouse_y*tile_size), tile_size, gg.Color{100, 100, 100, 100})
+			rotation := match app.build_orientation {
+				.north { -90 }
+				.south { 90 }
+				.east { 0 }
+				.west { 180 }
+			}
+			app.gg.draw_polygon_filled(f32(app.mouse_x*tile_size)+tile_size/2.0, f32(app.mouse_y*tile_size)+tile_size/2.0, tile_size/2.0, 3, rotation, color)
+		}
+		.wire {
+			color := gg.Color{100, 100, 100, 100}
+			app.gg.draw_square_filled(f32(app.mouse_x*tile_size), f32(app.mouse_y*tile_size), tile_size, color)
+		}
+		else {}
+	}
 	app.gui.render()
 	app.gg.show_fps()
     app.gg.end()
