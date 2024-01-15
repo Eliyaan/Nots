@@ -106,36 +106,14 @@ fn (mut app App) delete_in(x int, y int) ! {
 											to_process << elem_id
 										}
 										Not {
-											match pos {
-												[0, 1] {
-													match elem.orientation {
-														.north { if elem.state {final_wires[0].inputs << elem_id} }
-														.south { final_wires[0].outputs << elem_id }
-														else {}
-													}
+											output_x, output_y := output_coords_from_orientation(elem.orientation)
+											input_x, input_y := input_coords_from_orientation(elem.orientation)
+											if pos[0] == output_x && pos[1] == output_y {
+												final_wires[0].outputs << elem_id
+											} else if pos[0] == input_x && pos[1] == input_y {
+												if elem.state {
+													final_wires[0].inputs << elem_id
 												}
-												[0, -1] {
-													match elem.orientation {
-														.south { if elem.state {final_wires[0].inputs << elem_id} }
-														.north { final_wires[0].outputs << elem_id }
-														else {}
-													}
-												}
-												[1, 0] {
-													match elem.orientation {
-														.west { if elem.state {final_wires[0].inputs << elem_id} }
-														.east { final_wires[0].outputs << elem_id }
-														else {}
-													}
-												}
-												[-1, 0] {
-													match elem.orientation {
-														.east { if elem.state {final_wires[0].inputs << elem_id} }
-														.west { final_wires[0].outputs << elem_id }
-														else {}
-													}
-												}
-												else {}
 											}
 										}
 										else {}
@@ -154,51 +132,29 @@ fn (mut app App) delete_in(x int, y int) ! {
 								if !elem.destroyed {
 									match mut elem {
 										Wire {
-											mut id_g_fil := -1
-											for i, gfil in final_wires {
-												if gfil.wires.index(elem_id) != -1 {
-													id_g_fil = i
+											mut id_gwire := -1
+											for i, gwire in final_wires {
+												if gwire.wires.index(elem_id) != -1 {
+													id_gwire = i
 												}
 											}
-											if id_g_fil == -1 {
+											if id_gwire == -1 {
 												if elem_id !in to_process {
 													to_process << elem_id
 												}
 											} else {
-												id_gwires << id_g_fil
+												id_gwires << id_gwire
 											}											
 										}
 										Not {
-											match pos {
-												[0, 1] {
-													match elem.orientation {
-														.north { if elem.state {inputs << elem_id} }
-														.south { outputs << elem_id }
-														else {}
-													}
+											output_x, output_y := output_coords_from_orientation(elem.orientation)
+											input_x, input_y := input_coords_from_orientation(elem.orientation)
+											if pos[0] == output_x && pos[1] == output_y {
+												outputs << elem_id
+											} else if pos[0] == input_x && pos[1] == input_y {
+												if elem.state {
+													inputs << elem_id
 												}
-												[0, -1] {
-													match elem.orientation {
-														.south { if elem.state {inputs << elem_id} }
-														.north { outputs << elem_id }
-														else {}
-													}
-												}
-												[1, 0] {
-													match elem.orientation {
-														.west { if elem.state {inputs << elem_id} }
-														.east { outputs << elem_id }
-														else {}
-													}
-												}
-												[-1, 0] {
-													match elem.orientation {
-														.east { if elem.state {inputs << elem_id} }
-														.west { outputs << elem_id }
-														else {}
-													}
-												}
-												else {}
 											}
 										}
 										else {}
