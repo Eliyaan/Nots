@@ -87,40 +87,8 @@ fn main() {
     )
 	app.build_selected_type = .wire
 	app.build_orientation = .west
-	/*
-	app.place_in(0, 1) or {panic(err)}
-	app.build_selected_type = .not
-	for i in 1..98 {
-		app.place_in(i, 1) or {panic(err)}
-	}
-	app.update()
-	app.build_selected_type = .wire
-	app.place_in(98, 1) or {panic(err)}
-	app.update()
-	for i in 0..99 {
-		app.place_in(i, 2) or {panic(err)}
-		app.update()
-	}
-	*/
 
-	/*
-	app.place_in(10, 10)!
-	app.place_in(11, 11)!
-	app.place_in(12, 10)!
-	app.place_in(10, 11)!
-	dump(app.wire_groups)
-	*/
-	/*
-	app.place_in(10, 10)!
-	app.place_in(10, 11)!
-	app.place_in(11, 10)!
-	app.place_in(11, 11)!
-	app.place_in(12, 10)!
-	app.build_selected_type = .not
-	app.place_in(13, 10)!
-	app.update()
-	app.delete_in(11, 10)!
-	*/
+	// do your test/base placings here if needed
 
 
 	not_text := ggui.Text{0, 0, 0, "!", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}

@@ -207,11 +207,11 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		for i in 1..glob_wire_ids.len {
 			app.wire_groups.delete(glob_wire_ids[i])
 			glob_wire_ids[0] -= 1  // offset the greatest
-			for wg in app.wire_groups[glob_wire_ids[i]+1..] {
+			for wg in app.wire_groups[glob_wire_ids[i]..] {
 				for wire_id in wg.wires {
 					mut wire := &app.elements[wire_id]
 					if mut wire is Wire {
-						wire.id_glob_wire -= 1
+						wire.id_glob_wire = glob_wire_ids[i]
 					}
 				}
 			}

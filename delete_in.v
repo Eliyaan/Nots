@@ -227,7 +227,6 @@ fn (mut app App) delete_in(x int, y int) ! {
 				if final_wires.len > 0 {
 					app.wire_groups[destroyed.id_glob_wire] = final_wires[0]
 					app.wire_groups << final_wires#[1..]
-					dump(app.wire_groups)
 				} else {
 					for gwire in app.wire_groups[destroyed.id_glob_wire+1..] {
 						for wire_id in gwire.wires {
