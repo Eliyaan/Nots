@@ -173,16 +173,6 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 					}
 				}
 			}
-		} else {
-			for id_output in outputs {
-				mut elem := &app.elements[id_output]
-				if mut elem is Not 	{
-					if !elem.state {
-						elem.state = true
-						app.queue << id_output
-					}					
-				}
-			}
 		}
 	} else {
 		mut tmp_map := map[i64]bool{}
@@ -209,14 +199,14 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 				}
 			}
 		}
-			app.wire_groups.delete(glob_wire_ids[i])
-			for wg in app.wire_groups[glob_wire_ids[i]..] {
 		for i in adjacent_gwire_ids[1..] {
+			app.wire_groups.delete(i)
 			adjacent_gwire_ids[0] -= 1  // offset the greatest id (final one)
+			for wg in app.wire_groups[i..] {
 				for wire_id in wg.wires {
 					mut wire := &app.elements[wire_id]
 					if mut wire is Wire {
-						wire.id_glob_wire = glob_wire_ids[i]
+						wire.id_glob_wire -= 1
 					}
 				}
 			}
