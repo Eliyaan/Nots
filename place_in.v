@@ -182,6 +182,10 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		adjacent_gwire_ids = tmp_map.keys()
 		adjacent_gwire_ids.sort(a>b)
 		for i in 1..adjacent_gwire_ids.len {
+			pos_if_in_queue := app.queue_gwires.index(i)
+			if pos_if_in_queue != -1 {
+				app.queue_gwires[pos_if_in_queue] = adjacent_gwire_ids[0]
+			}
 			app.wire_groups[adjacent_gwire_ids[0]].inputs << app.wire_groups[adjacent_gwire_ids[i]].inputs
 			app.wire_groups[adjacent_gwire_ids[0]].outputs << app.wire_groups[adjacent_gwire_ids[i]].outputs
 			app.wire_groups[adjacent_gwire_ids[0]].wires << app.wire_groups[adjacent_gwire_ids[i]].wires
@@ -201,7 +205,11 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		}
 		for i in adjacent_gwire_ids[1..] {
 			app.wire_groups.delete(i)
+			pos_if_in_queue := app.queue_gwires.index(adjacent_gwire_ids[0])
 			adjacent_gwire_ids[0] -= 1  // offset the greatest id (final one)
+			if pos_if_in_queue != -1 {
+				app.queue_gwires[pos_if_in_queue] = adjacent_gwire_ids[0]
+			}
 			for wg in app.wire_groups[i..] {
 				for wire_id in wg.wires {
 					mut wire := &app.elements[wire_id]
