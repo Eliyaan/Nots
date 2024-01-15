@@ -56,6 +56,10 @@ mut:
 	queue []i64
 	queue_gwires []i64
 
+	no_of_the_frame int
+	update_every_x_frame int = 30
+	updates_per_frame int = 1
+
 	gui		&ggui.Gui = unsafe { nil }
 	clickables []ggui.Clickable
 	gui_elements []ggui.Element
@@ -63,7 +67,6 @@ mut:
 	mouse_x int
 	mouse_y int
 
-	nb_updates i64 = 1
 	build_selected_type Variant
 	build_orientation Orientation
 }
@@ -122,10 +125,15 @@ fn main() {
 
 	not_text := ggui.Text{0, 0, 0, "!", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}
 	wire_text := ggui.Text{0, 0, 0, "-", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}
+	minus_text := ggui.Text{0, 0, 0, "-", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}
+	plus_text := ggui.Text{0, 0, 0, "+", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}
 	_ := gx.TextCfg{color:theme.text, size:20, align:.right, vertical_align:.top}
 
-	app.clickables << ggui.Button{0, 50, 5, buttons_shape, wire_text, theme.red, wire_select}
-	app.clickables << ggui.Button{0, 75, 5, buttons_shape, not_text, theme.green, not_select}
+	app.clickables << ggui.Button{0, 20, 5, buttons_shape, wire_text, theme.red, wire_select}
+	app.clickables << ggui.Button{0, 45, 5, buttons_shape, not_text, theme.green, not_select}
+
+	app.clickables << ggui.Button{0, 60, 5, buttons_shape, minus_text, theme.red, slower_updates}
+	app.clickables << ggui.Button{0, 85, 5, buttons_shape, plus_text, theme.green, faster_updates}
 
     app.gui_elements << ggui.Rect{x:0, y:0, shape:ggui.RoundedShape{160, 30, 5, .top_left}, color:theme.mantle}
 
@@ -146,10 +154,70 @@ fn not_select(mut app ggui.Gui) {
 	}
 }
 
-fn on_frame(mut app App) {
-	for _ in 0..app.nb_updates {
-		app.update()
+fn faster_updates(mut app ggui.Gui) {
+	if mut app is App {
+		if app.update_every_x_frame == 1 {
+			app.updates_per_frame = match app.updates_per_frame {
+				1 { 3 }
+				3 { 5 }
+				5 { 9 }
+				9 { 19 }
+				19 { 49 }
+				49 { 99 }
+				else { app.updates_per_frame }
+			}
+		} else {
+			app.update_every_x_frame = match app.update_every_x_frame {
+				60 { 30 }
+				30 { 10 }
+				10 { 5 }
+				5 { 3 }
+				3 { 2 }
+				2 { 1 }
+				else { app.update_every_x_frame }
+			}
+		}
 	}
+}
+
+fn slower_updates(mut app ggui.Gui) {
+	if mut app is App {
+		if app.update_every_x_frame == 1 {
+			app.updates_per_frame = match app.updates_per_frame {
+				3 { 1 }
+				5 { 3 }
+				9 { 5 }
+				19 { 9 }
+				49 { 19 }
+				99 { 49 }
+				else { app.updates_per_frame }
+			}
+			if app.updates_per_frame == 1 {
+				app.update_every_x_frame = 2
+			}
+		} else {
+			app.update_every_x_frame = match app.update_every_x_frame {
+				30 { 60 }
+				10 { 30 }
+				5 { 10 }
+				3 { 5 }
+				2 { 3 }
+				1 { 2 }
+				else { app.update_every_x_frame }
+			}
+		}
+	}
+}
+
+fn on_frame(mut app App) {
+	app.no_of_the_frame++
+	app.no_of_the_frame = app.no_of_the_frame % app.update_every_x_frame
+	if app.no_of_the_frame == 0 {
+		for _ in 0..app.updates_per_frame {
+			app.update()
+		}
+	}
+	
 
     //Draw
     app.gg.begin()
