@@ -107,7 +107,7 @@ fn main() {
 	// app.place_in(5, 14)!
 	// app.place_in(3, 13)!
 	*/
-
+	/*
 	app.build_orientation = .north
 	app.build_selected_type = .not
 	app.place_in(1, 11)!
@@ -116,7 +116,7 @@ fn main() {
 	app.place_in(2, 10)!
 	app.place_in(2,  11)!
 	app.place_in(1, 12)!
-
+	*/
 
 	not_text := ggui.Text{0, 0, 0, "!", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}
 	wire_text := ggui.Text{0, 0, 0, "-", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}

@@ -7,10 +7,10 @@ fn (mut app App) delete_in(x int, y int) ! {
 	mut place_chunk := app.get_chunk_at_coords(x, y)
 	old_id := place_chunk.tiles[math.abs(y-place_chunk.y*16)][math.abs(x-place_chunk.x*16)] 
 	if old_id >= 0 {
+		place_chunk.tiles[math.abs(y-place_chunk.y*16)][math.abs(x-place_chunk.x*16)] = -1
 		if app.debug_mode {
 			println("app.delete_in($x, $y)!")
 		}
-		place_chunk.tiles[math.abs(y-place_chunk.y*16)][math.abs(x-place_chunk.x*16)] = -1
 		app.elements[old_id].destroyed = true
 		app.destroyed << old_id
 		mut destroyed := &app.elements[old_id]
