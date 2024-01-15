@@ -7,6 +7,9 @@ fn (mut app App) delete_in(x int, y int) ! {
 	mut place_chunk := app.get_chunk_at_coords(x, y)
 	old_id := place_chunk.tiles[math.abs(y-place_chunk.y*16)][math.abs(x-place_chunk.x*16)] 
 	if old_id >= 0 {
+		if app.debug_mode {
+			println("app.delete_in($x, $y)!")
+		}
 		place_chunk.tiles[math.abs(y-place_chunk.y*16)][math.abs(x-place_chunk.x*16)] = -1
 		app.elements[old_id].destroyed = true
 		app.destroyed << old_id
@@ -200,7 +203,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 						fwire_id = destroyed.id_glob_wire
 					}
 					
-					if !(fwire.inputs.len > 0) && app.wire_groups[destroyed.id_glob_wire].inputs.len > 0 {
+					if !(fwire.on()) && app.wire_groups[destroyed.id_glob_wire].on() {
 						// if destroyed.id_glob_wire in app.queue_gwires {
 						// 	app.queue_gwires << fwire_id
 						// }
@@ -212,7 +215,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 							app.queue << output_id
 						}
 					} 
-					if fwire.inputs.len > 0 {
+					if fwire.on() {
 						if destroyed.id_glob_wire in app.queue_gwires {
 							app.queue_gwires << fwire_id
 						}
