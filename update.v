@@ -17,7 +17,7 @@ fn (mut app App) update() {
 							Wire {
 								if elem.state {
 									if updated !in app.wire_groups[output.id_glob_wire].inputs {
-										if app.wire_groups[output.id_glob_wire].inputs.len == 0 {
+										if !app.wire_groups[output.id_glob_wire].on() {
 											app.queue_gwires << output.id_glob_wire
 										}
 										app.wire_groups[output.id_glob_wire].inputs << updated
@@ -31,7 +31,7 @@ fn (mut app App) update() {
 											break
 										}
 									}
-									if app.wire_groups[output.id_glob_wire].inputs.len == 0 && is_in {
+									if !app.wire_groups[output.id_glob_wire].on() && is_in {
 										app.queue_gwires << output.id_glob_wire
 									}										
 								}

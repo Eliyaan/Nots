@@ -57,7 +57,7 @@ mut:
 	queue_gwires []i64
 
 	no_of_the_frame int
-	update_every_x_frame int = 30
+	update_every_x_frame int = 10
 	updates_per_frame int = 1
 
 	gui		&ggui.Gui = unsafe { nil }
@@ -69,6 +69,8 @@ mut:
 
 	build_selected_type Variant
 	build_orientation Orientation
+
+	debug_mode bool = true
 }
 
 
@@ -89,6 +91,31 @@ fn main() {
 	app.build_orientation = .west
 
 	// do your test/base placings here if needed
+
+	/*
+	app.build_orientation = .west
+	app.build_selected_type = .not
+	app.place_in(1, 11)!
+	app.build_selected_type = .wire
+	app.place_in(0,  11)!
+	app.place_in(2, 11)!
+	app.place_in(0,  12)!
+	app.place_in(1, 12)!
+	app.place_in(3, 12)!
+	app.place_in(2, 12)!
+	// app.place_in(4, 13)!
+	// app.place_in(5, 14)!
+	// app.place_in(3, 13)!
+	*/
+
+	app.build_orientation = .north
+	app.build_selected_type = .not
+	app.place_in(1, 11)!
+	app.build_selected_type = .wire
+	app.place_in(1,  10)!
+	app.place_in(2, 10)!
+	app.place_in(2,  11)!
+	app.place_in(1, 12)!
 
 
 	not_text := ggui.Text{0, 0, 0, "!", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}
@@ -207,7 +234,7 @@ fn on_frame(mut app App) {
 							app.gg.draw_polygon_filled(f32(element.x*tile_size)+tile_size/2.0, f32(element.y*tile_size)+tile_size/2.0, tile_size/2.0, 3, rotation, color)
 						}
 						Wire {
-							color := if app.wire_groups[element.id_glob_wire].inputs.len > 0 {gg.Color{255, 255, 0, 255}} else {gx.black}
+							color := if app.wire_groups[element.id_glob_wire].on() {gg.Color{239, 208, 18, 255}} else {gx.black}
 							app.gg.draw_square_filled(f32(element.x*tile_size), f32(element.y*tile_size), tile_size, color)
 						}
 						else {}
@@ -241,15 +268,19 @@ fn on_event(e &gg.Event, mut app App){
 				}
                 else {}
             }
+			if app.debug_mode {
+				println("app.build_selected_type = .$app.build_selected_type")
+				println("app.build_orientation = .$app.build_orientation")
+			}
         }
         .mouse_up {
 			if !(e.mouse_x < 160 && e.mouse_y < 30) {
 				match e.mouse_button{
 					.left{
-						app.place_in(app.mouse_x, app.mouse_y) or {println(err)}
+						app.place_in(app.mouse_x, app.mouse_y) or {}
 					}
 					.right {
-						app.delete_in(app.mouse_x, app.mouse_y) or {println(err)}
+						app.delete_in(app.mouse_x, app.mouse_y) or {}
 					}
 					else{}
 				}
@@ -270,7 +301,6 @@ fn (mut app App) get_chunk_at_coords(x int, y int) &Chunk {
 		}
 	}
 	app.chunks << Chunk{chunk_x, chunk_y, [][]i64{len:16, init:[]i64{len:16, init:-1}}}
-	println("New chunk $chunk_x $chunk_y")
 	return &app.chunks[app.chunks.len-1]
 }
 

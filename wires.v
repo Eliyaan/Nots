@@ -15,3 +15,7 @@ mut:
 	x i64
 	y i64
 }
+
+fn (g GlobalWire) on() bool {
+	return g.inputs.len > 0
+}
