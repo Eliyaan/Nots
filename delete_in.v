@@ -78,7 +78,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 									output_x, output_y := output_coords_from_orientation(elem.orientation)
 									input_x, input_y := input_coords_from_orientation(elem.orientation)
 									if pos[0] == output_x && pos[1] == output_y {
-										if app.wire_groups[destroyed.id_glob_wire].inputs.len > 0 { 
+										if !elem.state { 
 											app.queue << elem_id 
 											elem.state = true
 										}
