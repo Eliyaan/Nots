@@ -71,6 +71,9 @@ mut:
 	build_orientation Orientation
 
 	debug_mode bool = true
+
+	istream_idx int
+	screen_pixels [768][1366]u32 = [768][1366]u32{init:[1366]u32{init:u32(0xFF555555)}}
 }
 
 
@@ -85,6 +88,7 @@ fn main() {
         bg_color: gx.white
         frame_fn: on_frame
         event_fn: on_event
+		init_fn: graphics_init
         sample_count: 6
     )
 	app.build_selected_type = .wire
@@ -234,8 +238,14 @@ fn on_frame(mut app App) {
 							app.gg.draw_polygon_filled(f32(element.x*tile_size)+tile_size/2.0, f32(element.y*tile_size)+tile_size/2.0, tile_size/2.0, 3, rotation, color)
 						}
 						Wire {
-							color := if app.wire_groups[element.id_glob_wire].on() {gg.Color{239, 208, 18, 255}} else {gx.black}
-							app.gg.draw_square_filled(f32(element.x*tile_size), f32(element.y*tile_size), tile_size, color)
+							// color := if app.wire_groups[element.id_glob_wire].on() {gg.Color{239, 208, 18, 255}} else {gx.black}
+							color := if app.wire_groups[element.id_glob_wire].on() {u32(0xFF12_D0_EF)} else {u32(0xFF00_0000)}
+							//app.gg.draw_square_filled(f32(element.x*tile_size), f32(element.y*tile_size), tile_size, color)
+							for y in 0..tile_size {
+								for x in 0..tile_size {
+									app.screen_pixels[element.y*tile_size+y][element.x*tile_size+x] = color
+								}
+							}
 						}
 						else {}
 					}
@@ -243,6 +253,7 @@ fn on_frame(mut app App) {
 			}
 		}
 	}
+	app.draw_image()
 	match app.build_selected_type {
 		.not {
 			color := gg.Color{50, 100, 100, 100}
@@ -365,4 +376,15 @@ fn output_coords_from_orientation(ori Orientation) (int, int) {
 			-1, 0
 		}
 	}
+}
+
+fn (mut app App) draw_image() {
+	mut istream_image := app.gg.get_cached_image_by_idx(app.istream_idx)
+	istream_image.update_pixel_data(unsafe { &u8(&app.screen_pixels) })
+	size := gg.window_size_real_pixels()
+	app.gg.draw_image(0, 0, size.width, size.height, istream_image)
+}
+
+fn graphics_init(mut app App) {
+	app.istream_idx = app.gg.new_streaming_image(1366, 768, 4, pixel_format: .rgba8)
 }
