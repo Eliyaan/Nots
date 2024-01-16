@@ -8,6 +8,18 @@ import math
 const tile_size = 10
 const theme     = ggui.CatppuchinMocha{}
 const buttons_shape	= ggui.RoundedShape{20, 20, 5, .top_left}
+const not_image = [
+	[u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000)],
+	[u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000)],
+	[u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000)],
+	[u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000)],
+	[u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000)],
+	[u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_0000)],
+	[u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_0000), u32(0xFF00_0000)],
+	[u32(0xFF00_0000), u32(0xFF00_0000), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_0000), u32(0xFF00_0000)],
+	[u32(0xFF00_0000), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_0000)],
+	[u32(0xFF00_0000), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_00FF), u32(0xFF00_0000)],
+]
 
 enum Id {
 	@none
@@ -66,6 +78,8 @@ mut:
 
 	mouse_x int
 	mouse_y int
+	screen_mouse_x int
+	screen_mouse_y int
 
 	build_selected_type Variant
 	build_orientation Orientation
@@ -73,7 +87,9 @@ mut:
 	debug_mode bool = true
 
 	istream_idx int
-	screen_pixels [768][1366]u32 = [768][1366]u32{init:[1366]u32{init:u32(0xFF555555)}}
+	screen_pixels [768][1366]u32 = [768][1366]u32{init:[1366]u32{init:u32(0xFFBBBBBB)}}
+	viewport_x int
+	viewport_y int
 }
 
 
@@ -93,6 +109,7 @@ fn main() {
     )
 	app.build_selected_type = .wire
 	app.build_orientation = .west
+	// calculate the rotations of the image
 
 	// do your test/base placings here if needed
 
@@ -220,34 +237,38 @@ fn on_frame(mut app App) {
 
     //Draw
     app.gg.begin()
+	// calculate the images at the right scale
+	app.screen_pixels = [768][1366]u32{init:[1366]u32{init:u32(0xFFBBBBBB)}}
 	for chunk in app.chunks {
 		for line in chunk.tiles {
-			for nb_element in line {
-				if nb_element >= 0 {
-					mut element := &app.elements[nb_element]
-					match mut element {
-						Not {
-							color := if element.state {gx.green} else {gx.red}
-							app.gg.draw_square_filled(f32(element.x*tile_size), f32(element.y*tile_size), tile_size, gx.black)
-							rotation := match element.orientation {
-								.north { -90 }
-								.south { 90 }
-								.east { 0 }
-								.west { 180 }
-							}
-							app.gg.draw_polygon_filled(f32(element.x*tile_size)+tile_size/2.0, f32(element.y*tile_size)+tile_size/2.0, tile_size/2.0, 3, rotation, color)
-						}
-						Wire {
-							// color := if app.wire_groups[element.id_glob_wire].on() {gg.Color{239, 208, 18, 255}} else {gx.black}
-							color := if app.wire_groups[element.id_glob_wire].on() {u32(0xFF12_D0_EF)} else {u32(0xFF00_0000)}
-							//app.gg.draw_square_filled(f32(element.x*tile_size), f32(element.y*tile_size), tile_size, color)
-							for y in 0..tile_size {
-								for x in 0..tile_size {
-									app.screen_pixels[element.y*tile_size+y][element.x*tile_size+x] = color
+			for id_element in line {
+				if id_element >= 0 {
+					mut element := &app.elements[id_element]
+					if element.x*tile_size+tile_size-1 + app.viewport_x < 1366 && element.y*tile_size+tile_size-1  + app.viewport_y < 768 {
+						match mut element {
+							Not {
+								rotation := match element.orientation {
+									.north { -90 }
+									.south { 90 }
+									.east { 0 }
+									.west { 180 }
+								}
+								for y in 0..tile_size {
+									for x in 0..tile_size {
+										app.screen_pixels[element.y*tile_size+y + app.viewport_y][element.x*tile_size+x + app.viewport_x] = not_image[y][x]
+									}
 								}
 							}
+							Wire {
+								color := if app.wire_groups[element.id_glob_wire].on() {u32(0xFF12_D0_EF)} else {u32(0xFF00_0000)}
+								for y in 0..tile_size {
+									for x in 0..tile_size {
+										app.screen_pixels[element.y*tile_size+y + app.viewport_y][element.x*tile_size+x + app.viewport_x] = color
+									}
+								}
+							}
+							else {}
 						}
-						else {}
 					}
 				}
 			}
@@ -257,18 +278,18 @@ fn on_frame(mut app App) {
 	match app.build_selected_type {
 		.not {
 			color := gg.Color{50, 100, 100, 100}
-			app.gg.draw_square_filled(f32(app.mouse_x*tile_size), f32(app.mouse_y*tile_size), tile_size, gg.Color{100, 100, 100, 100})
+			app.gg.draw_square_filled(f32(app.mouse_x*tile_size+app.viewport_x%tile_size), f32(app.mouse_y*tile_size+app.viewport_y%tile_size), tile_size, gg.Color{100, 100, 100, 100})
 			rotation := match app.build_orientation {
 				.north { -90 }
 				.south { 90 }
 				.east { 0 }
 				.west { 180 }
 			}
-			app.gg.draw_polygon_filled(f32(app.mouse_x*tile_size)+tile_size/2.0, f32(app.mouse_y*tile_size)+tile_size/2.0, tile_size/2.0, 3, rotation, color)
+			app.gg.draw_polygon_filled(f32(app.mouse_x*tile_size+app.viewport_x%tile_size) + tile_size/2.0, f32(app.mouse_y*tile_size+app.viewport_y%tile_size) + tile_size/2.0, tile_size/2.0, 3, rotation, color)
 		}
 		.wire {
 			color := gg.Color{100, 100, 100, 100}
-			app.gg.draw_square_filled(f32(app.mouse_x*tile_size), f32(app.mouse_y*tile_size), tile_size, color)
+			app.gg.draw_square_filled(f32(app.mouse_x*tile_size+app.viewport_x%tile_size), f32(app.mouse_y*tile_size+app.viewport_y%tile_size), tile_size, color)
 		}
 		else {}
 	}
@@ -278,9 +299,12 @@ fn on_frame(mut app App) {
 }
 
 fn on_event(e &gg.Event, mut app App){
-	app.mouse_x, app.mouse_y = mouse_to_coords(e.mouse_x, e.mouse_y)
+	app.mouse_x, app.mouse_y = mouse_to_coords(e.mouse_x-app.viewport_x%tile_size, e.mouse_y-app.viewport_y%tile_size)
+	app.screen_mouse_x, app.screen_mouse_y = int(e.mouse_x), int(e.mouse_y)
     match e.typ {
         .key_down {
+			orientation_before := app.build_orientation
+			type_before := app.build_selected_type
             match e.key_code {
                 .escape {app.gg.quit()}
 				.up {app.build_orientation = .north}
@@ -294,9 +318,13 @@ fn on_event(e &gg.Event, mut app App){
 						else {app.build_selected_type = .not}
 					}
 				}
+				.w {app.viewport_y += 5}
+				.s {app.viewport_y -= 5}
+				.a {app.viewport_x += 5}
+				.d {app.viewport_x -= 5}
                 else {}
             }
-			if app.debug_mode {
+			if app.debug_mode && (app.build_orientation != orientation_before || app.build_selected_type != type_before){
 				println("app.build_selected_type = .$app.build_selected_type")
 				println("app.build_orientation = .$app.build_orientation")
 			}
@@ -305,10 +333,10 @@ fn on_event(e &gg.Event, mut app App){
 			if !(e.mouse_x < 160 && e.mouse_y < 30) {
 				match e.mouse_button{
 					.left{
-						app.place_in(app.mouse_x, app.mouse_y) or {}
+						app.place_in(app.mouse_x - (app.viewport_x)/tile_size, app.mouse_y - (app.viewport_y)/tile_size) or {}
 					}
 					.right {
-						app.delete_in(app.mouse_x, app.mouse_y) or {}
+						app.delete_in(app.mouse_x - (app.viewport_x)/tile_size, app.mouse_y - (app.viewport_y)/tile_size) or {}
 					}
 					else{}
 				}
