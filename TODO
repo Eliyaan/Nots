@@ -1,5 +1,6 @@
 refactor the big functions + rename
-Change drawing system
+Change drawing system -> needs zoom centered on half the screen
+rotate NOT
 remove references
-middle click moving + zqsd
+middle click moving
 junctions

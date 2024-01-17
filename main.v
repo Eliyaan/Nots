@@ -351,7 +351,9 @@ fn on_frame(mut app App) {
 			for id_element in line {
 				if id_element >= 0 {
 					mut element := &app.elements[id_element]
-					if element.x*ceil(tile_size*app.scale)+ceil(tile_size*app.scale)-1 + app.viewport_x < 1366 && element.y*ceil(tile_size*app.scale)+ceil(tile_size*app.scale)-1  + app.viewport_y < 768 {
+					place_x := element.x*ceil(tile_size*app.scale)+ceil(tile_size*app.scale)-1 + app.viewport_x
+					place_y := element.y*ceil(tile_size*app.scale)+ceil(tile_size*app.scale)-1  + app.viewport_y
+					if place_x >= ceil(tile_size*app.scale)-1 && place_x < 1366 && place_y >= ceil(tile_size*app.scale)-1 && place_y < 768 {
 						match mut element {
 							Not {
 								rotation := match element.orientation {
@@ -429,9 +431,9 @@ fn on_event(e &gg.Event, mut app App){
 				.s {app.viewport_y -= 5}
 				.a {app.viewport_x += 5}
 				.d {app.viewport_x -= 5}
-				.semicolon {if app.scale > 0.1 {app.scale -= 0.1} }
+				.semicolon {if app.scale > 0.11 {app.scale -= 0.1} }
 				.p {app.scale += 0.1}
-                else {dump(e.key_code)}
+                else {}
             }
 			if app.debug_mode && (app.build_orientation != orientation_before || app.build_selected_type != type_before){
 				println("app.build_selected_type = .$app.build_selected_type")
