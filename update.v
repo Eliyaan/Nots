@@ -23,15 +23,13 @@ fn (mut app App) update() {
 										app.wire_groups[output.id_glob_wire].inputs << updated
 									}
 								} else {
-									mut is_in := false
 									for i, input_id in app.wire_groups[output.id_glob_wire].inputs {
 										if input_id == updated {
 											app.wire_groups[output.id_glob_wire].inputs.delete(i)
-											is_in = true
 											break
 										}
 									}
-									if !app.wire_groups[output.id_glob_wire].on() && is_in {
+									if !app.wire_groups[output.id_glob_wire].on() {
 										app.queue_gwires << output.id_glob_wire
 									}										
 								}

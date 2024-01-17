@@ -82,8 +82,10 @@ fn (mut app App) delete_in(x int, y int) ! {
 									input_x, input_y := input_coords_from_orientation(elem.orientation)
 									if pos[0] == output_x && pos[1] == output_y {
 										if !elem.state { 
-											app.queue << elem_id 
-											elem.state = true
+											if elem_id !in app.queue {
+												app.queue << elem_id 
+												elem.state = true
+											}
 										}
 									} else if pos[0] == input_x && pos[1] == input_y {
 										elem.output = -1
@@ -106,6 +108,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 								if !elem.destroyed {
 									match mut elem {
 										Wire {
+											// sure that the wire is not in a final wire
 											to_process << elem_id
 										}
 										Not {
@@ -114,9 +117,8 @@ fn (mut app App) delete_in(x int, y int) ! {
 											if pos[0] == output_x && pos[1] == output_y {
 												final_wires[0].outputs << elem_id
 											} else if pos[0] == input_x && pos[1] == input_y {
-												if elem.state {
-													final_wires[0].inputs << elem_id
-												}
+												// the sorting between on / off inputs happens after
+												final_wires[0].inputs << elem_id
 											}
 										}
 										else {}
@@ -155,9 +157,8 @@ fn (mut app App) delete_in(x int, y int) ! {
 											if pos[0] == output_x && pos[1] == output_y {
 												outputs << elem_id
 											} else if pos[0] == input_x && pos[1] == input_y {
-												if elem.state {
-													inputs << elem_id
-												}
+												// the sorting between on / off inputs happens after
+												inputs << elem_id
 											}
 										}
 										else {}
@@ -202,21 +203,38 @@ fn (mut app App) delete_in(x int, y int) ! {
 					} else {
 						fwire_id = destroyed.id_glob_wire
 					}
-					
+					mut on_inputs := []i64{}
+					for input_id in fwire.inputs {
+						mut input := app.elements[input_id]
+						if mut input is Not {
+							input.output = fwire_id
+							if input.state {
+								on_inputs << input_id
+							}
+						}
+						app.elements[input_id] = input
+					}
+					fwire.inputs = on_inputs
 					if !(fwire.on()) && app.wire_groups[destroyed.id_glob_wire].on() {
-						// if destroyed.id_glob_wire in app.queue_gwires {
-						// 	app.queue_gwires << fwire_id
-						// }
+						if destroyed.id_glob_wire in app.queue_gwires && fwire_id !in app.queue_gwires {
+							app.queue_gwires << fwire_id
+						}
+						/* I think that is not needed
 						for output_id in fwire.outputs {
 							mut output := &app.elements[output_id]
+							if output_id !in app.queue {
+								app.queue << output_id
+							}
 							if mut output is Not {
 								output.state = true
+								dump(output_id)
 							}
-							app.queue << output_id
 						}
-					} 
+						*/
+					}
+
 					if fwire.on() {
-						if destroyed.id_glob_wire in app.queue_gwires {
+						if destroyed.id_glob_wire in app.queue_gwires && fwire_id !in app.queue_gwires {
 							app.queue_gwires << fwire_id
 						}
 					}
@@ -241,6 +259,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 					}
 					app.wire_groups.delete(destroyed.id_glob_wire)
 				}
+				dump(final_wires)
 			}
 			else {}
 		}

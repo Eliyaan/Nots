@@ -230,9 +230,9 @@ fn main() {
 	app.place_in(1, 12)!
 	app.place_in(3, 12)!
 	app.place_in(2, 12)!
-	// app.place_in(4, 13)!
-	// app.place_in(5, 14)!
-	// app.place_in(3, 13)!
+	app.place_in(4, 13)!
+	app.place_in(5, 14)!
+	app.place_in(3, 13)!
 	*/
 	/*
 	app.build_orientation = .north
@@ -244,6 +244,26 @@ fn main() {
 	app.place_in(2,  11)!
 	app.place_in(1, 12)!
 	*/
+
+/*
+	app.place_in(1, 2)!
+	app.place_in(2, 2)!
+	app.place_in(2, 3)!
+	app.place_in(1, 4)!
+	app.place_in(1, 5)!
+	app.place_in(1, 7)!
+	app.place_in(2, 7)!
+	app.place_in(2, 6)!
+	app.place_in(2, 5)!
+	app.place_in(2, 4)!
+	app.build_selected_type = .not
+	app.build_orientation = .north
+	app.place_in(1, 6)!
+	app.place_in(1, 3)!
+	app.update()
+	app.delete_in(1, 5)!
+	app.delete_in(2, 5)!
+*/
 
 	not_text := ggui.Text{0, 0, 0, "!", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}
 	wire_text := ggui.Text{0, 0, 0, "-", gx.TextCfg{color:theme.base, size:20, align:.center, vertical_align:.middle}}
