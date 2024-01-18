@@ -22,9 +22,10 @@ fn (mut app App) not_place_in(x int, y int) ! {
 		id = app.destroyed[0]
 		app.destroyed.delete(0)
 	}
-	mut place_chunk := app.get_chunk_at_coords(x, y)
+	place_chunk_id := app.get_chunk_id_at_coords(x, y)
+	place_chunk := app.chunks[place_chunk_id]
 	if place_chunk.tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] < 0 {
-		place_chunk.tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] = id
+		app.chunks[place_chunk_id].tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] = id
 	} else {
 		return error('Not in an empty space')
 	}
@@ -107,9 +108,10 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		id = app.destroyed[0]
 		app.destroyed.delete(0)
 	}
-	mut place_chunk := app.get_chunk_at_coords(x, y)
+	place_chunk_id := app.get_chunk_id_at_coords(x, y)
+	place_chunk := app.chunks[place_chunk_id]
 	if place_chunk.tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] < 0 {
-		place_chunk.tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] = id
+		app.chunks[place_chunk_id].tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] = id
 	} else {
 		return error('Not in an empty space')
 	}

@@ -4,112 +4,24 @@ import gg
 import gx
 import ggui
 import math
+import stbi
 
-const tile_size = 10
+const tile_size = 128
 const theme = ggui.CatppuchinMocha{}
 const buttons_shape = ggui.RoundedShape{20, 20, 5, .top_left}
-const not_image = [
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{0, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-	Color{255, 0, 0, 255},
-]
+const not_image = load_image("off_not_gate.png")
+
+fn load_image(path string) []Color {
+	image := stbi.load(path, stbi.LoadParams{4}) or {panic("Image not found: $path")}
+	data := &u8(image.data)
+	mut output := []Color{cap:tile_size*tile_size}
+	for i in 0..tile_size*tile_size {
+		unsafe {
+			output << Color{data[i*4], data[i*4+1], data[i*4+2], data[i*4+3]}
+		}
+	}
+	return output
+}
 
 @[inline]
 fn a_coords(y int, x int, size int) int {
@@ -283,6 +195,7 @@ mut:
 	tiles [][]i64 = [][]i64{len: 16, init: []i64{len: 16, init: -1}}
 }
 
+@[heap]
 struct App {
 mut:
 	gg           &gg.Context = unsafe { nil }
@@ -313,11 +226,14 @@ mut:
 	debug_mode bool = true
 
 	istream_idx   int
-	screen_pixels [768][1366]u32 = [768][1366]u32{init: [1366]u32{init: u32(0xFFBBBBBB)}}
+	screen_pixels []u32
+	blank_screen []u32
+	screen_x int
+	screen_y int
 	viewport_x    int
 	viewport_y    int
 
-	scale f64 = 2
+	scale f64 = 0.1
 }
 
 fn main() {
@@ -332,7 +248,7 @@ fn main() {
 		frame_fn: on_frame
 		event_fn: on_event
 		init_fn: graphics_init
-		sample_count: 6
+		sample_count: 4
 	)
 	app.build_selected_type = .wire
 	app.build_orientation = .west
@@ -516,64 +432,9 @@ fn on_frame(mut app App) {
 	app.gg.begin()
 
 	// calculate the images at the right scale
-	app.screen_pixels = [768][1366]u32{init: [1366]u32{init: u32(0xFFBBBBBB)}}
-	scaled_image := scale_img(not_image, app.scale, tile_size, tile_size)
-	not_image_scaled_north := rotate_img(scaled_image, .north, ceil(tile_size*app.scale))
-	not_image_scaled_south := rotate_img(scaled_image, .south, ceil(tile_size*app.scale))
-	not_image_scaled_east := rotate_img(scaled_image, .east, ceil(tile_size*app.scale))
-	not_image_scaled_west := rotate_img(scaled_image, .west, ceil(tile_size*app.scale))
-	for chunk in app.chunks {
-		for line in chunk.tiles {
-			for id_element in line {
-				if id_element >= 0 {
-					mut element := &app.elements[id_element]
-					place_x := element.x * ceil(tile_size * app.scale) +
-						ceil(tile_size * app.scale) - 1 + app.viewport_x
-					place_y := element.y * ceil(tile_size * app.scale) +
-						ceil(tile_size * app.scale) - 1 + app.viewport_y
-					if place_x >= ceil(tile_size * app.scale) - 1 && place_x < 1366
-						&& place_y >= ceil(tile_size * app.scale) - 1 && place_y < 768 {
-						match mut element {
-							Not {
-								good_image := match element.orientation {
-									.north { &not_image_scaled_north }
-									.south { &not_image_scaled_south }
-									.east { &not_image_scaled_east }
-									.west { &not_image_scaled_west }
-								}
-								for y in 0 .. ceil(tile_size * app.scale) {
-									for x in 0 .. ceil(tile_size * app.scale) {
-										app.screen_pixels[element.y * ceil(tile_size * app.scale) +
-											y + app.viewport_y][
-											element.x * ceil(tile_size * app.scale) + x +
-											app.viewport_x] = good_image[
-											y * ceil(tile_size * app.scale) + x].u32()
-									}
-								}
-							}
-							Wire {
-								color := if app.wire_groups[element.id_glob_wire].on() {
-									u32(0xFF12_D0_EF)
-								} else {
-									u32(0xFF00_0000)
-								}
-								for y in 0 .. ceil(tile_size * app.scale) {
-									for x in 0 .. ceil(tile_size * app.scale) {
-										app.screen_pixels[element.y * ceil(tile_size * app.scale) +
-											y + app.viewport_y][
-											element.x * ceil(tile_size * app.scale) + x +
-											app.viewport_x] = color
-									}
-								}
-							}
-							else {}
-						}
-					}
-				}
-			}
-		}
-	}
+	app.draw_elements()
 	app.draw_image()
+	app.undraw_elements()
 	match app.build_selected_type {
 		.not {
 			color := gg.Color{50, 100, 100, 100}
@@ -610,6 +471,110 @@ fn on_frame(mut app App) {
 	app.gg.show_fps()
 	app.gg.end()
 }
+
+@[direct_array_access]
+fn (mut app App) draw_elements() {
+	scaled_image := scale_img(not_image, app.scale, tile_size, tile_size)
+	not_image_scaled_north := rotate_img(scaled_image, .north, ceil(tile_size*app.scale))
+	not_image_scaled_south := rotate_img(scaled_image, .south, ceil(tile_size*app.scale))
+	not_image_scaled_east := rotate_img(scaled_image, .east, ceil(tile_size*app.scale))
+	not_image_scaled_west := rotate_img(scaled_image, .west, ceil(tile_size*app.scale))
+	for chunk in app.chunks {
+		for line in chunk.tiles {
+			for id_element in line {
+				if id_element >= 0 {
+					mut element := &app.elements[id_element]
+					place_x := element.x * ceil(tile_size * app.scale) +
+						ceil(tile_size * app.scale) - 1 + app.viewport_x
+					place_y := element.y * ceil(tile_size * app.scale) +
+						ceil(tile_size * app.scale) - 1 + app.viewport_y
+					if place_x >= ceil(tile_size * app.scale) - 1 && place_x < app.screen_x
+						&& place_y >= ceil(tile_size * app.scale) - 1 && place_y < app.screen_y {
+						match mut element {
+							Not {
+								good_image := match element.orientation {
+									.north { &not_image_scaled_north }
+									.south { &not_image_scaled_south }
+									.east { &not_image_scaled_east }
+									.west { &not_image_scaled_west }
+								}
+								for y in 0 .. ceil(tile_size * app.scale) {
+									for x in 0 .. ceil(tile_size * app.scale) {
+										app.screen_pixels[(element.y * ceil(tile_size * app.scale) +
+											y + app.viewport_y)*app.screen_x + 
+											element.x * ceil(tile_size * app.scale) + x +
+											app.viewport_x] = unsafe{good_image[
+											y * ceil(tile_size * app.scale) + x].u32()}
+									}
+								}
+							}
+							Wire {
+								color := if app.wire_groups[element.id_glob_wire].on() {
+									u32(0xFF12_D0_EF)
+								} else {
+									u32(0xFF00_0000)
+								}
+								for y in 0 .. ceil(tile_size * app.scale) {
+									for x in 0 .. ceil(tile_size * app.scale) {
+										app.screen_pixels[(element.y * ceil(tile_size * app.scale) +
+											y + app.viewport_y)*app.screen_x + 
+											element.x * ceil(tile_size * app.scale) + x +
+											app.viewport_x] = color
+									}
+								}
+							}
+							else {}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+@[direct_array_access]
+fn (mut app App) undraw_elements() {
+	for chunk in app.chunks {
+		for line in chunk.tiles {
+			for id_element in line {
+				if id_element >= 0 {
+					mut element := &app.elements[id_element]
+					place_x := element.x * ceil(tile_size * app.scale) +
+						ceil(tile_size * app.scale) - 1 + app.viewport_x
+					place_y := element.y * ceil(tile_size * app.scale) +
+						ceil(tile_size * app.scale) - 1 + app.viewport_y
+					if place_x >= ceil(tile_size * app.scale) - 1 && place_x < app.screen_x
+						&& place_y >= ceil(tile_size * app.scale) - 1 && place_y < app.screen_y {
+						match mut element {
+							Not {
+								for y in 0 .. ceil(tile_size * app.scale) {
+									for x in 0 .. ceil(tile_size * app.scale) {
+										app.screen_pixels[(element.y * ceil(tile_size * app.scale) +
+											y + app.viewport_y)*app.screen_x + 
+											element.x * ceil(tile_size * app.scale) + x +
+											app.viewport_x] = u32(0xFFBBBBBB)
+									}
+								}
+							}
+							Wire {
+								for y in 0 .. ceil(tile_size * app.scale) {
+									for x in 0 .. ceil(tile_size * app.scale) {
+										app.screen_pixels[(element.y * ceil(tile_size * app.scale) +
+											y + app.viewport_y)*app.screen_x + 
+											element.x * ceil(tile_size * app.scale) + x +
+											app.viewport_x] = u32(0xFFBBBBBB)
+									}
+								}
+							}
+							else {}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 
 fn on_event(e &gg.Event, mut app App) {
 	app.mouse_x, app.mouse_y = app.mouse_to_coords(e.mouse_x - app.viewport_x % ceil(tile_size * app.scale),
@@ -655,12 +620,12 @@ fn on_event(e &gg.Event, mut app App) {
 					app.viewport_x -= 5
 				}
 				.semicolon {
-					if app.scale > 0.11 {
-						app.scale -= 0.1
+					if app.scale > 0.021 {
+						app.scale -= 0.01
 					}
 				}
 				.p {
-					app.scale += 0.1
+					app.scale += 0.01
 				}
 				else {}
 			}
@@ -691,20 +656,20 @@ fn on_event(e &gg.Event, mut app App) {
 	}
 }
 
-fn (mut app App) get_chunk_at_coords(x int, y int) &Chunk {
+fn (mut app App) get_chunk_id_at_coords(x int, y int) int {
 	chunk_y := int(math.floor(f64(y) / 16.0))
 	chunk_x := int(math.floor(f64(x) / 16.0))
-	for chunk in app.chunks {
+	for i, chunk in app.chunks {
 		if chunk.x == chunk_x && chunk.y == chunk_y {
-			return &chunk
+			return i
 		}
 	}
 	app.chunks << Chunk{chunk_x, chunk_y, [][]i64{len: 16, init: []i64{len: 16, init: -1}}}
-	return &app.chunks[app.chunks.len - 1]
+	return app.chunks.len - 1
 }
 
 fn (mut app App) get_tile_id_at(x int, y int) i64 {
-	chunk := app.get_chunk_at_coords(x, y)
+	chunk := app.chunks[app.get_chunk_id_at_coords(x, y)]
 	return chunk.tiles[math.abs(y - chunk.y * 16)][math.abs(x - chunk.x * 16)]
 }
 
@@ -750,11 +715,15 @@ fn output_coords_from_orientation(ori Orientation) (int, int) {
 
 fn (mut app App) draw_image() {
 	mut istream_image := app.gg.get_cached_image_by_idx(app.istream_idx)
-	istream_image.update_pixel_data(unsafe { &u8(&app.screen_pixels) })
-	size := gg.window_size_real_pixels()
-	app.gg.draw_image(0, 0, size.width, size.height, istream_image)
+	istream_image.update_pixel_data(app.screen_pixels.data)
+	app.gg.draw_image(0, 0, app.screen_x, app.screen_y, istream_image)
 }
 
 fn graphics_init(mut app App) {
-	app.istream_idx = app.gg.new_streaming_image(1366, 768, 4, pixel_format: .rgba8)
+	size := app.gg.window_size()
+	app.screen_x = size.width
+	app.screen_y = size.height
+	app.istream_idx = app.gg.new_streaming_image(size.width, size.height, 4, pixel_format: .rgba8)
+	app.screen_pixels = []u32{len: app.screen_y*app.screen_x, init: u32(0xFFBBBBBB)}
+	app.blank_screen = []u32{len: app.screen_y*app.screen_x, init: u32(0xFFBBBBBB)}
 }

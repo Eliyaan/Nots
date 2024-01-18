@@ -3,10 +3,11 @@ module main
 import math
 
 fn (mut app App) delete_in(x int, y int) ! {
-	mut place_chunk := app.get_chunk_at_coords(x, y)
+	place_chunk_id := app.get_chunk_id_at_coords(x, y)
+	place_chunk := app.chunks[place_chunk_id]
 	old_id := place_chunk.tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)]
 	if old_id >= 0 {
-		place_chunk.tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] = -1
+		app.chunks[place_chunk_id].tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] = -1
 		if app.debug_mode {
 			println('app.delete_in(${x}, ${y})!')
 		}

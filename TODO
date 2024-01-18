@@ -1,5 +1,6 @@
 needs zoom centered on center of the screen
-fix zoom for bigger screens
+very bad perf when lot of the screen covered by drawing -> replace only what needs to be replaced
+ON not gate
 
 
 refactor the big functions + rename
