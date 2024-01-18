@@ -1,7 +1,9 @@
-refactor the big functions + rename
-Change drawing system -> needs zoom centered on half the screen
+needs zoom centered on center of the screen
 rotate NOT
+fix zoom for bigger screens
+
+
+refactor the big functions + rename
 remove references
 middle click moving
-fix zoom for bigger screens
 junctions

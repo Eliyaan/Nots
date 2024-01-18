@@ -1,14 +1,15 @@
 module ggui
+
 import gg
 
 pub interface Gui {
 mut:
-	gg &gg.Context
-	clickables []Clickable
+	gg           &gg.Context
+	clickables   []Clickable
 	gui_elements []Element
 }
 
-pub fn (mut g Gui) get_clickables_with_id(id int) []&Clickable{
+pub fn (mut g Gui) get_clickables_with_id(id int) []&Clickable {
 	mut result := []&Clickable{}
 	for obj in g.clickables {
 		unsafe {
@@ -20,7 +21,7 @@ pub fn (mut g Gui) get_clickables_with_id(id int) []&Clickable{
 	return result
 }
 
-pub fn (mut g Gui) get_clickable_with_id(id int) !&Clickable{
+pub fn (mut g Gui) get_clickable_with_id(id int) !&Clickable {
 	for obj in g.clickables {
 		unsafe {
 			if obj.id == id {
@@ -28,10 +29,10 @@ pub fn (mut g Gui) get_clickable_with_id(id int) !&Clickable{
 			}
 		}
 	}
-	return error("No object matching")
+	return error('No object matching')
 }
 
-pub fn (mut g Gui) get_elements_with_id(id int) []&Element{
+pub fn (mut g Gui) get_elements_with_id(id int) []&Element {
 	mut result := []&Element{}
 	for obj in g.gui_elements {
 		unsafe {
@@ -43,7 +44,7 @@ pub fn (mut g Gui) get_elements_with_id(id int) []&Element{
 	return result
 }
 
-pub fn (mut g Gui) get_element_with_id(id int) !&Element{
+pub fn (mut g Gui) get_element_with_id(id int) !&Element {
 	for obj in g.gui_elements {
 		unsafe {
 			if obj.id == id {
@@ -51,7 +52,7 @@ pub fn (mut g Gui) get_element_with_id(id int) !&Element{
 			}
 		}
 	}
-	return error("No object matching")
+	return error('No object matching')
 }
 
 pub fn (mut g Gui) render() {
@@ -78,15 +79,17 @@ pub fn (mut g Gui) check_clicks(mouse_x f32, mouse_y f32) {
 		x_rel, y_rel := obj.shape.offset()
 		obj_x := obj.x + x_rel
 		obj_y := obj.y + y_rel
-		
-		if in_range(click_x, click_y, obj_x, obj_y, obj_x + obj.shape.width, obj_y + obj.shape.height) {
+
+		if in_range(click_x, click_y, obj_x, obj_y, obj_x + obj.shape.width, obj_y +
+			obj.shape.height)
+		{
 			obj.click_func(mut g)
 		}
 	}
 }
 
 pub fn (mut g Gui) change_text(id int, text string) {
-	mut text_obj := g.get_element_with_id(id) or {panic(err)}
+	mut text_obj := g.get_element_with_id(id) or { panic(err) }
 	if mut text_obj is Text {
 		text_obj.text = text
 	}

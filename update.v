@@ -1,4 +1,4 @@
-module main 
+module main
 
 fn (mut app App) update() {
 	mut new_queue := []i64{}
@@ -31,7 +31,7 @@ fn (mut app App) update() {
 									}
 									if !app.wire_groups[output.id_glob_wire].on() {
 										app.queue_gwires << output.id_glob_wire
-									}										
+									}
 								}
 							}
 							else {}
@@ -48,12 +48,12 @@ fn (mut app App) update() {
 		for output_id in gwire.outputs {
 			mut output := &app.elements[output_id]
 			if !output.destroyed {
-				if mut output is Not{
+				if mut output is Not {
 					output.state = gwire.inputs.len == 0
 					new_queue << output_id
 				}
 			} else {
-				panic("elem detruit dans les outputs du wire")
+				panic('elem detruit dans les outputs du wire')
 			}
 		}
 	}
