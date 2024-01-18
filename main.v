@@ -10,6 +10,7 @@ const tile_size = 128
 const theme = ggui.CatppuchinMocha{}
 const buttons_shape = ggui.RoundedShape{20, 20, 5, .top_left}
 const not_image = load_image("off_not_gate.png")
+const on_not_image = load_image("on_not_gate.png")
 
 fn load_image(path string) []Color {
 	image := stbi.load(path, stbi.LoadParams{4}) or {panic("Image not found: $path")}
@@ -474,11 +475,16 @@ fn on_frame(mut app App) {
 
 @[direct_array_access]
 fn (mut app App) draw_elements() {
-	scaled_image := scale_img(not_image, app.scale, tile_size, tile_size)
-	not_image_scaled_north := rotate_img(scaled_image, .north, ceil(tile_size*app.scale))
-	not_image_scaled_south := rotate_img(scaled_image, .south, ceil(tile_size*app.scale))
-	not_image_scaled_east := rotate_img(scaled_image, .east, ceil(tile_size*app.scale))
-	not_image_scaled_west := rotate_img(scaled_image, .west, ceil(tile_size*app.scale))
+	scaled_image_not := scale_img(not_image, app.scale, tile_size, tile_size)
+	not_image_scaled_north := rotate_img(scaled_image_not, .north, ceil(tile_size*app.scale))
+	not_image_scaled_south := rotate_img(scaled_image_not, .south, ceil(tile_size*app.scale))
+	not_image_scaled_east := rotate_img(scaled_image_not, .east, ceil(tile_size*app.scale))
+	not_image_scaled_west := rotate_img(scaled_image_not, .west, ceil(tile_size*app.scale))
+	on_scaled_image_not := scale_img(on_not_image, app.scale, tile_size, tile_size)
+	on_not_image_scaled_north := rotate_img(on_scaled_image_not, .north, ceil(tile_size*app.scale))
+	on_not_image_scaled_south := rotate_img(on_scaled_image_not, .south, ceil(tile_size*app.scale))
+	on_not_image_scaled_east := rotate_img(on_scaled_image_not, .east, ceil(tile_size*app.scale))
+	on_not_image_scaled_west := rotate_img(on_scaled_image_not, .west, ceil(tile_size*app.scale))
 	for chunk in app.chunks {
 		for line in chunk.tiles {
 			for id_element in line {
@@ -492,11 +498,21 @@ fn (mut app App) draw_elements() {
 						&& place_y >= ceil(tile_size * app.scale) - 1 && place_y < app.screen_y {
 						match mut element {
 							Not {
-								good_image := match element.orientation {
-									.north { &not_image_scaled_north }
-									.south { &not_image_scaled_south }
-									.east { &not_image_scaled_east }
-									.west { &not_image_scaled_west }
+								good_image := match element.state {
+									false {match element.orientation {
+											.north { &not_image_scaled_north }
+											.south { &not_image_scaled_south }
+											.east { &not_image_scaled_east }
+											.west { &not_image_scaled_west }
+										}
+									}
+									true {match element.orientation {
+											.north { &on_not_image_scaled_north }
+											.south { &on_not_image_scaled_south }
+											.east  { &on_not_image_scaled_east }
+											.west  { &on_not_image_scaled_west }
+										}
+									}
 								}
 								for y in 0 .. ceil(tile_size * app.scale) {
 									for x in 0 .. ceil(tile_size * app.scale) {
