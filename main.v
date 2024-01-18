@@ -121,6 +121,23 @@ fn ceil(nb f64) int {
 	return -int(-nb)
 }
 
+fn rotate_img(a []Color, new_o Orientation, side_size int) []Color {
+	match new_o {
+		.north {
+			return a
+		}
+		.south {
+			return []Color{len:a.len, init:a[a.len-index-1]}
+		}
+		.west {
+			return []Color{len:a.len, init:a[(index%side_size+1)*side_size - index/side_size - 1]}
+		}
+		.east {
+			return []Color{len:a.len, init:a[(side_size-index%side_size-1)*side_size + index/side_size]}
+		}
+	}
+}
+
 @[direct_array_access]
 fn scale_img(a []Color, scale_goal f64, x_size int, y_size int) []Color {
 	base_side_x := x_size
@@ -500,7 +517,11 @@ fn on_frame(mut app App) {
 
 	// calculate the images at the right scale
 	app.screen_pixels = [768][1366]u32{init: [1366]u32{init: u32(0xFFBBBBBB)}}
-	not_image_scaled := scale_img(not_image, app.scale, tile_size, tile_size)
+	scaled_image := scale_img(not_image, app.scale, tile_size, tile_size)
+	not_image_scaled_north := rotate_img(scaled_image, .north, ceil(tile_size*app.scale))
+	not_image_scaled_south := rotate_img(scaled_image, .south, ceil(tile_size*app.scale))
+	not_image_scaled_east := rotate_img(scaled_image, .east, ceil(tile_size*app.scale))
+	not_image_scaled_west := rotate_img(scaled_image, .west, ceil(tile_size*app.scale))
 	for chunk in app.chunks {
 		for line in chunk.tiles {
 			for id_element in line {
@@ -514,18 +535,18 @@ fn on_frame(mut app App) {
 						&& place_y >= ceil(tile_size * app.scale) - 1 && place_y < 768 {
 						match mut element {
 							Not {
-								rotation := match element.orientation {
-									.north { -90 }
-									.south { 90 }
-									.east { 0 }
-									.west { 180 }
+								good_image := match element.orientation {
+									.north { &not_image_scaled_north }
+									.south { &not_image_scaled_south }
+									.east { &not_image_scaled_east }
+									.west { &not_image_scaled_west }
 								}
 								for y in 0 .. ceil(tile_size * app.scale) {
 									for x in 0 .. ceil(tile_size * app.scale) {
 										app.screen_pixels[element.y * ceil(tile_size * app.scale) +
 											y + app.viewport_y][
 											element.x * ceil(tile_size * app.scale) + x +
-											app.viewport_x] = not_image_scaled[
+											app.viewport_x] = good_image[
 											y * ceil(tile_size * app.scale) + x].u32()
 									}
 								}
