@@ -59,3 +59,18 @@ app.place_in(2, 2)!
 app.place_in(2, -1)!
 app.update()
 app.delete_in(2, -1)!
+
+	app.place_in(-4, -1)!
+app.place_in(-4, 1)!
+app.place_in(-3, 0)!
+app.place_in(-5, 0)!
+app.build_selected_type = .not
+app.build_orientation = .west
+app.place_in(-4, 0)!
+app.build_selected_type = .wire
+app.build_orientation = .west
+app.place_in(-5, -1)!
+app.place_in(-3, -1)!
+app.place_in(-5, 1)!
+app.place_in(-3, 1)!
+app.delete_in(-4, 0)!

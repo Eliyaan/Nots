@@ -40,8 +40,8 @@ fn (mut app App) not_place_in(x int, y int) ! {
 		if app.elements[output].destroyed {
 			output = -1
 		} else {
-			mut output_elem := &app.elements[output]
-			match mut output_elem {
+			output_elem := app.elements[output]
+			match output_elem {
 				Not {
 					if output_elem.orientation != app.build_orientation {
 						output = -1
@@ -57,7 +57,7 @@ fn (mut app App) not_place_in(x int, y int) ! {
 
 	mut state := true // because a not gate without input is a not gate with off input
 	if input >= 0 {
-		mut elem_input := &app.elements[input]
+		mut elem_input := app.elements[input]
 		match mut elem_input {
 			Not {
 				if elem_input.orientation == app.build_orientation {
@@ -71,6 +71,7 @@ fn (mut app App) not_place_in(x int, y int) ! {
 			}
 			else {}
 		}
+		app.elements[input] = elem_input
 	}
 	if id == app.elements.len {
 		app.elements << Not{
@@ -126,7 +127,7 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 	for pos in [[0, 1], [0, -1], [1, 0], [-1, 0]] {
 		elem_id := app.get_tile_id_at(x + pos[0], y + pos[1])
 		if elem_id >= 0 {
-			mut elem := &app.elements[elem_id]
+			mut elem := app.elements[elem_id]
 			if !elem.destroyed {
 				if mut elem is Wire {
 					adjacent_gwire_ids << elem.id_glob_wire
@@ -143,6 +144,7 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 					}
 				}
 			}
+			app.elements[elem_id] = elem
 		}
 	}
 
@@ -167,7 +169,7 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 				app.queue_gwires << gwire_id // update the wire as it changed of state
 			} else {
 				for id_output in outputs { // new outputs
-					mut elem := &app.elements[id_output]
+					mut elem := app.elements[id_output]
 					if mut elem is Not {
 						elem.state = false
 						app.queue << id_output // to stop thinking of it everytime I read this line, the state could only be true for a unconnected not gate
@@ -196,13 +198,14 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		app.wire_groups[adjacent_gwire_ids[0]].outputs << outputs
 		if app.wire_groups[adjacent_gwire_ids[0]].on() {
 			for id_output in app.wire_groups[adjacent_gwire_ids[0]].outputs {
-				mut elem := &app.elements[id_output]
+				mut elem := app.elements[id_output]
 				if mut elem is Not {
 					if elem.state {
 						elem.state = false
 						app.queue << id_output
 					}
 				}
+				app.elements[id_output] = elem
 			}
 		}
 		for i in adjacent_gwire_ids[1..] {
@@ -215,9 +218,10 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 			}
 			for wg in app.wire_groups[i..] {
 				for wire_id in wg.wires {
-					mut wire := &app.elements[wire_id]
+					mut wire := app.elements[wire_id]
 					if mut wire is Wire {
 						wire.id_glob_wire -= 1
+						app.elements[wire_id] = wire
 					}
 				}
 			}
@@ -225,9 +229,10 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		gwire_id = adjacent_gwire_ids[0]
 
 		for id_wire in app.wire_groups[gwire_id].wires {
-			mut elem := &app.elements[id_wire]
+			mut elem := app.elements[id_wire]
 			if mut elem is Wire {
 				elem.id_glob_wire = adjacent_gwire_ids[0]
+				app.elements[id_wire] = elem
 			} else {
 				panic('Not a wire in a wiregroup')
 			}

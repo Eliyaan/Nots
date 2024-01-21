@@ -13,7 +13,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 		}
 		app.elements[old_id].destroyed = true
 		app.destroyed << old_id
-		mut destroyed := &app.elements[old_id]
+		mut destroyed := app.elements[old_id]
 		match mut destroyed {
 			Not {
 				input := match destroyed.orientation {
@@ -31,7 +31,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 					}
 				}
 				if input != -1 {
-					mut input_elem := &app.elements[input]
+					mut input_elem := app.elements[input]
 					match mut input_elem {
 						Not {
 							if input_elem.output == old_id {
@@ -44,9 +44,10 @@ fn (mut app App) delete_in(x int, y int) ! {
 						}
 						else {}
 					}
+					app.elements[input] = input_elem
 				}
 				if destroyed.output >= 0 {
-					mut output_elem := &app.elements[destroyed.output]
+					mut output_elem := app.elements[destroyed.output]
 					match mut output_elem {
 						Wire {
 							if destroyed.state && old_id !in app.queue {
@@ -63,7 +64,6 @@ fn (mut app App) delete_in(x int, y int) ! {
 						else {}
 					}
 				}
-				destroyed.state = false
 			}
 			Wire {
 				mut to_process := []i64{}
@@ -71,7 +71,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 				for pos in [[0, 1], [0, -1], [1, 0], [-1, 0]] {
 					elem_id := app.get_tile_id_at(x + pos[0], y + pos[1])
 					if elem_id >= 0 {
-						mut elem := &app.elements[elem_id]
+						mut elem := app.elements[elem_id]
 						if !elem.destroyed {
 							match mut elem {
 								Wire {
@@ -93,11 +93,12 @@ fn (mut app App) delete_in(x int, y int) ! {
 								}
 								else {}
 							}
+							app.elements[elem_id] = elem
 						}
 					}
 				}
 				for element_id in to_process {
-					mut current := &app.elements[element_id]
+					current := app.elements[element_id]
 					if final_wires == [] {
 						final_wires << GlobalWire{}
 						final_wires[0].wires << element_id
@@ -105,7 +106,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 							elem_id := app.get_tile_id_at(int(current.x + pos[0]), int(current.y +
 								pos[1]))
 							if elem_id >= 0 {
-								mut elem := &app.elements[elem_id]
+								mut elem := app.elements[elem_id]
 								if !elem.destroyed {
 									match mut elem {
 										Wire {
@@ -221,30 +222,18 @@ fn (mut app App) delete_in(x int, y int) ! {
 							&& fwire_id !in app.queue_gwires {
 							app.queue_gwires << fwire_id
 						}
-						/* I think that is not needed
-						for output_id in fwire.outputs {
-							mut output := &app.elements[output_id]
-							if output_id !in app.queue {
-								app.queue << output_id
-							}
-							if mut output is Not {
-								output.state = true
-								dump(output_id)
-							}
-						}
-						*/
 					}
 
 					if fwire.on() {
-						if destroyed.id_glob_wire in app.queue_gwires
-							&& fwire_id !in app.queue_gwires {
+						if destroyed.id_glob_wire in app.queue_gwires && fwire_id !in app.queue_gwires {
 							app.queue_gwires << fwire_id
 						}
 					}
 					for wire_id in fwire.wires {
-						mut wire := &app.elements[wire_id]
+						mut wire := app.elements[wire_id]
 						if mut wire is Wire {
 							wire.id_glob_wire = fwire_id
+							app.elements[wire_id] = wire
 						}
 					}
 				}
@@ -254,9 +243,10 @@ fn (mut app App) delete_in(x int, y int) ! {
 				} else {
 					for gwire in app.wire_groups[destroyed.id_glob_wire + 1..] {
 						for wire_id in gwire.wires {
-							mut wire := &app.elements[wire_id]
+							mut wire := app.elements[wire_id]
 							if mut wire is Wire {
 								wire.id_glob_wire -= 1
+								app.elements[wire_id] = wire
 							}
 						}
 					}

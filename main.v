@@ -259,7 +259,7 @@ fn main() {
 	// calculate the rotations of the image
 
 	// do your test/base placings here if needed
-	
+
 	not_text := ggui.Text{0, 0, 0, '!', gx.TextCfg{
 		color: theme.base
 		size: 20
