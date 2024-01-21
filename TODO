@@ -1,9 +1,9 @@
-needs zoom centered on center of the screen
-very bad perf when lot of the screen covered by drawing -> replace only what needs to be replaced
-ON not gate
-
-
-refactor the big functions + rename
+needs zoom centered on center of the screen -> little shaking to fix
 remove references
-middle click moving
+
+refactor the code
 junctions
+
+save system
+
+very bad perf when lot of the screen covered by drawing -> replace only what needs to be replaced ?

@@ -9,16 +9,16 @@ import stbi
 const tile_size = 128
 const theme = ggui.CatppuchinMocha{}
 const buttons_shape = ggui.RoundedShape{20, 20, 5, .top_left}
-const not_image = load_image("off_not_gate.png")
-const on_not_image = load_image("on_not_gate.png")
+const not_image = load_image('off_not_gate.png')
+const on_not_image = load_image('on_not_gate.png')
 
 fn load_image(path string) []Color {
-	image := stbi.load(path, stbi.LoadParams{4}) or {panic("Image not found: $path")}
+	image := stbi.load(path, stbi.LoadParams{4}) or { panic('Image not found: ${path}') }
 	data := &u8(image.data)
-	mut output := []Color{cap:tile_size*tile_size}
-	for i in 0..tile_size*tile_size {
+	mut output := []Color{cap: tile_size * tile_size}
+	for i in 0 .. tile_size * tile_size {
 		unsafe {
-			output << Color{data[i*4], data[i*4+1], data[i*4+2], data[i*4+3]}
+			output << Color{data[i * 4], data[i * 4 + 1], data[i * 4 + 2], data[i * 4 + 3]}
 		}
 	}
 	return output
@@ -40,13 +40,14 @@ fn rotate_img(a []Color, new_o Orientation, side_size int) []Color {
 			return a
 		}
 		.south {
-			return []Color{len:a.len, init:a[a.len-index-1]}
+			return []Color{len: a.len, init: a[a.len - index - 1]}
 		}
 		.west {
-			return []Color{len:a.len, init:a[(index%side_size+1)*side_size - index/side_size - 1]}
+			return []Color{len: a.len, init: a[(index % side_size + 1) * side_size - index / side_size - 1]}
 		}
 		.east {
-			return []Color{len:a.len, init:a[(side_size-index%side_size-1)*side_size + index/side_size]}
+			return []Color{len: a.len, init: a[(side_size - index % side_size - 1) * side_size +
+				index / side_size]}
 		}
 	}
 }
@@ -199,10 +200,10 @@ mut:
 @[heap]
 struct App {
 mut:
-	gg           &gg.Context = unsafe { nil }
-	elements     []Element
-	destroyed    []i64
-	chunks       []Chunk
+	gg        &gg.Context = unsafe { nil }
+	elements  []Element
+	destroyed []i64
+	chunks    []Chunk
 	// reopti les chunks pour éviter les cache misses en séparant les coords des 2D arrays
 	wire_groups  []GlobalWire
 	queue        []i64
@@ -228,11 +229,12 @@ mut:
 
 	istream_idx   int
 	screen_pixels []u32
-	blank_screen []u32
-	screen_x int
-	screen_y int
+	blank_screen  []u32
+	screen_x      int
+	screen_y      int
 	viewport_x    int
 	viewport_y    int
+	middle_click_held bool
 
 	scale f64 = 0.1
 }
@@ -257,51 +259,51 @@ fn main() {
 	// calculate the rotations of the image
 
 	// do your test/base placings here if needed
-	/*
-	app.build_orientation = .west
-	app.build_selected_type = .not
-	app.place_in(1, 11)!
-	app.build_selected_type = .wire
-	app.place_in(0,  11)!
-	app.place_in(2, 11)!
-	app.place_in(0,  12)!
-	app.place_in(1, 12)!
-	app.place_in(3, 12)!
-	app.place_in(2, 12)!
-	app.place_in(4, 13)!
-	app.place_in(5, 14)!
-	app.place_in(3, 13)!
-	*/
-	/*
-	app.build_orientation = .north
-	app.build_selected_type = .not
-	app.place_in(1, 11)!
-	app.build_selected_type = .wire
-	app.place_in(1,  10)!
-	app.place_in(2, 10)!
-	app.place_in(2,  11)!
-	app.place_in(1, 12)!
-	*/
 
-	/*
-	app.place_in(1, 2)!
-	app.place_in(2, 2)!
-	app.place_in(2, 3)!
-	app.place_in(1, 4)!
-	app.place_in(1, 5)!
-	app.place_in(1, 7)!
-	app.place_in(2, 7)!
-	app.place_in(2, 6)!
-	app.place_in(2, 5)!
-	app.place_in(2, 4)!
-	app.build_selected_type = .not
-	app.build_orientation = .north
-	app.place_in(1, 6)!
-	app.place_in(1, 3)!
-	app.update()
-	app.delete_in(1, 5)!
-	app.delete_in(2, 5)!
-	*/
+
+app.place_in(1, 1)!
+app.build_selected_type = .not
+app.build_orientation = .west
+app.place_in(2, 1)!
+app.build_selected_type = .wire
+app.build_orientation = .west
+app.place_in(3, 1)!
+app.build_selected_type = .not
+app.build_orientation = .west
+app.place_in(4, 1)!
+app.place_in(5, 1)!
+app.place_in(6, 1)!
+app.place_in(7, 1)!
+app.place_in(6, 0)!
+app.place_in(5, 0)!
+app.place_in(4, 0)!
+app.place_in(3, 0)!
+app.update()
+app.build_selected_type = .wire
+app.build_orientation = .west
+app.place_in(2, 0)!
+app.place_in(1, 0)!
+app.place_in(7, 0)!
+app.place_in(8, 0)!
+app.place_in(8, 1)!
+app.place_in(1, 2)!
+app.place_in(3, 2)!
+app.place_in(2, 2)!
+app.place_in(4, 2)!
+app.place_in(5, 2)!
+app.place_in(6, 2)!
+app.place_in(7, 2)!
+app.place_in(8, 2)!
+app.place_in(6, -1)!
+app.place_in(7, -1)!
+app.place_in(5, -1)!
+app.place_in(3, -1)!
+app.place_in(4, -1)!
+app.place_in(2, -1)!
+dump(app.queue)
+dump(app.queue_gwires)
+app.update()
+app.delete_in(2, -1)!
 
 	not_text := ggui.Text{0, 0, 0, '!', gx.TextCfg{
 		color: theme.base
@@ -436,35 +438,24 @@ fn on_frame(mut app App) {
 	app.draw_elements()
 	app.draw_image()
 	app.undraw_elements()
+	half_scaled_tile_size := f32(ceil(tile_size * app.scale)) * 0.5
+	preview_x := f32(app.mouse_x * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
+	preview_y := f32(app.mouse_y * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
 	match app.build_selected_type {
 		.not {
 			color := gg.Color{50, 100, 100, 100}
-			app.gg.draw_square_filled(f32(app.mouse_x * ceil(tile_size * app.scale) +
-				app.viewport_x % ceil(tile_size * app.scale)), f32(
-				app.mouse_y * ceil(tile_size * app.scale) +
-				app.viewport_y % ceil(tile_size * app.scale)), ceil(tile_size * app.scale),
-				gg.Color{100, 100, 100, 100})
+			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), gg.Color{100, 100, 100, 100})
 			rotation := match app.build_orientation {
 				.north { -90 }
 				.south { 90 }
 				.east { 0 }
 				.west { 180 }
 			}
-			app.gg.draw_polygon_filled(f32(app.mouse_x * ceil(tile_size * app.scale) +
-				app.viewport_x % ceil(tile_size * app.scale)) +
-				f32(ceil(tile_size * app.scale)) / 2.0,
-				f32(app.mouse_y * ceil(tile_size * app.scale) +
-				app.viewport_y % ceil(tile_size * app.scale)) +
-				f32(ceil(tile_size * app.scale)) / 2.0, f32(ceil(tile_size * app.scale)) / 2.0,
-				3, rotation, color)
+			app.gg.draw_polygon_filled(preview_x + half_scaled_tile_size, preview_y + half_scaled_tile_size, half_scaled_tile_size, 3, rotation, color)
 		}
 		.wire {
 			color := gg.Color{100, 100, 100, 100}
-			app.gg.draw_square_filled(f32(app.mouse_x * ceil(tile_size * app.scale) +
-				app.viewport_x % ceil(tile_size * app.scale)), f32(
-				app.mouse_y * ceil(tile_size * app.scale) +
-				app.viewport_y % ceil(tile_size * app.scale)), ceil(tile_size * app.scale),
-				color)
+			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), color)
 		}
 		else {}
 	}
@@ -475,52 +466,53 @@ fn on_frame(mut app App) {
 
 @[direct_array_access]
 fn (mut app App) draw_elements() {
+	scaled_tile_size := ceil(tile_size * app.scale)
 	scaled_image_not := scale_img(not_image, app.scale, tile_size, tile_size)
-	not_image_scaled_north := rotate_img(scaled_image_not, .north, ceil(tile_size*app.scale))
-	not_image_scaled_south := rotate_img(scaled_image_not, .south, ceil(tile_size*app.scale))
-	not_image_scaled_east := rotate_img(scaled_image_not, .east, ceil(tile_size*app.scale))
-	not_image_scaled_west := rotate_img(scaled_image_not, .west, ceil(tile_size*app.scale))
+	not_image_scaled_north := rotate_img(scaled_image_not, .north, scaled_tile_size)
+	not_image_scaled_south := rotate_img(scaled_image_not, .south, scaled_tile_size)
+	not_image_scaled_east := rotate_img(scaled_image_not, .east, scaled_tile_size)
+	not_image_scaled_west := rotate_img(scaled_image_not, .west, scaled_tile_size)
 	on_scaled_image_not := scale_img(on_not_image, app.scale, tile_size, tile_size)
-	on_not_image_scaled_north := rotate_img(on_scaled_image_not, .north, ceil(tile_size*app.scale))
-	on_not_image_scaled_south := rotate_img(on_scaled_image_not, .south, ceil(tile_size*app.scale))
-	on_not_image_scaled_east := rotate_img(on_scaled_image_not, .east, ceil(tile_size*app.scale))
-	on_not_image_scaled_west := rotate_img(on_scaled_image_not, .west, ceil(tile_size*app.scale))
+	on_not_image_scaled_north := rotate_img(on_scaled_image_not, .north, scaled_tile_size)
+	on_not_image_scaled_south := rotate_img(on_scaled_image_not, .south, scaled_tile_size)
+	on_not_image_scaled_east := rotate_img(on_scaled_image_not, .east, scaled_tile_size)
+	on_not_image_scaled_west := rotate_img(on_scaled_image_not, .west, scaled_tile_size)
 	for chunk in app.chunks {
 		for line in chunk.tiles {
 			for id_element in line {
 				if id_element >= 0 {
 					mut element := &app.elements[id_element]
-					place_x := element.x * ceil(tile_size * app.scale) +
-						ceil(tile_size * app.scale) - 1 + app.viewport_x
-					place_y := element.y * ceil(tile_size * app.scale) +
-						ceil(tile_size * app.scale) - 1 + app.viewport_y
-					if place_x >= ceil(tile_size * app.scale) - 1 && place_x < app.screen_x
-						&& place_y >= ceil(tile_size * app.scale) - 1 && place_y < app.screen_y {
+					scaled_elem_x := element.x * scaled_tile_size
+					scaled_elem_y := element.y * scaled_tile_size
+					place_x := scaled_elem_x + scaled_tile_size - 1 + app.viewport_x + app.screen_x/2
+					place_y := scaled_elem_y + scaled_tile_size - 1 + app.viewport_y + app.screen_y/2
+
+					if place_x >= scaled_tile_size - 1 && place_x < app.screen_x
+						&& place_y >= scaled_tile_size - 1 && place_y < app.screen_y {
+						array_pos := (scaled_elem_y + app.viewport_y + app.screen_y/2) * app.screen_x + scaled_elem_x + app.viewport_x + app.screen_x/2
 						match mut element {
 							Not {
 								good_image := match element.state {
-									false {match element.orientation {
+									false {
+										match element.orientation {
 											.north { &not_image_scaled_north }
 											.south { &not_image_scaled_south }
 											.east { &not_image_scaled_east }
 											.west { &not_image_scaled_west }
 										}
 									}
-									true {match element.orientation {
+									true {
+										match element.orientation {
 											.north { &on_not_image_scaled_north }
 											.south { &on_not_image_scaled_south }
-											.east  { &on_not_image_scaled_east }
-											.west  { &on_not_image_scaled_west }
+											.east { &on_not_image_scaled_east }
+											.west { &on_not_image_scaled_west }
 										}
 									}
 								}
-								for y in 0 .. ceil(tile_size * app.scale) {
-									for x in 0 .. ceil(tile_size * app.scale) {
-										app.screen_pixels[(element.y * ceil(tile_size * app.scale) +
-											y + app.viewport_y)*app.screen_x + 
-											element.x * ceil(tile_size * app.scale) + x +
-											app.viewport_x] = unsafe{good_image[
-											y * ceil(tile_size * app.scale) + x].u32()}
+								for y in 0 .. scaled_tile_size {
+									for x in 0 .. scaled_tile_size {
+										app.screen_pixels[array_pos + y * app.screen_x + x] = unsafe {good_image[y * scaled_tile_size + x].u32()}
 									}
 								}
 							}
@@ -530,12 +522,9 @@ fn (mut app App) draw_elements() {
 								} else {
 									u32(0xFF00_0000)
 								}
-								for y in 0 .. ceil(tile_size * app.scale) {
-									for x in 0 .. ceil(tile_size * app.scale) {
-										app.screen_pixels[(element.y * ceil(tile_size * app.scale) +
-											y + app.viewport_y)*app.screen_x + 
-											element.x * ceil(tile_size * app.scale) + x +
-											app.viewport_x] = color
+								for y in 0 .. scaled_tile_size {
+									for x in 0 .. scaled_tile_size {
+										app.screen_pixels[array_pos + y * app.screen_x + x] = color
 									}
 								}
 							}
@@ -550,35 +539,32 @@ fn (mut app App) draw_elements() {
 
 @[direct_array_access]
 fn (mut app App) undraw_elements() {
+	scaled_tile_size := ceil(tile_size * app.scale)
 	for chunk in app.chunks {
 		for line in chunk.tiles {
 			for id_element in line {
 				if id_element >= 0 {
 					mut element := &app.elements[id_element]
-					place_x := element.x * ceil(tile_size * app.scale) +
-						ceil(tile_size * app.scale) - 1 + app.viewport_x
-					place_y := element.y * ceil(tile_size * app.scale) +
-						ceil(tile_size * app.scale) - 1 + app.viewport_y
-					if place_x >= ceil(tile_size * app.scale) - 1 && place_x < app.screen_x
-						&& place_y >= ceil(tile_size * app.scale) - 1 && place_y < app.screen_y {
+					scaled_elem_x := element.x * scaled_tile_size
+					scaled_elem_y := element.y * scaled_tile_size
+					place_x := scaled_elem_x + scaled_tile_size - 1 + app.viewport_x + app.screen_x/2
+					place_y := scaled_elem_y + scaled_tile_size - 1 + app.viewport_y + app.screen_y/2
+
+					if place_x >= scaled_tile_size - 1 && place_x < app.screen_x 
+						&& place_y >= scaled_tile_size - 1 && place_y < app.screen_y {
+						array_pos := (scaled_elem_y + app.viewport_y + app.screen_y/2) * app.screen_x + scaled_elem_x + app.viewport_x + app.screen_x/2
 						match mut element {
 							Not {
-								for y in 0 .. ceil(tile_size * app.scale) {
-									for x in 0 .. ceil(tile_size * app.scale) {
-										app.screen_pixels[(element.y * ceil(tile_size * app.scale) +
-											y + app.viewport_y)*app.screen_x + 
-											element.x * ceil(tile_size * app.scale) + x +
-											app.viewport_x] = u32(0xFFBBBBBB)
+								for y in 0 .. scaled_tile_size {
+									for x in 0 .. scaled_tile_size {
+										app.screen_pixels[array_pos + y * app.screen_x + x] = u32(0xFFBBBBBB)
 									}
 								}
 							}
 							Wire {
-								for y in 0 .. ceil(tile_size * app.scale) {
-									for x in 0 .. ceil(tile_size * app.scale) {
-										app.screen_pixels[(element.y * ceil(tile_size * app.scale) +
-											y + app.viewport_y)*app.screen_x + 
-											element.x * ceil(tile_size * app.scale) + x +
-											app.viewport_x] = u32(0xFFBBBBBB)
+								for y in 0 .. scaled_tile_size {
+									for x in 0 .. scaled_tile_size {
+										app.screen_pixels[array_pos + y * app.screen_x + x] = u32(0xFFBBBBBB)
 									}
 								}
 							}
@@ -591,10 +577,10 @@ fn (mut app App) undraw_elements() {
 	}
 }
 
-
 fn on_event(e &gg.Event, mut app App) {
-	app.mouse_x, app.mouse_y = app.mouse_to_coords(e.mouse_x - app.viewport_x % ceil(tile_size * app.scale),
-		e.mouse_y - app.viewport_y % ceil(tile_size * app.scale))
+	app.mouse_x, app.mouse_y = app.mouse_to_coords(e.mouse_x - (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale),
+		e.mouse_y - (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
+	old_m_x, old_m_y := app.screen_mouse_x, app.screen_mouse_y
 	app.screen_mouse_x, app.screen_mouse_y = int(e.mouse_x), int(e.mouse_y)
 	match e.typ {
 		.key_down {
@@ -636,12 +622,18 @@ fn on_event(e &gg.Event, mut app App) {
 					app.viewport_x -= 5
 				}
 				.semicolon {
+					old := app.scale
 					if app.scale > 0.021 {
 						app.scale -= 0.01
 					}
+					app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) ) 
+					app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
 				}
 				.p {
+					old := app.scale
 					app.scale += 0.01
+					app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) )
+					app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
 				}
 				else {}
 			}
@@ -653,22 +645,41 @@ fn on_event(e &gg.Event, mut app App) {
 		}
 		.mouse_up {
 			if !(e.mouse_x < 160 && e.mouse_y < 30) {
+				place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
+				place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
 				match e.mouse_button {
 					.left {
-						app.place_in(app.mouse_x - (app.viewport_x) / ceil(tile_size * app.scale),
-							app.mouse_y - (app.viewport_y) / ceil(tile_size * app.scale)) or {}
+						app.place_in(place_pos_x, place_pos_y) or {}
 					}
 					.right {
-						app.delete_in(app.mouse_x - (app.viewport_x) / ceil(tile_size * app.scale),
-							app.mouse_y - (app.viewport_y) / ceil(tile_size * app.scale)) or {}
+						app.delete_in(place_pos_x, place_pos_y) or {}
 					}
 					else {}
 				}
 			} else {
 				app.gui.check_clicks(e.mouse_x, e.mouse_y)
 			}
+			app.middle_click_held = false
+		}
+		.mouse_down {
+			if e.mouse_button == .middle {
+				app.middle_click_held = true
+			}
+		}
+		.mouse_scroll {
+			old := app.scale
+			app.scale += 0.003*e.scroll_y
+			if app.scale < 0.020 {
+				app.scale = 0.020
+			}
+			app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) )
+			app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
 		}
 		else {}
+	}
+	if app.middle_click_held {
+		app.viewport_x += int((app.screen_mouse_x - old_m_x))
+		app.viewport_y += int((app.screen_mouse_y - old_m_y))
 	}
 }
 
@@ -740,6 +751,6 @@ fn graphics_init(mut app App) {
 	app.screen_x = size.width
 	app.screen_y = size.height
 	app.istream_idx = app.gg.new_streaming_image(size.width, size.height, 4, pixel_format: .rgba8)
-	app.screen_pixels = []u32{len: app.screen_y*app.screen_x, init: u32(0xFFBBBBBB)}
-	app.blank_screen = []u32{len: app.screen_y*app.screen_x, init: u32(0xFFBBBBBB)}
+	app.screen_pixels = []u32{len: app.screen_y * app.screen_x, init: u32(0xFFBBBBBB)}
+	app.blank_screen = []u32{len: app.screen_y * app.screen_x, init: u32(0xFFBBBBBB)}
 }
