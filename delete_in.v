@@ -2,36 +2,36 @@ module main
 
 import math
 
-
 fn (mut app App) delete_in(x int, y int) ! {
-	mut place_chunk := app.get_chunk_at_coords(x, y)
-	old_id := place_chunk.tiles[math.abs(y-place_chunk.y*16)][math.abs(x-place_chunk.x*16)] 
+	place_chunk_id := app.get_chunk_id_at_coords(x, y)
+	place_chunk := app.chunks[place_chunk_id]
+	old_id := place_chunk.tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)]
 	if old_id >= 0 {
-		place_chunk.tiles[math.abs(y-place_chunk.y*16)][math.abs(x-place_chunk.x*16)] = -1
+		app.chunks[place_chunk_id].tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] = -1
 		if app.debug_mode {
-			println("app.delete_in($x, $y)!")
+			println('app.delete_in(${x}, ${y})!')
 		}
 		app.elements[old_id].destroyed = true
 		app.destroyed << old_id
-		mut destroyed := &app.elements[old_id]
+		mut destroyed := app.elements[old_id]
 		match mut destroyed {
 			Not {
 				input := match destroyed.orientation {
 					.north {
-						app.get_tile_id_at(x, y+1)
+						app.get_tile_id_at(x, y + 1)
 					}
 					.south {
-						app.get_tile_id_at(x, y-1)
+						app.get_tile_id_at(x, y - 1)
 					}
 					.east {
-						app.get_tile_id_at(x-1, y)
+						app.get_tile_id_at(x - 1, y)
 					}
 					.west {
-						app.get_tile_id_at(x+1, y)
+						app.get_tile_id_at(x + 1, y)
 					}
 				}
 				if input != -1 {
-					mut input_elem := &app.elements[input]
+					mut input_elem := app.elements[input]
 					match mut input_elem {
 						Not {
 							if input_elem.output == old_id {
@@ -44,9 +44,10 @@ fn (mut app App) delete_in(x int, y int) ! {
 						}
 						else {}
 					}
+					app.elements[input] = input_elem
 				}
 				if destroyed.output >= 0 {
-					mut output_elem := &app.elements[destroyed.output]
+					mut output_elem := app.elements[destroyed.output]
 					match mut output_elem {
 						Wire {
 							if destroyed.state && old_id !in app.queue {
@@ -63,15 +64,14 @@ fn (mut app App) delete_in(x int, y int) ! {
 						else {}
 					}
 				}
-				destroyed.state = false
 			}
 			Wire {
 				mut to_process := []i64{}
 				mut final_wires := []GlobalWire{}
-				for pos in [[0, 1], [0, -1], [1, 0], [-1,0]] {
-					elem_id := app.get_tile_id_at(x+pos[0], y+pos[1])
+				for pos in [[0, 1], [0, -1], [1, 0], [-1, 0]] {
+					elem_id := app.get_tile_id_at(x + pos[0], y + pos[1])
 					if elem_id >= 0 {
-						mut elem := &app.elements[elem_id]
+						mut elem := app.elements[elem_id]
 						if !elem.destroyed {
 							match mut elem {
 								Wire {
@@ -81,9 +81,11 @@ fn (mut app App) delete_in(x int, y int) ! {
 									output_x, output_y := output_coords_from_orientation(elem.orientation)
 									input_x, input_y := input_coords_from_orientation(elem.orientation)
 									if pos[0] == output_x && pos[1] == output_y {
-										if !elem.state { 
-											app.queue << elem_id 
-											elem.state = true
+										if !elem.state {
+											if elem_id !in app.queue {
+												app.queue << elem_id
+												elem.state = true
+											}
 										}
 									} else if pos[0] == input_x && pos[1] == input_y {
 										elem.output = -1
@@ -91,21 +93,24 @@ fn (mut app App) delete_in(x int, y int) ! {
 								}
 								else {}
 							}
+							app.elements[elem_id] = elem
 						}
 					}
 				}
 				for element_id in to_process {
-					mut current := &app.elements[element_id]
+					current := app.elements[element_id]
 					if final_wires == [] {
 						final_wires << GlobalWire{}
 						final_wires[0].wires << element_id
-						for pos in [[0, 1], [0, -1], [1, 0], [-1,0]] {
-							elem_id := app.get_tile_id_at(int(current.x+pos[0]), int(current.y+pos[1]))
+						for pos in [[0, 1], [0, -1], [1, 0], [-1, 0]] {
+							elem_id := app.get_tile_id_at(int(current.x + pos[0]), int(current.y +
+								pos[1]))
 							if elem_id >= 0 {
-								mut elem := &app.elements[elem_id]
+								mut elem := app.elements[elem_id]
 								if !elem.destroyed {
 									match mut elem {
 										Wire {
+											// sure that the wire is not in a final wire
 											to_process << elem_id
 										}
 										Not {
@@ -114,9 +119,8 @@ fn (mut app App) delete_in(x int, y int) ! {
 											if pos[0] == output_x && pos[1] == output_y {
 												final_wires[0].outputs << elem_id
 											} else if pos[0] == input_x && pos[1] == input_y {
-												if elem.state {
-													final_wires[0].inputs << elem_id
-												}
+												// the sorting between on / off inputs happens after
+												final_wires[0].inputs << elem_id
 											}
 										}
 										else {}
@@ -129,7 +133,8 @@ fn (mut app App) delete_in(x int, y int) ! {
 						mut inputs := []i64{}
 						mut outputs := []i64{}
 						for pos in [[0, 1], [0, -1], [1, 0], [-1, 0]] {
-							elem_id := app.get_tile_id_at(int(current.x+pos[0]), int(current.y+pos[1]))
+							elem_id := app.get_tile_id_at(int(current.x + pos[0]), int(current.y +
+								pos[1]))
 							if elem_id >= 0 {
 								mut elem := &app.elements[elem_id]
 								if !elem.destroyed {
@@ -147,7 +152,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 												}
 											} else {
 												id_gwires << id_gwire
-											}											
+											}
 										}
 										Not {
 											output_x, output_y := output_coords_from_orientation(elem.orientation)
@@ -155,9 +160,8 @@ fn (mut app App) delete_in(x int, y int) ! {
 											if pos[0] == output_x && pos[1] == output_y {
 												outputs << elem_id
 											} else if pos[0] == input_x && pos[1] == input_y {
-												if elem.state {
-													inputs << elem_id
-												}
+												// the sorting between on / off inputs happens after
+												inputs << elem_id
 											}
 										}
 										else {}
@@ -170,7 +174,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 							tmp_map[k] = false
 						}
 						id_gwires = tmp_map.keys()
-						id_gwires.sort(a>b)
+						id_gwires.sort(a > b)
 						if id_gwires.len > 1 {
 							for id in id_gwires[1..] {
 								final_wires[id_gwires[0]].wires << final_wires[id].wires
@@ -189,9 +193,9 @@ fn (mut app App) delete_in(x int, y int) ! {
 							final_wires[id_gwires[0]].outputs << outputs
 						} else if id_gwires.len == 0 {
 							final_wires << GlobalWire{}
-							final_wires[final_wires.len-1].wires << element_id
-							final_wires[final_wires.len-1].inputs << inputs
-							final_wires[final_wires.len-1].outputs << outputs
+							final_wires[final_wires.len - 1].wires << element_id
+							final_wires[final_wires.len - 1].inputs << inputs
+							final_wires[final_wires.len - 1].outputs << outputs
 						}
 					}
 				}
@@ -202,28 +206,34 @@ fn (mut app App) delete_in(x int, y int) ! {
 					} else {
 						fwire_id = destroyed.id_glob_wire
 					}
-					
-					if !(fwire.on()) && app.wire_groups[destroyed.id_glob_wire].on() {
-						// if destroyed.id_glob_wire in app.queue_gwires {
-						// 	app.queue_gwires << fwire_id
-						// }
-						for output_id in fwire.outputs {
-							mut output := &app.elements[output_id]
-							if mut output is Not {
-								output.state = true
+					mut on_inputs := []i64{}
+					for input_id in fwire.inputs {
+						mut input := app.elements[input_id]
+						if mut input is Not {
+							if input.state && input_id !in app.queue {
+								on_inputs << input_id
 							}
-							app.queue << output_id
 						}
-					} 
+						app.elements[input_id] = input
+					}
+					fwire.inputs = on_inputs
+					if !(fwire.on()) && app.wire_groups[destroyed.id_glob_wire].on() {
+						if destroyed.id_glob_wire in app.queue_gwires
+							&& fwire_id !in app.queue_gwires {
+							app.queue_gwires << fwire_id
+						}
+					}
+
 					if fwire.on() {
-						if destroyed.id_glob_wire in app.queue_gwires {
+						if destroyed.id_glob_wire in app.queue_gwires && fwire_id !in app.queue_gwires {
 							app.queue_gwires << fwire_id
 						}
 					}
 					for wire_id in fwire.wires {
-						mut wire := &app.elements[wire_id]
+						mut wire := app.elements[wire_id]
 						if mut wire is Wire {
 							wire.id_glob_wire = fwire_id
+							app.elements[wire_id] = wire
 						}
 					}
 				}
@@ -231,11 +241,12 @@ fn (mut app App) delete_in(x int, y int) ! {
 					app.wire_groups[destroyed.id_glob_wire] = final_wires[0]
 					app.wire_groups << final_wires#[1..]
 				} else {
-					for gwire in app.wire_groups[destroyed.id_glob_wire+1..] {
+					for gwire in app.wire_groups[destroyed.id_glob_wire + 1..] {
 						for wire_id in gwire.wires {
-							mut wire := &app.elements[wire_id]
+							mut wire := app.elements[wire_id]
 							if mut wire is Wire {
 								wire.id_glob_wire -= 1
+								app.elements[wire_id] = wire
 							}
 						}
 					}
@@ -245,6 +256,6 @@ fn (mut app App) delete_in(x int, y int) ! {
 			else {}
 		}
 	} else {
-		return error("Not in a filled space")
+		return error('Not in a filled space')
 	}
 }

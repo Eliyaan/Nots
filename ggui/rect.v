@@ -1,11 +1,12 @@
 module ggui
+
 import gx
 
 pub struct Rect {
 mut:
-	id int
-	x f32
-	y f32
+	id    int
+	x     f32
+	y     f32
 	shape Area
 	color gx.Color
 }
