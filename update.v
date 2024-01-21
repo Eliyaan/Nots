@@ -30,7 +30,10 @@ fn (mut app App) update() {
 										}
 									}
 									if !app.wire_groups[output.id_glob_wire].on() {
-										app.queue_gwires << output.id_glob_wire
+										id_gwire_queue := app.queue_gwires.index(output.id_glob_wire)
+										if id_gwire_queue == -1 {
+											app.queue_gwires << output.id_glob_wire
+										}
 									}
 								}
 							}
@@ -50,7 +53,9 @@ fn (mut app App) update() {
 			if !output.destroyed {
 				if mut output is Not {
 					output.state = gwire.inputs.len == 0
-					new_queue << output_id
+					if output_id !in new_queue {
+						new_queue << output_id
+					}
 				}
 			} else {
 				panic('elem detruit dans les outputs du wire')

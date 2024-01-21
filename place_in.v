@@ -184,7 +184,6 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		adjacent_gwire_ids.sort(a > b)
 		for i in 1 .. adjacent_gwire_ids.len {
 			pos_if_in_queue := app.queue_gwires.index(i)
-			dump(adjacent_gwire_ids)
 			if pos_if_in_queue != -1 {
 				
 				app.queue_gwires[pos_if_in_queue] = adjacent_gwire_ids[0]
@@ -211,7 +210,6 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 			adjacent_gwire_ids[0] -= 1 // offset the greatest id (final one)
 			for mut queued in app.queue_gwires {
 				if queued >= i && queued > 0 {
-					dump(queued)
 					queued -= 1
 				}
 			}

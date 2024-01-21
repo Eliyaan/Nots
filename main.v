@@ -236,7 +236,7 @@ mut:
 	viewport_y    int
 	middle_click_held bool
 
-	scale f64 = 0.1
+	scale f64 = 0.5
 }
 
 fn main() {
@@ -259,52 +259,7 @@ fn main() {
 	// calculate the rotations of the image
 
 	// do your test/base placings here if needed
-
-
-app.place_in(1, 1)!
-app.build_selected_type = .not
-app.build_orientation = .west
-app.place_in(2, 1)!
-app.build_selected_type = .wire
-app.build_orientation = .west
-app.place_in(3, 1)!
-app.build_selected_type = .not
-app.build_orientation = .west
-app.place_in(4, 1)!
-app.place_in(5, 1)!
-app.place_in(6, 1)!
-app.place_in(7, 1)!
-app.place_in(6, 0)!
-app.place_in(5, 0)!
-app.place_in(4, 0)!
-app.place_in(3, 0)!
-app.update()
-app.build_selected_type = .wire
-app.build_orientation = .west
-app.place_in(2, 0)!
-app.place_in(1, 0)!
-app.place_in(7, 0)!
-app.place_in(8, 0)!
-app.place_in(8, 1)!
-app.place_in(1, 2)!
-app.place_in(3, 2)!
-app.place_in(2, 2)!
-app.place_in(4, 2)!
-app.place_in(5, 2)!
-app.place_in(6, 2)!
-app.place_in(7, 2)!
-app.place_in(8, 2)!
-app.place_in(6, -1)!
-app.place_in(7, -1)!
-app.place_in(5, -1)!
-app.place_in(3, -1)!
-app.place_in(4, -1)!
-app.place_in(2, -1)!
-dump(app.queue)
-dump(app.queue_gwires)
-app.update()
-app.delete_in(2, -1)!
-
+	
 	not_text := ggui.Text{0, 0, 0, '!', gx.TextCfg{
 		color: theme.base
 		size: 20

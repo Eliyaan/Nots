@@ -209,8 +209,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 					for input_id in fwire.inputs {
 						mut input := app.elements[input_id]
 						if mut input is Not {
-							input.output = fwire_id
-							if input.state {
+							if input.state && input_id !in app.queue {
 								on_inputs << input_id
 							}
 						}
@@ -263,7 +262,6 @@ fn (mut app App) delete_in(x int, y int) ! {
 					}
 					app.wire_groups.delete(destroyed.id_glob_wire)
 				}
-				dump(final_wires)
 			}
 			else {}
 		}
