@@ -39,10 +39,17 @@ fn (mut app App) update() {
 										}
 									}
 								}
+								Junction {
+									// TODO
+									//  on queue pas des jonctions on queue le suivant
+								}
 								else {}
 							}
 						}
 					}
+				}
+				Junction {
+					panic("Queued junction")
 				}
 				else {}
 			}
@@ -68,4 +75,59 @@ fn (mut app App) update() {
 	}
 	app.queue = new_queue.clone()
 	app.queue_gwires = new_queue_gwires.clone()
+}
+
+fn faster_updates(mut app ggui.Gui) {
+	if mut app is App {
+		if app.update_every_x_frame == 1 {
+			app.updates_per_frame = match app.updates_per_frame {
+				1 { 3 }
+				3 { 5 }
+				5 { 9 }
+				9 { 19 }
+				19 { 49 }
+				49 { 99 }
+				else { app.updates_per_frame }
+			}
+		} else {
+			app.update_every_x_frame = match app.update_every_x_frame {
+				60 { 30 }
+				30 { 10 }
+				10 { 5 }
+				5 { 3 }
+				3 { 2 }
+				2 { 1 }
+				else { app.update_every_x_frame }
+			}
+		}
+	}
+}
+
+fn slower_updates(mut app ggui.Gui) {
+	if mut app is App {
+		if app.update_every_x_frame == 1 {
+			app.updates_per_frame = match app.updates_per_frame {
+				3 { 1 }
+				5 { 3 }
+				9 { 5 }
+				19 { 9 }
+				49 { 19 }
+				99 { 49 }
+				else { app.updates_per_frame }
+			}
+			if app.updates_per_frame == 1 {
+				app.update_every_x_frame = 2
+			}
+		} else {
+			app.update_every_x_frame = match app.update_every_x_frame {
+				30 { 60 }
+				10 { 30 }
+				5 { 10 }
+				3 { 5 }
+				2 { 3 }
+				1 { 2 }
+				else { app.update_every_x_frame }
+			}
+		}
+	}
 }
