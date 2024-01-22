@@ -1,4 +1,5 @@
 module main 
+import math
 
 @[heap]
 struct Chunk {

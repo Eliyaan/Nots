@@ -3,8 +3,6 @@ module main
 import gg
 import gx
 import ggui
-import math
-import stbi
 
 const tile_size = 128
 const theme = ggui.CatppuchinMocha{}
