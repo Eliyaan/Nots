@@ -1,4 +1,5 @@
 module main
+import stbi
 
 fn load_image(path string) []Color {
 	image := stbi.load(path, stbi.LoadParams{0}) or { panic('Image not found: ${path}') }

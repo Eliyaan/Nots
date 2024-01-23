@@ -1,4 +1,5 @@
 module main
+import ggui
 
 fn (mut app App) update() {
 	mut new_queue := []i64{}
