@@ -60,6 +60,11 @@ mut:
 	screen_mouse_x int
 	screen_mouse_y int
 
+	mouse_down_x		int
+	mouse_down_y		int
+	mouse_up_x			int
+	mouse_up_y			int
+
 	build_selected_type Variant
 	build_orientation   Orientation
 
@@ -279,7 +284,10 @@ fn on_event(e &gg.Event, mut app App) {
 				place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
 				match e.mouse_button {
 					.left {
-						app.place_in(place_pos_x, place_pos_y) or {}
+						app.mouse_up_x = place_pos_x
+						app.mouse_up_y = place_pos_y
+						app.line_in(app.mouse_down_x, app.mouse_down_y, app.up, app.mouse_up_y) or {}
+						// app.place_in(place_pos_x, place_pos_y) or {}
 					}
 					.right {
 						app.delete_in(place_pos_x, place_pos_y) or {}
@@ -292,8 +300,14 @@ fn on_event(e &gg.Event, mut app App) {
 			app.middle_click_held = false
 		}
 		.mouse_down {
-			if e.mouse_button == .middle {
-				app.middle_click_held = true
+			match e.mouse_button {
+				.middle {
+					app.middle_click_held = true
+				}
+				.left {
+					app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
+					app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
+				}
 			}
 		}
 		.mouse_scroll {
