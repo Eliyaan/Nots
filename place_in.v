@@ -330,20 +330,21 @@ fn (mut app App) line_in(start_x int, start_y int, end_x int, end_y int) ! {
 		direction_x = -1
 	}
 	if y < 0{
-		y = math.abs(x)
+		y = math.abs(y)
 		direction_y = -1
 	}
-	dump(x)
-	dump(y)
 	if x > y{
 		for i in 0..x+1{
+			if direction_x == 1{app.build_orientation = .east}
+			else{app.build_orientation = .west}
 			app.place_in(start_x+i*direction_x, start_y) or {}
 		}
 	}
 	else{
 		for i in 0..y+1{
+			if direction_y == 1{app.build_orientation = .south}
+			else{app.build_orientation = .north}
 			app.place_in(start_x, start_y+i*direction_y) or {}
 		}
 	}
-	
 }
