@@ -62,7 +62,7 @@ mut:
 	mouse_down_y		int
 	mouse_up_x			int
 	mouse_up_y			int
-	place_is_turn	bool
+	place_is_turn		bool
 
 	build_selected_type Variant
 	build_orientation   Orientation
@@ -268,6 +268,9 @@ fn on_event(e &gg.Event, mut app App) {
 					app.scale += 0.01
 					app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) )
 					app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
+				}
+				.q{
+					app.place_is_turn	= 	!app.place_is_turn
 				}
 				else {}
 			}

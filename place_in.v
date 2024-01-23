@@ -364,7 +364,7 @@ fn (mut app App) line_in(start_x int, start_y int, end_x int, end_y int) ! {
 
 		tempo := app.build_selected_type
 		app.build_selected_type = .wire
-		app.place_in(start_x + x * direction_x, start_y) or {}
+		app.place_in(end_x, start_y) or {}
 		app.build_selected_type = tempo
 
 		for i in 1 .. y + 1 {
@@ -373,7 +373,7 @@ fn (mut app App) line_in(start_x int, start_y int, end_x int, end_y int) ! {
 			} else {
 				app.build_orientation = .north
 			}
-			app.place_in(start_x, start_y + i * direction_y) or {}
+			app.place_in(end_x, start_y + i * direction_y) or {}
 		}
 	}
 }
