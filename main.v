@@ -62,6 +62,7 @@ mut:
 	mouse_down_y		int
 	mouse_up_x			int
 	mouse_up_y			int
+	place_is_turn	bool
 
 	build_selected_type Variant
 	build_orientation   Orientation
