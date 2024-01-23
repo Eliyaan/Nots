@@ -284,7 +284,7 @@ fn on_event(e &gg.Event, mut app App) {
 					.left {
 						app.mouse_up_x = place_pos_x
 						app.mouse_up_y = place_pos_y
-						app.line_in(app.mouse_down_x, app.mouse_down_y, app.up, app.mouse_up_y) or {}
+						app.line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
 						// app.place_in(place_pos_x, place_pos_y) or {}
 					}
 					.right {
@@ -306,6 +306,7 @@ fn on_event(e &gg.Event, mut app App) {
 					app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 					app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
 				}
+				else{}
 			}
 		}
 		.mouse_scroll {

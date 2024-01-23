@@ -321,26 +321,28 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 }
 
 fn (mut app App) line_in(start_x int, start_y int, end_x int, end_y int) ! {
-	x := end_x - start_x
-	y := end_y - start_y
-	direction_x := 1
-	direction_y := 1
+	mut x := end_x - start_x
+	mut y := end_y - start_y
+	mut direction_x := 1
+	mut direction_y := 1
 	if x < 0{
-		x = m.abs(x)
+		x = math.abs(x)
 		direction_x = -1
 	}
-	if x < 0{
-		x = m.abs(x)
+	if y < 0{
+		y = math.abs(x)
 		direction_y = -1
 	}
+	dump(x)
+	dump(y)
 	if x > y{
-		for i in 0..x{
-			place_in(start_x+tile_size*i, start_y)
+		for i in 0..x+1{
+			app.place_in(start_x+i*direction_x, start_y) or {}
 		}
 	}
 	else{
-		for i in 0..y{
-			place_in(start_x, start_y+tile_size*i)
+		for i in 0..y+1{
+			app.place_in(start_x, start_y+i*direction_y) or {}
 		}
 	}
 	
