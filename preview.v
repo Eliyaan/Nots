@@ -18,17 +18,16 @@ fn (mut app App) preview_line(start_x int, start_y int, end_x int, end_y int) ! 
 	if x < 0 {
 		x = math.abs(x)
 		direction_x = -1
+	} else if x > 0 {
+		direction_x = 1
 	}
 	if y < 0 {
 		y = math.abs(y)
 		direction_y = -1
-	}
-	if x > 0 {
-		direction_x = 1
-	}
-	if y > 0 {
+	} else if y > 0 {
 		direction_y = 1
 	}
+	
 	if !app.place_is_turn {
 		if x > y {
 			for i in 0 .. x + 1 {
