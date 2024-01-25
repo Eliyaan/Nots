@@ -331,14 +331,13 @@ fn (mut app App) delete_in(x int, y int) ! {
 					}
 					fwire.inputs = on_inputs
 					if !(fwire.on()) && app.wire_groups[destroyed.id_glob_wire].on() {
-						if destroyed.id_glob_wire in app.queue_gwires
-							&& fwire_id !in app.queue_gwires {
+						if fwire_id !in app.queue_gwires {
 							app.queue_gwires << fwire_id
 						}
 					}
 
 					if fwire.on() {
-						if destroyed.id_glob_wire in app.queue_gwires && fwire_id !in app.queue_gwires {
+						if fwire_id !in app.queue_gwires {
 							app.queue_gwires << fwire_id
 						}
 					}
