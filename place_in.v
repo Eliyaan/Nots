@@ -324,36 +324,35 @@ fn (mut app App) line_in(start_x int, start_y int, end_x int, end_y int) ! {
 	mut y := end_y - start_y
 	mut direction_x := 1
 	mut direction_y := 1
-	if x < 0 {
-		x = math.abs(x)
-		direction_x = -1
+	if x == 0 && y == 0{
+		app.place_in(start_x, start_y) or {}
 	}
-	if y < 0 {
-		y = math.abs(y)
-		direction_y = -1
-	}
-	if !app.place_is_turn {
-		if x > y {
-			for i in 0 .. x + 1 {
-				if direction_x == 1 {
-					app.build_orientation = .east
-				} else {
-					app.build_orientation = .west
-				}
-				app.place_in(start_x + i * direction_x, start_y) or {}
-			}
-		} else {
-			for i in 0 .. y + 1 {
-				if direction_y == 1 {
-					app.build_orientation = .south
-				} else {
-					app.build_orientation = .north
-				}
-				app.place_in(start_x, start_y + i * direction_y) or {}
-			}
+	else{
+		if x < 0 {
+			x = math.abs(x)
+			direction_x = -1
 		}
-	} else {
-		for i in 0 .. x {
+		if y < 0 {
+			y = math.abs(y)
+			direction_y = -1
+		}
+		if !app.place_is_turn {
+			app.strait_line(start_x, start_y, x, y, direction_x, direction_y)
+		} 
+		else {
+			app.turn_line(start_x, start_y, end_x, end_y, x, y, direction_x, direction_y)
+		}
+	}
+	//Reset
+	app.mouse_down_x	= 0
+	app.mouse_down_y	= 0
+	app.mouse_up_x		= 0
+	app.mouse_up_y		= 0
+}
+
+fn (mut app App) strait_line(start_x int, start_y int, x int, y int, direction_x int, direction_y int){
+	if x > y {
+		for i in 0 .. x + 1 {
 			if direction_x == 1 {
 				app.build_orientation = .east
 			} else {
@@ -361,19 +360,39 @@ fn (mut app App) line_in(start_x int, start_y int, end_x int, end_y int) ! {
 			}
 			app.place_in(start_x + i * direction_x, start_y) or {}
 		}
-
-		tempo := app.build_selected_type
-		app.build_selected_type = .wire
-		app.place_in(end_x, start_y) or {}
-		app.build_selected_type = tempo
-
-		for i in 1 .. y + 1 {
+	} else {
+		for i in 0 .. y + 1 {
 			if direction_y == 1 {
 				app.build_orientation = .south
 			} else {
 				app.build_orientation = .north
 			}
-			app.place_in(end_x, start_y + i * direction_y) or {}
+			app.place_in(start_x, start_y + i * direction_y) or {}
 		}
+	}
+}
+
+fn (mut app App) turn_line(start_x int, start_y int, end_x int, end_y int, x int, y int, direction_x int, direction_y int){
+	for i in 0 .. x {
+		if direction_x == 1 {
+			app.build_orientation = .east
+		} else {
+			app.build_orientation = .west
+		}
+		app.place_in(start_x + i * direction_x, start_y) or {}
+	}
+
+	tempo := app.build_selected_type
+	app.build_selected_type = .wire
+	app.place_in(end_x, start_y) or {}
+	app.build_selected_type = tempo
+
+	for i in 1 .. y + 1 {
+		if direction_y == 1 {
+			app.build_orientation = .south
+		} else {
+			app.build_orientation = .north
+		}
+		app.place_in(end_x, start_y + i * direction_y) or {}
 	}
 }
