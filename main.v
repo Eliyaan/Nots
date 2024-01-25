@@ -108,6 +108,48 @@ fn main() {
 
 	// do your test/base placings here if needed
 
+app.build_selected_type = .not
+app.place_in(-8, -4)!
+app.place_in(-8, -3)!
+app.place_in(-8, -2)!
+app.build_selected_type = .wire
+app.place_in(-7, -4)!
+app.place_in(-6, -4)!
+app.place_in(-5, -4)!
+app.place_in(-5, -2)!
+app.place_in(-7, -2)!
+app.build_selected_type = .not
+app.place_in(-4, -3)!
+app.build_selected_type = .wire
+app.place_in(-5, -3)!
+app.place_in(-6, -3)!
+app.place_in(-7, -3)!
+app.place_in(-6, -2)!
+app.delete_in(-6, -3)!
+app.delete_in(-7, -3)!
+app.delete_in(-5, -3)!
+app.delete_in(-6, -2)!
+app.build_selected_type = .junction
+app.place_in(-7, -3)!
+app.place_in(-6, -3)!
+app.place_in(-5, -3)!
+app.build_selected_type = .not
+app.build_orientation = .north
+app.place_in(-6, -2)!
+app.update()
+app.delete_in(-6, -2)!
+app.update()
+app.delete_in(-7, -3)!
+app.update()
+app.delete_in(-6, -3)!
+app.update()
+app.delete_in(-5, -3)!
+app.update()
+app.build_selected_type = .wire
+app.place_in(-5, -3)!
+app.place_in(-6, -3)!
+app.place_in(-7, -3)!
+
 	not_text := ggui.Text{0, 0, 0, '!', gx.TextCfg{
 		color: theme.base
 		size: 20
