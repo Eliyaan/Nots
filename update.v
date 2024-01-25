@@ -41,45 +41,48 @@ fn (mut app App) update() {
 									}
 								}
 								Junction {
-									mut i := 2
+									mut i := 1
 									output_x, output_y := output_coords_from_orientation(elem.orientation)
 									mut other_side_id := app.get_tile_id_at(int(elem.x) + output_x*i, int(elem.y) + output_y*i)
-									
 									for other_side_id != -1 && app.elements[other_side_id] is Junction {
 										other_side_id = app.get_tile_id_at(int(elem.x) + output_x*i, int(elem.y) + output_y*i)
-										mut other_side_output := app.elements[other_side_id]
-										match mut other_side_output { 
-											Not {
-												if elem.orientation == other_side_output.orientation {
-													other_side_output.state = !elem.state
-													new_queue << other_side_id
-													app.elements[other_side_id] = other_side_output
+										
+										if other_side_id != -1 {
+											mut other_side_output := app.elements[other_side_id]
+											match mut other_side_output { 
+												Not {
+													if elem.orientation == other_side_output.orientation {
+														other_side_output.state = !elem.state
+														new_queue << other_side_id
+														app.elements[other_side_id] = other_side_output
+													}
 												}
-											}
-											Wire{
-												if elem.state {
-													if updated !in app.wire_groups[other_side_output.id_glob_wire].inputs {
+												Wire{
+													if elem.state {
+														if updated !in app.wire_groups[other_side_output.id_glob_wire].inputs {
+															if !app.wire_groups[other_side_output.id_glob_wire].on() {
+																app.queue_gwires << other_side_output.id_glob_wire
+															}
+															app.wire_groups[other_side_output.id_glob_wire].inputs << updated
+														}
+													} else {
+														for nb, input_id in app.wire_groups[other_side_output.id_glob_wire].inputs {
+															if input_id == updated {
+																app.wire_groups[other_side_output.id_glob_wire].inputs.delete(nb)
+																break
+															}
+														}
 														if !app.wire_groups[other_side_output.id_glob_wire].on() {
-															app.queue_gwires << other_side_output.id_glob_wire
-														}
-														app.wire_groups[other_side_output.id_glob_wire].inputs << updated
-													}
-												} else {
-													for nb, input_id in app.wire_groups[other_side_output.id_glob_wire].inputs {
-														if input_id == updated {
-															app.wire_groups[other_side_output.id_glob_wire].inputs.delete(nb)
-															break
-														}
-													}
-													if !app.wire_groups[other_side_output.id_glob_wire].on() {
-														id_gwire_queue := app.queue_gwires.index(other_side_output.id_glob_wire)
-														if id_gwire_queue == -1 {
-															app.queue_gwires << other_side_output.id_glob_wire
+															id_gwire_queue := app.queue_gwires.index(other_side_output.id_glob_wire)
+															if id_gwire_queue == -1 {
+																app.queue_gwires << other_side_output.id_glob_wire
+															}
 														}
 													}
 												}
+												else {}
 											}
-											else {}
+											i++
 										}
 									}
 								}
@@ -98,15 +101,21 @@ fn (mut app App) update() {
 	mut new_queue_gwires := []i64{}
 	for updated in app.queue_gwires {
 		gwire := app.wire_groups[updated]
+		dump(gwire.outputs)
 		for output_id in gwire.outputs {
 			mut output := app.elements[output_id]
 			if !output.destroyed {
-				if mut output is Not {
-					output.state = gwire.inputs.len == 0
-					if output_id !in new_queue {
-						new_queue << output_id
+				match mut output {
+					Not {
+						output.state = gwire.inputs.len == 0
+						if output_id !in new_queue {
+							new_queue << output_id
+						}
+						app.elements[output_id] = output
 					}
-					app.elements[output_id] = output
+					else {
+						panic("Wire output not managed: ${output_id} ${output}")
+					}
 				}
 			} else {
 				panic('elem detruit dans les outputs du wire')

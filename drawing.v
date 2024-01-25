@@ -112,6 +112,13 @@ fn (mut app App) undraw_elements() {
 									}
 								}
 							}
+							Junction {
+								for y in 0 .. scaled_tile_size {
+									for x in 0 .. scaled_tile_size {
+										app.screen_pixels[array_pos + y * app.screen_x + x] = u32(0xFFBBBBBB)
+									}
+								}
+							}
 							else {}
 						}
 					}

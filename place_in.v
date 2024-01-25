@@ -64,28 +64,31 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 							}
 						}
 						Junction {
-							mut i := 2
+							mut i := 1
 							mut other_side_id := app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
 							for other_side_id != -1 && app.elements[other_side_id] is Junction {
 								other_side_id = app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
-								mut other_side_elem := app.elements[other_side_id]
-								match mut other_side_elem {
-									Not {
-										output_x, output_y := output_coords_from_orientation(other_side_elem.orientation)
-										input_x, input_y := input_coords_from_orientation(other_side_elem.orientation)
-										if pos[0] == output_x && pos[1] == output_y {
-											outputs << elem_id
-										} else if pos[0] == input_x && pos[1] == input_y {
-											if other_side_elem.state {
-												inputs << elem_id
+								if other_side_id != -1 {
+									mut other_side_elem := app.elements[other_side_id]
+									match mut other_side_elem {
+										Not {
+											output_x, output_y := output_coords_from_orientation(other_side_elem.orientation)
+											input_x, input_y := input_coords_from_orientation(other_side_elem.orientation)
+											if pos[0] == output_x && pos[1] == output_y {
+												outputs << other_side_id
+											} else if pos[0] == input_x && pos[1] == input_y {
+												if other_side_elem.state {
+													inputs << other_side_id
+												}
+												app.elements[other_side_id] = other_side_elem
 											}
-											app.elements[other_side_id] = other_side_elem
 										}
+										Wire {
+											adjacent_gwire_ids << other_side_elem.id_glob_wire
+										}
+										else {}
 									}
-									Wire {
-										adjacent_gwire_ids << other_side_elem.id_glob_wire
-									}
-									else {}
+									i++
 								}
 							}
 						}
@@ -98,7 +101,18 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 
 		mut gwire_id := i64(0)
 		if adjacent_gwire_ids.len == 0 {
-			// Do nothing
+			if inputs.len > 0 {
+				for output_id in outputs {
+					mut output := app.elements[output_id]
+					match mut output {
+						Not {
+							output.state = false
+							app.queue << output_id
+						}
+						else { panic("Not a Not in the inputs of a junction: ${output_id} ${output}")}
+					}
+				}
+			}
 		} else if adjacent_gwire_ids.len == 1 {
 			gwire_id = adjacent_gwire_ids[0]
 			app.wire_groups[gwire_id].inputs << inputs
@@ -252,24 +266,28 @@ fn (mut app App) not_place_in(x int, y int) ! {
 				app.wire_groups[elem_input.id_glob_wire].outputs << id
 			}
 			Junction {
-				mut i := 2
+				mut i := 1
 				mut other_side_id := app.get_tile_id_at(x + input_x*i, y + input_y*i)
 				for other_side_id != -1 && app.elements[other_side_id] is Junction {
 					other_side_id = app.get_tile_id_at(x + input_x*i, y + input_y*i)
-					mut other_side_input := app.elements[other_side_id]
-					match mut other_side_input {
-						Not {
-							if other_side_input.orientation == app.build_orientation {
-								other_side_input.output = id
-								state = !other_side_input.state
-								app.elements[other_side_id] = other_side_input
+					dump(other_side_id)
+					if other_side_id != -1 {
+						mut other_side_input := app.elements[other_side_id]
+						match mut other_side_input {
+							Not {
+								if other_side_input.orientation == app.build_orientation {
+									other_side_input.output = id
+									state = !other_side_input.state
+									app.elements[other_side_id] = other_side_input
+								}
 							}
+							Wire {
+								state = !app.wire_groups[other_side_input.id_glob_wire].on()
+								app.wire_groups[other_side_input.id_glob_wire].outputs << id
+							}
+							else {}
 						}
-						Wire {
-							state = !app.wire_groups[other_side_input.id_glob_wire].on()
-							app.wire_groups[other_side_input.id_glob_wire].outputs << id
-						}
-						else {}
+						i++
 					}
 				}
 			}
@@ -277,6 +295,7 @@ fn (mut app App) not_place_in(x int, y int) ! {
 		}
 		app.elements[input] = elem_input
 	}
+
 	if id == app.elements.len {
 		app.elements << Not{
 			output: output
@@ -350,28 +369,31 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 						}
 					}
 					Junction {
-						mut i := 2
+						mut i := 1
 						mut other_side_id := app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
 						for other_side_id != -1 && app.elements[other_side_id] is Junction {
 							other_side_id = app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
-							mut other_side_elem := app.elements[other_side_id]
-							match mut other_side_elem {
-								Not {
-									output_x, output_y := output_coords_from_orientation(other_side_elem.orientation)
-									input_x, input_y := input_coords_from_orientation(other_side_elem.orientation)
-									if pos[0] == output_x && pos[1] == output_y {
-										outputs << elem_id
-									} else if pos[0] == input_x && pos[1] == input_y {
-										if other_side_elem.state {
-											inputs << elem_id
+							if other_side_id != -1 {
+								mut other_side_elem := app.elements[other_side_id]
+								match mut other_side_elem {
+									Not {
+										output_x, output_y := output_coords_from_orientation(other_side_elem.orientation)
+										input_x, input_y := input_coords_from_orientation(other_side_elem.orientation)
+										if pos[0] == output_x && pos[1] == output_y {
+											outputs << other_side_id
+										} else if pos[0] == input_x && pos[1] == input_y {
+											if other_side_elem.state {
+												inputs << other_side_id
+											}
+											app.elements[other_side_id] = other_side_elem
 										}
-										app.elements[other_side_id] = other_side_elem
 									}
+									Wire {
+										adjacent_gwire_ids << other_side_elem.id_glob_wire
+									}
+									else {}
 								}
-								Wire {
-									adjacent_gwire_ids << other_side_elem.id_glob_wire
-								}
-								else {}
+								i++
 							}
 						}
 					}

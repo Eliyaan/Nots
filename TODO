@@ -1,4 +1,4 @@
-WIP junctions -> update when not; delete; place in
+Test more junctions
 
 fix transparency
 
@@ -6,3 +6,11 @@ save system
 
 
 very bad perf when lot of the screen covered by drawing -> replace only what needs to be replaced ?
+
+
+
+
+// Rules to remember:
+Not state updated before queuing them
+Junctions not in wire outputs
+Junctions not queued just loop till other side
