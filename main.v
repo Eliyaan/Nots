@@ -58,6 +58,18 @@ mut:
 	screen_mouse_x int
 	screen_mouse_y int
 
+	//Used for preview
+	is_placing		bool
+	mouse_down_preview_x		int
+	mouse_down_preview_y		int
+
+	//Used for place
+	mouse_down_x		int
+	mouse_down_y		int
+	mouse_up_x			int
+	mouse_up_y			int
+	place_is_turn		bool
+
 	build_selected_type Variant
 	build_orientation   Orientation
 
@@ -174,31 +186,7 @@ fn on_frame(mut app App) {
 	app.draw_elements()
 	app.draw_image()
 	app.undraw_elements()
-	half_scaled_tile_size := f32(ceil(tile_size * app.scale)) * 0.5
-	preview_x := f32(app.mouse_x * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
-	preview_y := f32(app.mouse_y * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
-	match app.build_selected_type {
-		.not {
-			color := gg.Color{50, 100, 100, 100}
-			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), gg.Color{100, 100, 100, 100})
-			rotation := match app.build_orientation {
-				.north { -90 }
-				.south { 90 }
-				.east { 0 }
-				.west { 180 }
-			}
-			app.gg.draw_polygon_filled(preview_x + half_scaled_tile_size, preview_y + half_scaled_tile_size, half_scaled_tile_size, 3, rotation, color)
-		}
-		.wire {
-			color := gg.Color{100, 100, 100, 100}
-			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), color)
-		}
-		.junction {
-			color := gg.Color{255, 0, 255, 100}
-			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), color)
-		}
-		else {}
-	}
+	app.preview()
 	app.gui.render()
 	app.gg.show_fps()
 	app.gg.end()
@@ -263,6 +251,9 @@ fn on_event(e &gg.Event, mut app App) {
 					app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) )
 					app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
 				}
+				.q{
+					app.place_is_turn	= 	!app.place_is_turn
+				}
 				else {}
 			}
 			if app.debug_mode && (app.build_orientation != orientation_before
@@ -277,7 +268,10 @@ fn on_event(e &gg.Event, mut app App) {
 				place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
 				match e.mouse_button {
 					.left {
-						app.place_in(place_pos_x, place_pos_y) or {}
+						app.is_placing = false
+						app.mouse_up_x = place_pos_x
+						app.mouse_up_y = place_pos_y
+						app.line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
 					}
 					.right {
 						app.delete_in(place_pos_x, place_pos_y) or {}
@@ -290,8 +284,18 @@ fn on_event(e &gg.Event, mut app App) {
 			app.middle_click_held = false
 		}
 		.mouse_down {
-			if e.mouse_button == .middle {
-				app.middle_click_held = true
+			match e.mouse_button {
+				.middle {
+					app.middle_click_held = true
+				}
+				.left {
+					app.is_placing = true
+					app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
+					app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
+					app.mouse_down_preview_x	= app.mouse_x
+					app.mouse_down_preview_y 	= app.mouse_y
+				}
+				else{}
 			}
 		}
 		.mouse_scroll {
