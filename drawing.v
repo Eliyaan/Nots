@@ -65,7 +65,7 @@ fn (mut app App) draw_elements() {
 								}
 							}
 							Junction {
-								color := u32(0xFF12_D0_EF)
+								color := u32(0xFFFF_00_FF)
 								for y in 0 .. scaled_tile_size {
 									for x in 0 .. scaled_tile_size {
 										app.screen_pixels[array_pos + y * app.screen_x + x] = color
