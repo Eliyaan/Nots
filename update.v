@@ -102,7 +102,6 @@ fn (mut app App) update() {
 	for updated in app.queue_gwires {
 		if updated >= 0 {
 			gwire := app.wire_groups[updated]
-			dump(gwire.outputs)
 			for output_id in gwire.outputs {
 				mut output := app.elements[output_id]
 				if !output.destroyed {

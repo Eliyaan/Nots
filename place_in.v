@@ -454,7 +454,6 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		app.wire_groups[adjacent_gwire_ids[0]].inputs << inputs
 		app.wire_groups[adjacent_gwire_ids[0]].outputs << outputs
 		if app.wire_groups[adjacent_gwire_ids[0]].on() {
-			dump(app.wire_groups[gwire_id].outputs)
 			for id_output in app.wire_groups[adjacent_gwire_ids[0]].outputs {
 				mut elem := app.elements[id_output]
 				if mut elem is Not {

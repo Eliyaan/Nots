@@ -95,7 +95,7 @@ fn main() {
 		create_window: true
 		window_title: '- Nots -'
 		user_data: app
-		bg_color: gx.white
+		bg_color: gx.Color{187, 187, 187, 255}
 		frame_fn: on_frame
 		event_fn: on_event
 		init_fn: graphics_init
@@ -328,6 +328,6 @@ fn graphics_init(mut app App) {
 	app.screen_x = size.width
 	app.screen_y = size.height
 	app.istream_idx = app.gg.new_streaming_image(size.width, size.height, 4, pixel_format: .rgba8)
-	app.screen_pixels = []u32{len: app.screen_y * app.screen_x, init: u32(0xFFBBBBBB)}
-	app.blank_screen = []u32{len: app.screen_y * app.screen_x, init: u32(0xFFBBBBBB)}
+	app.screen_pixels = []u32{len: app.screen_y * app.screen_x, init: u32(0x0)}
+	app.blank_screen = []u32{len: app.screen_y * app.screen_x, init: u32(0x0)}
 }
