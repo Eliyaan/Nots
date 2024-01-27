@@ -199,9 +199,9 @@ fn (mut app App) delete_in(x int, y int) ! {
 										}
 										Junction {
 											mut i := 1
-											mut other_side_id := app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+											mut other_side_id := app.get_tile_id_at(int(current.x + pos[0]*i), int(current.y + pos[1]*i))
 											for other_side_id != -1 && app.elements[other_side_id] is Junction {
-												other_side_id = app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+												other_side_id = app.get_tile_id_at(int(current.x + pos[0]*i), int(current.y + pos[1]*i))
 												if other_side_id != -1 {
 													mut output := app.elements[other_side_id]
 													match mut output { 
@@ -269,10 +269,9 @@ fn (mut app App) delete_in(x int, y int) ! {
 										}
 										Junction {
 											mut i := 1
-											mut other_side_id := app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
-											
+											mut other_side_id := app.get_tile_id_at(int(current.x + pos[0]*i), int(current.y + pos[1]*i))
 											for other_side_id != -1 && app.elements[other_side_id] is Junction {
-												other_side_id = app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+												other_side_id = app.get_tile_id_at(int(current.x + pos[0]*i), int(current.y + pos[1]*i))
 												if other_side_id != -1 {
 													mut output := app.elements[other_side_id]
 													match mut output { 
@@ -505,9 +504,9 @@ fn (mut app App) delete_in(x int, y int) ! {
 										}
 										Junction {
 											mut i := 1
-											mut other_side_id := app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+											mut other_side_id := app.get_tile_id_at(int(current.x + pos[0]*i), int(current.y + pos[1]*i))
 											for other_side_id != -1 && app.elements[other_side_id] is Junction {
-												other_side_id = app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+												other_side_id = app.get_tile_id_at(int(current.x + pos[0]*i), int(current.y + pos[1]*i))
 												if other_side_id != -1 {
 													mut output := app.elements[other_side_id]
 													match mut output { 
@@ -575,10 +574,10 @@ fn (mut app App) delete_in(x int, y int) ! {
 										}
 										Junction {
 											mut i := 1
-											mut other_side_id := app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+											mut other_side_id := app.get_tile_id_at(int(current.x + pos[0]*i), int(current.y + pos[1]*i))
 											
 											for other_side_id != -1 && app.elements[other_side_id] is Junction {
-												other_side_id = app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+												other_side_id = app.get_tile_id_at(int(current.x + pos[0]*i), int(current.y + pos[1]*i))
 												if other_side_id != -1 {
 													mut output := app.elements[other_side_id]
 													match mut output { 

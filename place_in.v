@@ -163,9 +163,12 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 			for i in adjacent_gwire_ids[1..] {
 				app.wire_groups.delete(i)
 				adjacent_gwire_ids[0] -= 1 // offset the greatest id (final one)
-				for mut queued in app.queue_gwires {
+				for nb, mut queued in app.queue_gwires {
 					if queued >= i && queued > 0 {
 						queued -= 1
+						if queued in app.queue_gwires[..nb] {
+							queued = -1
+						}
 					}
 				}
 				for wg in app.wire_groups[i..] {
@@ -451,12 +454,15 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		app.wire_groups[adjacent_gwire_ids[0]].inputs << inputs
 		app.wire_groups[adjacent_gwire_ids[0]].outputs << outputs
 		if app.wire_groups[adjacent_gwire_ids[0]].on() {
+			dump(app.wire_groups[gwire_id].outputs)
 			for id_output in app.wire_groups[adjacent_gwire_ids[0]].outputs {
 				mut elem := app.elements[id_output]
 				if mut elem is Not {
 					if elem.state {
 						elem.state = false
-						app.queue << id_output
+						if id_output !in app.queue {
+							app.queue << id_output
+						}
 					}
 				}
 				app.elements[id_output] = elem
@@ -465,9 +471,12 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 		for i in adjacent_gwire_ids[1..] {
 			app.wire_groups.delete(i)
 			adjacent_gwire_ids[0] -= 1 // offset the greatest id (final one)
-			for mut queued in app.queue_gwires {
+			for nb, mut queued in app.queue_gwires {
 				if queued >= i && queued > 0 {
 					queued -= 1
+					if queued in app.queue_gwires[..nb] {
+						queued = -1
+					}
 				}
 			}
 			for wg in app.wire_groups[i..] {

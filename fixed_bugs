@@ -85,3 +85,22 @@ app.place_in(-9, -2)!
 	app.place_in(-7, -2)!
 	app.update()
 	app.delete_in(-8, -2)!
+
+app.build_selected_type = .not
+app.place_in(-8, -2)!  // 0
+app.build_selected_type = .wire
+app.place_in(-7, -4)! //1
+app.place_in(-6, -4)! // 2
+app.place_in(-5, -4)!  // 3
+app.place_in(-5, -2)! //4 à part
+app.place_in(-7, -2)!  // 5
+app.place_in(-7, -3)!  // 6
+app.build_selected_type = .not
+app.place_in(-4, -3)!  //7
+app.build_selected_type = .junction
+app.place_in(-5, -3)!  // 8
+app.update()
+app.delete_in(-7, -3)!  // 6
+app.delete_in(-5, -3)!  // 8
+app.build_selected_type = .wire
+app.place_in(-5, -3)!

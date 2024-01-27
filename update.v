@@ -100,24 +100,27 @@ fn (mut app App) update() {
 	}
 	mut new_queue_gwires := []i64{}
 	for updated in app.queue_gwires {
-		gwire := app.wire_groups[updated]
-		for output_id in gwire.outputs {
-			mut output := app.elements[output_id]
-			if !output.destroyed {
-				match mut output {
-					Not {
-						output.state = gwire.inputs.len == 0
-						if output_id !in new_queue {
-							new_queue << output_id
+		if updated >= 0 {
+			gwire := app.wire_groups[updated]
+			dump(gwire.outputs)
+			for output_id in gwire.outputs {
+				mut output := app.elements[output_id]
+				if !output.destroyed {
+					match mut output {
+						Not {
+							output.state = gwire.inputs.len == 0
+							if output_id !in new_queue {
+								new_queue << output_id
+							}
+							app.elements[output_id] = output
 						}
-						app.elements[output_id] = output
+						else {
+							panic("Wire output not managed: ${output_id} ${output}")
+						}
 					}
-					else {
-						panic("Wire output not managed: ${output_id} ${output}")
-					}
+				} else {
+					panic('elem detruit dans les outputs du wire')
 				}
-			} else {
-				panic('elem detruit dans les outputs du wire')
 			}
 		}
 	}
