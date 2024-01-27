@@ -394,6 +394,11 @@ fn (mut app App) delete_in(x int, y int) ! {
 						}
 					}
 					app.wire_groups.delete(destroyed.id_glob_wire)
+					mut i_queue := app.queue_gwires.index(destroyed.id_glob_wire)
+					for i_queue != -1 {
+						app.queue_gwires.delete(i_queue)
+						i_queue = app.queue_gwires.index(destroyed.id_glob_wire)
+					}
 				}
 			}
 			Junction {
