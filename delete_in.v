@@ -146,10 +146,10 @@ fn (mut app App) delete_in(x int, y int) ! {
 													output_x, output_y := output_coords_from_orientation(output.orientation)
 													if pos[0] == output_x && pos[1] == output_y {
 														if !output.state {
+															output.state = true
+															app.elements[other_side_id] = output
 															if other_side_id !in app.queue {
 																app.queue << other_side_id
-																output.state = true
-																app.elements[other_side_id] = output
 															}
 														}
 													}
@@ -449,10 +449,10 @@ fn (mut app App) delete_in(x int, y int) ! {
 													output_x, output_y := output_coords_from_orientation(output.orientation)
 													if pos[0] == output_x && pos[1] == output_y {
 														if !output.state {
+															output.state = true
+															app.elements[other_side_id] = output
 															if other_side_id !in app.queue {
-																app.queue << other_side_id
-																output.state = true
-																app.elements[other_side_id] = output
+																app.queue << other_side_id	
 															}
 														}
 													}

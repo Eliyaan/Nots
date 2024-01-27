@@ -108,27 +108,6 @@ fn main() {
 
 	// do your test/base placings here if needed
 
-app.build_selected_type = .not
-app.place_in(-8, -3)!
-app.place_in(-8, -2)!
-app.build_selected_type = .not
-app.place_in(-4, -3)!
-app.build_selected_type = .wire
-app.place_in(-5, -3)!
-app.place_in(-7, -3)!
-app.build_selected_type = .junction
-app.place_in(-6, -3)!
-app.place_in(-7, -1)!
-app.build_selected_type = .wire
-app.place_in(-6, -1)!
-app.place_in(-8, -1)!
-app.place_in(-9, -2)!
-app.place_in(-9, -1)!
-app.build_selected_type = .junction
-app.place_in(-7, -2)!
-app.build_selected_type = .wire
-app.place_in(-6, -2)!
-app.delete_in(-6, -2)!
 
 
 	not_text := ggui.Text{0, 0, 0, '!', gx.TextCfg{
