@@ -15,6 +15,7 @@ fn (mut app App) place_in(x int, y int) ! {
 			app.junction_place_in(x, y)!
 		}
 	}
+	app.update()
 }
 
 fn (mut app App) junction_place_in(x int, y int) ! {

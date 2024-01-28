@@ -6,10 +6,6 @@ fn (mut app App) delete_in(x int, y int) ! {
 	place_chunk_id := app.get_chunk_id_at_coords(x, y)
 	place_chunk := app.chunks[place_chunk_id]
 	old_id := place_chunk.tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)]
-	i_old_id_queue := app.queue.index(old_id)
-	if i_old_id_queue != -1 {
-		app.queue.delete(i_old_id_queue)
-	}
 	if old_id >= 0 {
 		app.chunks[place_chunk_id].tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] = -1
 		if app.debug_mode {
@@ -66,9 +62,11 @@ fn (mut app App) delete_in(x int, y int) ! {
 					mut output_elem := app.elements[destroyed.output]
 					match mut output_elem {
 						Wire {
-							if old_id !in app.queue {  // if not: it's because it just changed of state
-								i := app.wire_groups[output_elem.id_glob_wire].inputs.index(old_id)
+							i := app.wire_groups[output_elem.id_glob_wire].inputs.index(old_id)
+							if i != -1 {
 								app.wire_groups[output_elem.id_glob_wire].inputs.delete(i)
+							}
+							if old_id !in app.queue && i != -1 {  // if not: it's because it just changed of state
 								if app.wire_groups[output_elem.id_glob_wire].inputs.len == 0 {
 									app.queue_gwires << output_elem.id_glob_wire
 								}
@@ -90,9 +88,11 @@ fn (mut app App) delete_in(x int, y int) ! {
 								mut other_side_elem := app.elements[other_side_id]
 								match mut other_side_elem { 
 									Wire {
-										if old_id !in app.queue {
-											inputs_i := app.wire_groups[other_side_elem.id_glob_wire].inputs.index(old_id)
+										inputs_i := app.wire_groups[other_side_elem.id_glob_wire].inputs.index(old_id)
+										if inputs_i != -1 {
 											app.wire_groups[other_side_elem.id_glob_wire].inputs.delete(inputs_i)
+										}
+										if old_id !in app.queue && inputs_i != -1 {  // if not: it's because it just changed of state
 											if app.wire_groups[other_side_elem.id_glob_wire].inputs.len == 0 {
 												app.queue_gwires << other_side_elem.id_glob_wire
 											}
@@ -128,9 +128,9 @@ fn (mut app App) delete_in(x int, y int) ! {
 									input_x, input_y := input_coords_from_orientation(elem.orientation)
 									if pos[0] == output_x && pos[1] == output_y { // direction aligned with output coords direction
 										if !elem.state {
+											elem.state = true
 											if elem_id !in app.queue {
 												app.queue << elem_id
-												elem.state = true
 											}
 										}
 									} else if pos[0] == input_x && pos[1] == input_y {
@@ -402,6 +402,11 @@ fn (mut app App) delete_in(x int, y int) ! {
 					for i_queue != -1 {
 						app.queue_gwires.delete(i_queue)
 						i_queue = app.queue_gwires.index(destroyed.id_glob_wire)
+					}
+					for mut i in app.queue_gwires {
+						if i > destroyed.id_glob_wire {
+							i -= 1
+						}
 					}
 				}
 			}
@@ -722,4 +727,9 @@ fn (mut app App) delete_in(x int, y int) ! {
 	} else {
 		return error('Not in a filled space')
 	}
+	i_old_id_queue := app.queue.index(old_id)
+	if i_old_id_queue != -1 {
+		app.queue.delete(i_old_id_queue)
+	}
+	app.update()
 }
