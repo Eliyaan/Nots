@@ -257,14 +257,14 @@ fn on_event(e &gg.Event, mut app App) {
 				}
 				.t {
 					if app.debug_mode {
-						println("NOUVEAU TEST : prendre tout ce qu'il y a en dessous")
-						size := 6
+						size := 10
 						for y in 0..size {
 							for x in 0..size {
 								app.delete_in(x, y) or {}
 							}
 						}
-						for _ in 0..50 {
+						println("NOUVEAU TEST : prendre tout ce qu'il y a en dessous")
+						for _ in 0..400 {
 							r := rand.int_in_range(0, 10) or {0}
 							if r < 4 {
 								if app.build_selected_type != .wire {
@@ -278,7 +278,7 @@ fn on_event(e &gg.Event, mut app App) {
 									println('app.build_selected_type = .${app.build_selected_type}')
 								}
 								app.place_in(rand.int_in_range(0, size) or {0}, rand.int_in_range(0, size) or {5}) or {}
-							} else if r < 9 {
+							} else if r < 8 {
 								if app.build_selected_type != .not {
 									app.build_selected_type = .not
 									println('app.build_selected_type = .${app.build_selected_type}')
@@ -295,6 +295,8 @@ fn on_event(e &gg.Event, mut app App) {
 									println('app.build_orientation = .${app.build_orientation}')
 								}
 								app.place_in(rand.int_in_range(0, size) or {0}, rand.int_in_range(0, size) or {5}) or {}
+							} else if r < 9 {
+								app.delete_in(rand.int_in_range(0, size) or {0}, rand.int_in_range(0, size) or {5}) or {}
 							} else {
 								app.update()
 							}

@@ -28,7 +28,11 @@ fn (mut app App) delete_in(x int, y int) ! {
 						}
 						Wire {
 							i := app.wire_groups[input_elem.id_glob_wire].outputs.index(old_id)
-							app.wire_groups[input_elem.id_glob_wire].outputs.delete(i)
+							if i != -1 {
+								app.wire_groups[input_elem.id_glob_wire].outputs.delete(i)
+							} else {
+								println("Very strange that the Not was not in the outputs of the wire not:${destroyed} id:${old_id} input_id:${input} outputs:${app.wire_groups[input_elem.id_glob_wire].outputs}")
+							}
 						}
 						Junction {
 							mut i := 1
