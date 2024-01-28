@@ -469,7 +469,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 												Wire{
 													if other_side_id >= 0 {
 														to_process << other_side_id
-														adjacent_wire_ids << elem_id
+														adjacent_wire_ids << other_side_id
 														if output.id_glob_wire !in adjacent_gwire_ids {
 															adjacent_gwire_ids << output.id_glob_wire
 															if adjacent_gwire_ids.len > 2 {
