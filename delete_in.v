@@ -6,6 +6,10 @@ fn (mut app App) delete_in(x int, y int) ! {
 	place_chunk_id := app.get_chunk_id_at_coords(x, y)
 	place_chunk := app.chunks[place_chunk_id]
 	old_id := place_chunk.tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)]
+	i_old_id_queue := app.queue.index(old_id)
+	if i_old_id_queue != -1 {
+		app.queue.delete(i_old_id_queue)
+	}
 	if old_id >= 0 {
 		app.chunks[place_chunk_id].tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] = -1
 		if app.debug_mode {
@@ -427,9 +431,9 @@ fn (mut app App) delete_in(x int, y int) ! {
 									input_x, input_y := input_coords_from_orientation(elem.orientation)
 									if pos[0] == output_x && pos[1] == output_y { // direction aligned with output coords direction
 										if !elem.state {
+											elem.state = true
 											if elem_id !in app.queue {
 												app.queue << elem_id
-												elem.state = true
 											}
 										}
 									} else if pos[0] == input_x && pos[1] == input_y {

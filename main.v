@@ -3,6 +3,7 @@ module main
 import gg
 import gx
 import ggui
+import rand
 
 const tile_size = 128
 const theme = ggui.CatppuchinMocha{}
@@ -107,7 +108,86 @@ fn main() {
 	// calculate the rotations of the image
 
 	// do your test/base placings here if needed
-
+app.place_in(-2, -1)!
+dump(app.queue)
+app.place_in(-2, -2)!
+dump(app.queue)
+app.build_selected_type = .junction
+app.build_orientation = .west
+app.place_in(-2, -3)!
+dump(app.queue)
+// app.place_in(-1, -3)!
+// app.place_in(-1, -2)!
+app.build_selected_type = .not
+app.build_orientation = .west
+app.place_in(-3, -2)!
+dump(app.queue)
+app.place_in(-3, -1)!
+dump(app.queue)
+app.place_in(-3, -3)!
+dump(app.queue)
+app.build_selected_type = .wire
+app.build_orientation = .west
+// app.delete_in(-2, -3)!
+// app.place_in(-2, -3)!
+// app.delete_in(-1, -3)!
+// app.delete_in(-1, -2)!
+app.place_in(-4, -3)!
+dump(app.queue)
+app.place_in(-4, -2)!
+dump(app.queue)
+app.place_in(-4, -1)!
+dump(app.queue)
+app.place_in(-4, 0)!
+dump(app.queue)
+app.place_in(-3, 0)!
+dump(app.queue)
+app.place_in(-2, 0)!
+dump(app.queue)
+dump(app.elements)
+// app.delete_in(-2, -1)!
+// app.place_in(-2, -1)!
+// app.delete_in(-2, -1)!
+// app.place_in(-2, -1)!
+// app.delete_in(-3, -1)!
+// app.place_in(-3, -1)!
+app.delete_in(-3, -1)!
+dump(app.queue)
+app.build_selected_type = .junction
+app.build_orientation = .south
+app.place_in(-3, -1)!
+dump(app.queue)
+app.delete_in(-3, -1)!
+app.place_in(6, -1)!
+app.place_in(5, -1)!
+app.place_in(5, 0)!
+app.place_in(5, 1)!
+app.place_in(5, 2)!
+app.place_in(5, 3)!
+app.place_in(5, 4)!
+app.place_in(5, 5)!
+app.delete_in(5, 0)!
+app.delete_in(5, 3)!
+app.delete_in(5, 1)!
+app.delete_in(5, 2)!
+app.delete_in(5, 5)!
+app.delete_in(5, 4)!
+app.delete_in(-2, -3)!
+app.delete_in(-4, -1)!
+app.delete_in(-4, 0)!
+app.delete_in(-3, 0)!
+app.delete_in(-2, -1)!
+app.delete_in(-2, 0)!
+app.delete_in(-4, -2)!
+app.build_selected_type = .not
+app.build_orientation = .south
+app.build_selected_type = .wire
+app.build_orientation = .south
+app.place_in(-4, -2)!
+app.delete_in(-4, -2)!
+app.delete_in(-4, -3)! 
+dump(app.queue_gwires)
+dump(app.wire_groups)
 
 
 	not_text := ggui.Text{0, 0, 0, '!', gx.TextCfg{
@@ -255,6 +335,13 @@ fn on_event(e &gg.Event, mut app App) {
 				}
 				.q{
 					app.place_is_turn	= 	!app.place_is_turn
+				}
+				.t {
+					if app.debug_mode {
+						for _ in 0..10 {
+							r := rand.int_in_range(0, 10) or {0}
+						}
+					}
 				}
 				else {}
 			}

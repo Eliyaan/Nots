@@ -101,7 +101,7 @@ fn (mut app App) update() {
 	mut new_queue_gwires := []i64{}
 	for updated in app.queue_gwires {
 		if updated >= 0 {
-			gwire := app.wire_groups[updated]
+			gwire := app.wire_groups[updated] or {panic("Queued inexistant GlobalWire (i: ${updated} app.wire_groups.len: ${app.wire_groups.len})")}
 			for output_id in gwire.outputs {
 				mut output := app.elements[output_id]
 				if !output.destroyed {
