@@ -540,7 +540,7 @@ fn (mut app App) line_in(start_x int, start_y int, end_x int, end_y int) ! {
 			direction_y = -1
 		}
 		if !app.place_is_turn {
-			app.strait_line(start_x, start_y, x, y, direction_x, direction_y)
+			app.straight_line(start_x, start_y, x, y, direction_x, direction_y)
 		} 
 		else {
 			app.turn_line(start_x, start_y, end_x, end_y, x, y, direction_x, direction_y)
@@ -553,7 +553,7 @@ fn (mut app App) line_in(start_x int, start_y int, end_x int, end_y int) ! {
 	app.mouse_up_y		= 0
 }
 
-fn (mut app App) strait_line(start_x int, start_y int, x int, y int, direction_x int, direction_y int){
+fn (mut app App) straight_line(start_x int, start_y int, x int, y int, direction_x int, direction_y int){
 	if x > y {
 		for i in 0 .. x + 1 {
 			if direction_x == 1 {

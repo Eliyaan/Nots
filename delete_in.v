@@ -103,9 +103,12 @@ fn (mut app App) delete_in(x int, y int) ! {
 										}
 									}
 									Not {
-										other_side_elem.state = true
-										app.elements[other_side_id] = other_side_elem
-										app.queue << other_side_id
+										// check ori because ori is not checked with junctions
+										if destroyed.orientation == other_side_elem.orientation {
+											other_side_elem.state = true
+											app.elements[other_side_id] = other_side_elem
+											app.queue << other_side_id
+										}
 									}
 									else {}
 								}
