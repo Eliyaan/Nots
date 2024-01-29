@@ -651,7 +651,6 @@ fn (mut app App) delete_in(x int, y int) ! {
 								final_wires.delete(id)
 								id_gwires[0] -= 1
 							}
-
 							final_wires[id_gwires[0]].wires << element_id
 							final_wires[id_gwires[0]].inputs << inputs
 							final_wires[id_gwires[0]].outputs << outputs
@@ -670,7 +669,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 				for i, mut fwire in final_wires {
 					mut fwire_id := i64(-1)
 					if i >= adjacent_gwire_ids.len {
-						fwire_id = app.wire_groups.len - 1 + i
+						fwire_id = app.wire_groups.len - adjacent_gwire_ids.len + i
 					} else {
 						fwire_id = adjacent_gwire_ids[i]
 					}
@@ -698,7 +697,6 @@ fn (mut app App) delete_in(x int, y int) ! {
 							
 						}
 					}
-					
 					if !(fwire.on()) && app.wire_groups[previous_id_gwire].on() {
 						if previous_id_gwire in app.queue_gwires
 							&& fwire_id !in app.queue_gwires {

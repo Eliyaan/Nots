@@ -109,6 +109,352 @@ fn main() {
 
 	// do your test/base placings here if needed
 
+// 	app.build_selected_type = .not
+// app.place_in(7, 3)!
+// app.build_orientation = .south
+// app.place_in(6, 0)!
+// app.place_in(5, 2)!
+// app.build_selected_type = .wire
+// app.place_in(9, 7)!
+// app.build_selected_type = .junction
+// app.place_in(5, 0)!
+// app.place_in(6, 1)!
+// app.build_orientation = .west
+// app.build_selected_type = .wire
+// app.place_in(6, 2)!
+// app.build_selected_type = .junction
+// app.place_in(7, 7)!
+// app.build_selected_type = .wire
+// app.place_in(5, 6)!
+// app.place_in(0, 0)!
+// app.build_selected_type = .junction
+// app.place_in(3, 8)!
+// app.build_selected_type = .wire
+// app.place_in(2, 8)!
+// app.build_selected_type = .junction
+// app.place_in(1, 0)!
+// app.build_selected_type = .wire
+// app.place_in(5, 9)!
+// app.build_selected_type = .not
+// app.build_orientation = .south
+// app.place_in(1, 2)!
+// app.build_orientation = .east
+// app.place_in(4, 1)!
+// app.build_selected_type = .wire
+// app.place_in(5, 8)!
+// app.place_in(6, 7)!
+// app.place_in(1, 5)!
+// app.place_in(6, 9)!
+// app.place_in(2, 4)!
+// app.place_in(6, 5)!
+// app.place_in(0, 2)!
+// app.place_in(3, 9)!
+// app.place_in(2, 0)!
+// app.place_in(5, 4)!
+// app.place_in(2, 7)!
+// app.build_orientation = .south
+// app.build_selected_type = .junction
+// app.place_in(4, 2)!
+// app.build_selected_type = .wire
+// app.place_in(2, 6)!
+// app.build_selected_type = .not
+// app.build_orientation = .west
+// app.place_in(3, 1)!
+// app.build_selected_type = .wire
+// app.place_in(6, 4)!
+// app.build_selected_type = .junction
+// app.delete_in(2, 6)!
+// app.place_in(1, 4)!
+// app.place_in(0, 6)!
+// app.place_in(7, 1)!
+// app.place_in(8, 1)!
+// app.build_selected_type = .wire
+// app.place_in(4, 3)!
+// app.build_selected_type = .junction
+// app.place_in(1, 1)!
+// app.build_selected_type = .not
+// app.build_orientation = .south
+// app.place_in(1, 6)!
+// app.build_orientation = .east
+// app.place_in(2, 3)!
+// app.build_selected_type = .wire
+// app.place_in(1, 9)!
+// app.build_selected_type = .not
+// app.build_orientation = .west
+// app.place_in(8, 3)!
+// app.build_orientation = .south
+// app.place_in(8, 8)!
+// app.build_selected_type = .wire
+// app.place_in(9, 4)!
+// app.delete_in(8, 8)!
+// app.build_selected_type = .junction
+// app.place_in(2, 6)!
+// app.place_in(0, 8)!
+// app.build_selected_type = .wire
+// app.place_in(3, 4)!
+// app.place_in(0, 7)!
+// app.delete_in(1, 6)!
+// app.place_in(7, 0)!
+// app.build_selected_type = .junction
+// app.place_in(5, 1)!
+// app.build_selected_type = .wire
+// app.place_in(7, 2)!
+// app.build_selected_type = .not
+// app.build_orientation = .west
+// app.place_in(3, 3)!
+// app.build_selected_type = .wire
+// app.place_in(0, 4)!
+// app.place_in(9, 2)!
+// app.build_selected_type = .junction
+// app.place_in(4, 6)!
+// app.build_selected_type = .junction
+// app.place_in(7, 4)!
+// app.build_selected_type = .junction
+// app.place_in(8, 6)!
+// app.build_selected_type = .wire
+// app.place_in(3, 7)!
+// app.build_selected_type = .wire
+// app.place_in(9, 6)!
+// app.place_in(8, 4)!
+// app.build_selected_type = .junction
+// app.delete_in(8, 6)!
+// app.build_selected_type = .wire
+// app.place_in(4, 9)!
+// app.build_selected_type = .junction
+// app.place_in(3, 6)!
+// app.build_selected_type = .wire
+// app.place_in(6, 8)!
+// app.build_selected_type = .wire
+// app.place_in(9, 1)!
+// app.build_selected_type = .junction
+// app.place_in(7, 9)!
+// app.build_selected_type = .wire
+// app.delete_in(5, 9)!
+// app.build_selected_type = .wire
+// app.place_in(8, 0)!
+// app.build_selected_type = .not
+// app.build_orientation = .east
+// app.build_selected_type = .wire
+// app.place_in(4, 4)!
+// app.place_in(9, 9)!
+// app.build_selected_type = .wire
+// app.place_in(4, 5)!
+// app.place_in(8, 5)!
+// app.delete_in(8, 5)!
+// app.build_selected_type = .junction
+// app.place_in(0, 1)!
+// app.build_orientation = .north
+// app.build_selected_type = .wire
+// app.place_in(2, 9)!
+// app.build_selected_type = .junction
+// app.place_in(8, 8)!
+// app.build_selected_type = .not
+// app.build_orientation = .west
+// app.delete_in(6, 1)!
+// app.build_selected_type = .not
+// app.place_in(3, 5)!
+// app.build_selected_type = .wire
+// app.delete_in(0, 4)!
+// app.build_selected_type = .junction
+// app.place_in(5, 9)!
+// app.build_selected_type = .not
+// app.build_orientation = .west
+// app.place_in(2, 2)!
+// app.build_selected_type = .wire
+// app.delete_in(4, 3)!
+// app.build_selected_type = .junction
+// app.place_in(9, 5)!
+// app.build_selected_type = .junction
+// app.place_in(8, 2)!
+// app.build_selected_type = .junction
+// app.place_in(6, 6)!
+// app.build_selected_type = .wire
+// app.delete_in(6, 7)!
+// app.build_selected_type = .not
+// app.place_in(5, 3)!
+// app.build_selected_type = .wire
+// app.place_in(1, 8)!
+// app.build_selected_type = .junction
+// app.place_in(9, 0)!
+// app.build_selected_type = .not
+// app.delete_in(3, 8)!
+// app.build_orientation = .east
+// app.place_in(7, 5)!
+// app.build_selected_type = .wire
+// app.place_in(8, 9)!
+// app.build_selected_type = .wire
+// app.place_in(8, 5)!
+// app.build_selected_type = .junction
+// app.place_in(5, 7)!
+// app.build_selected_type = .not
+// app.build_orientation = .west
+// app.place_in(2, 1)!
+// app.build_orientation = .north
+// app.build_selected_type = .wire
+// app.place_in(9, 3)!
+// app.build_selected_type = .wire
+// app.place_in(7, 8)!
+// app.build_selected_type = .junction
+// app.place_in(4, 8)!
+// app.build_selected_type = .wire
+// app.place_in(0, 4)!
+// app.build_selected_type = .not
+// app.build_orientation = .west
+// app.place_in(0, 3)!
+// app.delete_in(1, 2)!
+// app.build_selected_type = .wire
+// app.delete_in(9, 2)!
+// app.build_selected_type = .not
+// app.build_orientation = .west
+// app.place_in(3, 8)!
+// app.build_orientation = .east
+// app.delete_in(7, 1)!
+// app.build_selected_type = .wire
+// app.build_selected_type = .not
+// app.build_orientation = .south
+// app.build_selected_type = .wire
+// app.build_selected_type = .not
+// app.build_orientation = .west
+// app.build_selected_type = .wire
+// app.build_selected_type = .not
+// app.delete_in(6, 5)!
+// app.build_selected_type = .wire
+// app.place_in(4, 0)!
+// app.build_selected_type = .junction
+// app.place_in(0, 9)!
+// app.build_selected_type = .not
+// app.build_selected_type = .junction
+// app.build_selected_type = .wire
+// app.place_in(6, 3)!
+// app.build_selected_type = .not
+// app.build_selected_type = .wire
+// app.place_in(8, 6)!
+// app.build_selected_type = .junction
+// app.build_selected_type = .wire
+// app.place_in(6, 5)!
+// app.build_selected_type = .junction
+// app.place_in(6, 7)!
+// app.build_selected_type = .wire
+// app.delete_in(4, 1)!
+// app.place_in(0, 5)!
+// app.build_selected_type = .junction
+// app.build_selected_type = .wire
+// app.build_selected_type = .junction
+// app.place_in(5, 5)!
+// app.build_selected_type = .wire
+// app.build_selected_type = .junction
+// app.build_selected_type = .wire
+// app.delete_in(4, 6)!
+// app.build_selected_type = .not
+// app.build_selected_type = .wire
+// app.build_selected_type = .junction
+// app.build_selected_type = .wire
+// app.build_selected_type = .junction
+// app.build_selected_type = .wire
+// app.delete_in(3, 7)!
+// app.build_selected_type = .junction
+// app.place_in(3, 2)!
+// app.build_selected_type = .wire
+// app.delete_in(0, 2)!
+// app.build_selected_type = .not
+// app.build_orientation = .east
+// app.place_in(4, 7)!
+// app.build_orientation = .south
+// app.build_selected_type = .wire
+// app.build_selected_type = .junction
+// app.delete_in(6, 3)!
+// app.build_selected_type = .wire
+// app.place_in(6, 1)!
+// app.build_selected_type = .junction
+// app.build_selected_type = .wire
+// app.place_in(0, 2)!
+// app.build_selected_type = .not
+// app.build_orientation = .north
+// app.delete_in(2, 8)!
+// app.build_selected_type = .not
+// app.build_orientation = .east
+// app.place_in(9, 8)!
+// app.build_orientation = .west
+// app.build_selected_type = .wire
+// app.place_in(1, 2)!
+// app.build_orientation = .east
+// app.build_selected_type = .wire
+// app.place_in(1, 7)!
+// app.build_selected_type = .not
+// app.build_orientation = .west
+// app.delete_in(9, 4)!
+// app.build_selected_type = .wire
+// app.delete_in(5, 0)!
+// app.build_selected_type = .junction
+// app.build_selected_type = .not
+// app.build_selected_type = .wire
+// app.place_in(2, 8)!
+// app.delete_in(0, 4)!
+// app.build_selected_type = .wire
+// app.place_in(4, 6)!
+// app.delete_in(2, 7)!
+// app.build_selected_type = .junction
+// app.place_in(1, 3)!
+// app.build_orientation = .west
+// app.build_selected_type = .wire
+// app.place_in(7, 6)!
+// app.build_selected_type = .wire
+// app.place_in(1, 6)!
+// app.build_selected_type = .not
+// app.build_orientation = .east
+// app.build_selected_type = .junction
+// app.place_in(3, 7)!
+// app.build_selected_type = .not
+// app.build_orientation = .south
+// app.delete_in(7, 3)!
+// app.build_orientation = .north
+// app.delete_in(9, 8)!
+// app.build_selected_type = .junction
+// app.place_in(4, 3)!
+// app.build_selected_type = .not
+// app.delete_in(6, 7)!
+// app.build_orientation = .east
+// app.delete_in(8, 9)!
+// app.build_orientation = .north
+// app.delete_in(0, 0)!
+// app.delete_in(1, 0)!
+// app.delete_in(2, 0)!
+// app.delete_in(4, 0)!
+// app.delete_in(6, 0)!
+// app.delete_in(7, 0)!
+// app.delete_in(8, 0)!
+// app.delete_in(9, 0)!
+// app.delete_in(0, 1)!
+// app.delete_in(1, 1)!
+// app.delete_in(2, 1)!
+// app.delete_in(3, 1)!
+// app.delete_in(5, 1)!
+// app.delete_in(6, 1)!
+// app.delete_in(8, 1)!
+// app.delete_in(9, 1)!
+// app.delete_in(0, 2)!
+// app.delete_in(1, 2)!
+// app.delete_in(2, 2)!
+// app.delete_in(3, 2)!
+// app.delete_in(4, 2)!
+// app.delete_in(5, 2)!
+// app.delete_in(6, 2)!
+// app.delete_in(7, 2)!
+// app.delete_in(8, 2)!
+// app.delete_in(0, 3)!
+// app.delete_in(1, 3)!
+// app.delete_in(2, 3)!
+// app.delete_in(3, 3)!
+// app.delete_in(4, 3)!
+// app.delete_in(5, 3)!
+// dump(app.elements[39])
+// dump(app.elements[75])
+// mut w := app.elements[75]
+// if mut w is Wire {
+// dump(app.wire_groups[w.id_glob_wire]) // the not in not in the outputs of the wire
+// }
+// app.delete_in(8, 3)!
+
 	not_text := ggui.Text{0, 0, 0, '!', gx.TextCfg{
 		color: theme.base
 		size: 20

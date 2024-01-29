@@ -104,3 +104,13 @@ app.delete_in(-7, -3)!  // 6
 app.delete_in(-5, -3)!  // 8
 app.build_selected_type = .wire
 app.place_in(-5, -3)!
+
+app.place_in(-2, -2)!
+app.place_in(-2, 0)!
+app.place_in(-3, -1)!
+app.place_in(-1, -1)!
+app.build_selected_type = .junction
+app.build_orientation = .west
+app.place_in(-2, -1)!
+app.delete_in(-2, -1)!
+app.place_in(-2, -1)!
