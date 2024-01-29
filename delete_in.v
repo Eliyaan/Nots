@@ -698,8 +698,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 						}
 					}
 					if !(fwire.on()) && app.wire_groups[previous_id_gwire].on() {
-						if previous_id_gwire in app.queue_gwires
-							&& fwire_id !in app.queue_gwires {
+						if fwire_id !in app.queue_gwires {
 							app.queue_gwires << fwire_id
 						}
 					}
