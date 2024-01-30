@@ -48,8 +48,7 @@ fn (mut app App) preview_line(start_x int, start_y int, end_x int, end_y int) ! 
 				app.tile_preview(start_x, start_y + i * direction_y)
 			}
 		}
-	} else {
-			if x > y {
+	}else if x > y{
 		for i in 0 .. x {
 			if direction_x == 1 {
 				app.build_orientation = .east
@@ -64,14 +63,16 @@ fn (mut app App) preview_line(start_x int, start_y int, end_x int, end_y int) ! 
 			app.tile_preview(end_x, start_y)
 			app.build_selected_type = tempo
 
-		for i in 1 .. y + 1 {
-			if direction_y == 1 {
-				app.build_orientation = .south
-			} else if direction_y == -1 {
-				app.build_orientation = .north
+			for i in 1 .. y + 1 {
+				if direction_y == 1 {
+					app.build_orientation = .south
+				} else if direction_y == -1 {
+					app.build_orientation = .north
+				}
+				app.tile_preview(end_x, start_y + i * direction_y)
 			}
-			app.tile_preview(end_x, start_y + i * direction_y)
-		}
+		}else{app.tile_preview(end_x, end_y)}
+		
 	}else{
 		for i in 0 .. y {
 			if direction_y == 1 {
@@ -95,7 +96,6 @@ fn (mut app App) preview_line(start_x int, start_y int, end_x int, end_y int) ! 
 			}
 			app.tile_preview(start_x + i * direction_x, end_y)
 		}
-	}
 	}
 }
 
