@@ -576,7 +576,7 @@ fn (mut app App) straight_line(start_x int, start_y int, x int, y int, direction
 }
 
 fn (mut app App) turn_line(start_x int, start_y int, end_x int, end_y int, x int, y int, direction_x int, direction_y int){
-	if x < y{
+	if x > y{
 		for i in 0 .. x {
 			if direction_x == 1 {
 				app.build_orientation = .east

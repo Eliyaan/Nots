@@ -737,3 +737,108 @@ fn (mut app App) delete_in(x int, y int) ! {
 	}
 	app.update()
 }
+
+fn (mut app App) delete_line_in(start_x int, start_y int, end_x int, end_y int) ! {
+	mut x := end_x - start_x
+	mut y := end_y - start_y
+	mut direction_x := 1
+	mut direction_y := 1
+	if x == 0 && y == 0{
+		app.delete_in(start_x, start_y) or {}
+	}
+	else{
+		if x < 0 {
+			x = math.abs(x)
+			direction_x = -1
+		}
+		if y < 0 {
+			y = math.abs(y)
+			direction_y = -1
+		}
+		if !app.place_is_turn {
+			app.delete_straight_line(start_x, start_y, x, y, direction_x, direction_y)
+		} 
+		else {
+			app.delete_turn_line(start_x, start_y, end_x, end_y, x, y, direction_x, direction_y)
+		}
+	}
+	//Reset
+	app.mouse_down_x	= 0
+	app.mouse_down_y	= 0
+	app.mouse_up_x		= 0
+	app.mouse_up_y		= 0
+}
+
+fn (mut app App) delete_straight_line(start_x int, start_y int, x int, y int, direction_x int, direction_y int){
+	if x > y {
+		for i in 0 .. x + 1 {
+			if direction_x == 1 {
+				app.build_orientation = .east
+			} else if direction_x == -1 {
+				app.build_orientation = .west
+			}
+			app.delete_in(start_x + i * direction_x, start_y) or {}
+		}
+	} else {
+		for i in 0 .. y + 1 {
+			if direction_y == 1 {
+				app.build_orientation = .south
+			} else if direction_y == -1 {
+				app.build_orientation = .north
+			}
+			app.delete_in(start_x, start_y + i * direction_y) or {}
+		}
+	}
+}
+
+fn (mut app App) delete_turn_line(start_x int, start_y int, end_x int, end_y int, x int, y int, direction_x int, direction_y int){
+	if x > y{
+		for i in 0 .. x {
+			if direction_x == 1 {
+				app.build_orientation = .east
+			} else if direction_x == -1 {
+				app.build_orientation = .west
+			}
+			app.delete_in(start_x + i * direction_x, start_y) or {}
+		}
+
+		tempo := app.build_selected_type
+		app.build_selected_type = .wire
+		app.delete_in(end_x, start_y)  or {}
+		app.build_selected_type = tempo
+		if x > y{
+			for i in 1 .. y + 1 {
+				if direction_y == 1 {
+					app.build_orientation = .south
+				} else if direction_y == -1 {
+					app.build_orientation = .north
+				}
+				app.delete_in(end_x, start_y + i * direction_y) or {}
+			}
+		}
+	}else if x < y{
+		for i in 0 .. y {
+			if direction_y == 1 {
+				app.build_orientation = .east
+			} else if direction_y == -1 {
+				app.build_orientation = .west
+			}
+			app.delete_in(start_x , start_y + i * direction_y) or {}
+		}
+
+		tempo := app.build_selected_type
+		app.build_selected_type = .wire
+		app.delete_in(start_x, end_y)  or {}
+		app.build_selected_type = tempo
+
+		for i in 1 .. x + 1 {
+			if direction_x == 1 {
+				app.build_orientation = .south
+			} else if direction_x == -1 {
+				app.build_orientation = .north
+			}
+			app.delete_in(start_x + i * direction_x, end_y) or {}
+		}
+	}
+	else{app.delete_in(end_x, start_y) or {}}
+}
