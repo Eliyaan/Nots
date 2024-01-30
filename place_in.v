@@ -584,18 +584,20 @@ fn (mut app App) turn_line(start_x int, start_y int, end_x int, end_y int, x int
 		}
 		app.place_in(start_x + i * direction_x, start_y) or {}
 	}
+	if y > 0 {
+		tempo := app.build_selected_type
+		app.build_selected_type = .wire
+		app.place_in(end_x, start_y) or {}
+		app.build_selected_type = tempo
 
-	tempo := app.build_selected_type
-	app.build_selected_type = .wire
-	app.place_in(end_x, start_y) or {}
-	app.build_selected_type = tempo
-
-	for i in 1 .. y + 1 {
-		if direction_y == 1 {
-			app.build_orientation = .south
-		} else if direction_y == -1 {
-			app.build_orientation = .north
+		for i in 1 .. y + 1 {
+			if direction_y == 1 {
+				app.build_orientation = .south
+			} else if direction_y == -1 {
+				app.build_orientation = .north
+			}
+			app.place_in(end_x, start_y + i * direction_y) or {}
 		}
-		app.place_in(end_x, start_y + i * direction_y) or {}
 	}
+	else{app.place_in(end_x, start_y) or {}}
 }
