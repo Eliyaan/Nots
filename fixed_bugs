@@ -124,3 +124,20 @@ app.place_in(-1, -2)!
 app.build_selected_type = .junction
 app.place_in(-3, -2)!
 app.delete_in(-3, -2)!
+
+
+app.build_selected_type = .junction
+app.place_in(3, 3)!  // 0
+app.place_in(3, 4)!  // 1
+app.place_in(1, 4)!  // 2
+app.build_selected_type = .not
+app.build_orientation = .west
+app.place_in(2, 4)!  // 3
+app.place_in(0, 4)!  // 4
+app.build_orientation = .east
+app.place_in(2, 3)!  // 5
+app.build_selected_type = .wire
+app.place_in(4, 4)!  // 6
+app.place_in(4, 3)!  // 7 
+app.delete_in(2, 4)!  // there is the bug
+app.check(5)
