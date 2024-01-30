@@ -58,11 +58,11 @@ fn (mut app App) preview_line(start_x int, start_y int, end_x int, end_y int) ! 
 			}
 			app.tile_preview(start_x + i * direction_x, start_y)
 		}
-
-		tempo := app.build_selected_type
-		app.build_selected_type = .wire
-		app.tile_preview(end_x, start_y)
-		app.build_selected_type = tempo
+		if y > 0 {
+			tempo := app.build_selected_type
+			app.build_selected_type = .wire
+			app.tile_preview(end_x, start_y)
+			app.build_selected_type = tempo
 
 		for i in 1 .. y + 1 {
 			if direction_y == 1 {
