@@ -1,8 +1,9 @@
 module main
 import stbi
+import os
 
 fn load_image(path string) []Color {
-	image := stbi.load(path, stbi.LoadParams{0}) or { panic('Image not found: ${path}') }
+	image := stbi.load(os.resource_abs_path(path), stbi.LoadParams{0}) or { panic('Image not found: ${os.resource_abs_path(path)}') }
 	data := &u8(image.data)
 	mut output := []Color{cap: tile_size * tile_size}
 	for i in 0 .. tile_size * tile_size {
