@@ -109,6 +109,26 @@ fn main() {
 
 	// do your test/base placings here if needed
 
+app.build_selected_type = .wire
+app.place_in(0, 4)!
+app.place_in(0, 2)!
+app.build_selected_type = .junction
+app.place_in(3, 4)!
+app.place_in(2, 4)!
+app.build_selected_type = .not
+app.build_orientation = .east
+app.place_in(1, 4)!
+app.build_orientation = .south
+app.place_in(0, 1)!
+app.build_orientation = .east
+app.place_in(4, 4)!
+app.delete_in(4, 4)!
+app.build_selected_type = .wire
+app.place_in(4, 4)!
+app.build_selected_type = .junction
+app.place_in(0, 3)!
+
+app.check(5)
 
 	not_text := ggui.Text{0, 0, 0, '!', gx.TextCfg{
 		color: theme.base

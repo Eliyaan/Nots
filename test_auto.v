@@ -57,7 +57,7 @@ fn (mut app App) test() {
 			if app.get_tile_id_at(x, y) != -1 {
 				app.delete_in(x, y) or {}
 			}
-		} else if r < 9{
+		} else if r < 9 && (app.queue.len != 0 || app.queue_gwires.len != 0){
 			app.update()
 			println("app.update()")
 		}
@@ -192,7 +192,7 @@ fn (mut app App) check(size int) {
 											panic("BUG: output of a Not ${input_elem.x} ${input_elem.y} id:${input_id} (that is in a wire's input) is connected to nothing id:${output_id}")
 										}
 									} else {
-										panic("BUG: Not OFF in the inputs of a wire")
+										panic("BUG: Not ${input_elem.x} ${input_elem.y} id:${input_id} state:${input_elem.state} OFF in the inputs of a wire id:${elem.id_glob_wire} inputs:${app.wire_groups[elem.id_glob_wire].inputs}")
 									}
 								} else {
 									panic("BUG: not a Not in a wire's output")
