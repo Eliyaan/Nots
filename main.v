@@ -297,15 +297,15 @@ fn on_event(e &gg.Event, mut app App) {
 			if !(e.mouse_x < 160 && e.mouse_y < 30) {
 				place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 				place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
+				app.is_placing = false
+				app.mouse_up_x = place_pos_x
+				app.mouse_up_y = place_pos_y
 				match e.mouse_button {
 					.left {
-						app.is_placing = false
-						app.mouse_up_x = place_pos_x
-						app.mouse_up_y = place_pos_y
 						app.line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
 					}
 					.right {
-						app.delete_in(place_pos_x, place_pos_y) or {}
+						app.delete_line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
 					}
 					else {}
 				}
@@ -320,6 +320,15 @@ fn on_event(e &gg.Event, mut app App) {
 					app.middle_click_held = true
 				}
 				.left {
+					if !(e.mouse_x < 160 && e.mouse_y < 30) {
+						app.is_placing = true
+						app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
+						app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
+						app.mouse_down_preview_x	= app.mouse_x
+						app.mouse_down_preview_y 	= app.mouse_y
+					}
+				}
+				.right {
 					if !(e.mouse_x < 160 && e.mouse_y < 30) {
 						app.is_placing = true
 						app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
