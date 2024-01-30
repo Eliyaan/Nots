@@ -109,30 +109,6 @@ fn main() {
 
 	// do your test/base placings here if needed
 
-// app.build_selected_type = .junction
-// app.place_in(3, 3)!  // 0
-// app.place_in(3, 4)!  // 1
-// app.place_in(1, 4)!  // 2
-// app.build_selected_type = .not
-// app.build_orientation = .west
-// app.place_in(2, 4)!  // 3
-// app.place_in(0, 4)!  // 4
-// app.build_orientation = .east
-// app.place_in(2, 3)!  // 5
-// app.build_selected_type = .wire
-// app.place_in(4, 4)!  // 6
-// app.check(5)
-// app.place_in(4, 3)!  // 7 // there is the bug
-// app.check(5)
-
-
-// dump(app.queue)
-// dump(app.elements[3])
-// app.delete_in(2, 4)!  
-// dump(app.elements[3])
-// dump(app.queue)
-
-
 
 	not_text := ggui.Text{0, 0, 0, '!', gx.TextCfg{
 		color: theme.base

@@ -62,7 +62,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 					app.elements[input] = input_elem
 				}
 				output_pos_x, output_pos_y := output_coords_from_orientation(destroyed.orientation)
-				if destroyed.output >= 0 && destroyed.state {
+				if destroyed.output >= 0 && (destroyed.state || old_id in app.queue) {
 					mut output_elem := app.elements[destroyed.output]
 					match mut output_elem {
 						Wire {
