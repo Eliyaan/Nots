@@ -3,7 +3,7 @@ module main
 import gg
 import gx
 import ggui
-import rand
+
 
 const tile_size = 128
 const theme = ggui.CatppuchinMocha{}
@@ -108,6 +108,27 @@ fn main() {
 	// calculate the rotations of the image
 
 	// do your test/base placings here if needed
+
+app.build_selected_type = .junction
+app.place_in(3, 3)!  // 0
+app.place_in(3, 4)!  // 1
+app.place_in(1, 4)!  // 2
+app.build_selected_type = .not
+app.build_orientation = .west
+app.place_in(2, 4)!  // 3
+app.place_in(0, 4)!  // 4
+app.build_orientation = .east
+app.place_in(2, 3)!  // 5
+app.build_selected_type = .wire
+app.place_in(4, 4)!  // 6
+app.place_in(4, 3)!  // 7
+dump(app.queue)
+dump(app.elements[3])
+app.delete_in(2, 4)!  // there is the bug
+dump(app.elements[3])
+dump(app.queue)
+
+app.check(5)
 
 	not_text := ggui.Text{0, 0, 0, '!', gx.TextCfg{
 		color: theme.base
@@ -257,48 +278,7 @@ fn on_event(e &gg.Event, mut app App) {
 				}
 				.t {
 					if app.debug_mode {
-						size := 5
-						for y in 0..size {
-							for x in 0..size {
-								app.delete_in(x, y) or {}
-							}
-						}
-						println("NOUVEAU TEST : prendre tout ce qu'il y a en dessous")
-						for _ in 0..400 {
-							r := rand.int_in_range(0, 10) or {0}
-							if r < 3 {
-								if app.build_selected_type != .wire {
-									app.build_selected_type = .wire
-									println('app.build_selected_type = .${app.build_selected_type}')
-								}
-								app.place_in(rand.int_in_range(0, size) or {0}, rand.int_in_range(0, size) or {5}) or {}
-							} else if r < 5 {
-								if app.build_selected_type != .junction {
-									app.build_selected_type = .junction
-									println('app.build_selected_type = .${app.build_selected_type}')
-								}
-								app.place_in(rand.int_in_range(0, size) or {0}, rand.int_in_range(0, size) or {5}) or {}
-							} else if r < 7 {
-								if app.build_selected_type != .not {
-									app.build_selected_type = .not
-									println('app.build_selected_type = .${app.build_selected_type}')
-								}
-								old_ori := app.build_orientation
-								match rand.int_in_range(0, 4) or {0} {
-									0 {app.build_orientation=.north}
-									1 {app.build_orientation=.south}
-									2 {app.build_orientation=.east}
-									3 {app.build_orientation=.west}
-									else {}
-								}
-								if old_ori != app.build_orientation {
-									println('app.build_orientation = .${app.build_orientation}')
-								}
-								app.place_in(rand.int_in_range(0, size) or {0}, rand.int_in_range(0, size) or {5}) or {}
-							} else if r < 8 {
-								app.delete_in(rand.int_in_range(0, size) or {0}, rand.int_in_range(0, size) or {5}) or {}
-							}
-						}
+						app.test()
 					}
 				}
 				else {}
