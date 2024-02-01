@@ -1,4 +1,5 @@
 module main
+
 import ggui
 
 fn (mut app App) update() {
@@ -43,13 +44,16 @@ fn (mut app App) update() {
 								Junction {
 									mut i := 1
 									output_x, output_y := output_coords_from_orientation(elem.orientation)
-									mut other_side_id := app.get_tile_id_at(int(elem.x) + output_x*i, int(elem.y) + output_y*i)
-									for other_side_id != -1 && app.elements[other_side_id] is Junction {
-										other_side_id = app.get_tile_id_at(int(elem.x) + output_x*i, int(elem.y) + output_y*i)
-										
+									mut other_side_id := app.get_tile_id_at(int(elem.x) +
+										output_x * i, int(elem.y) + output_y * i)
+									for other_side_id != -1
+										&& app.elements[other_side_id] is Junction {
+										other_side_id = app.get_tile_id_at(int(elem.x) +
+											output_x * i, int(elem.y) + output_y * i)
+
 										if other_side_id != -1 {
 											mut other_side_output := app.elements[other_side_id]
-											match mut other_side_output { 
+											match mut other_side_output {
 												Not {
 													if elem.orientation == other_side_output.orientation {
 														other_side_output.state = !elem.state
@@ -57,7 +61,7 @@ fn (mut app App) update() {
 														app.elements[other_side_id] = other_side_output
 													}
 												}
-												Wire{
+												Wire {
 													if elem.state {
 														if updated !in app.wire_groups[other_side_output.id_glob_wire].inputs {
 															if !app.wire_groups[other_side_output.id_glob_wire].on() {
@@ -92,7 +96,7 @@ fn (mut app App) update() {
 					}
 				}
 				Junction {
-					panic("Queued junction")
+					panic('Queued junction')
 				}
 				else {}
 			}
@@ -101,7 +105,9 @@ fn (mut app App) update() {
 	mut new_queue_gwires := []i64{}
 	for updated in app.queue_gwires {
 		if updated >= 0 {
-			gwire := app.wire_groups[updated] or {panic("Queued inexistant GlobalWire (i: ${updated} app.wire_groups.len: ${app.wire_groups.len})")}
+			gwire := app.wire_groups[updated] or {
+				panic('Queued inexistant GlobalWire (i: ${updated} app.wire_groups.len: ${app.wire_groups.len})')
+			}
 			for output_id in gwire.outputs {
 				mut output := app.elements[output_id]
 				if !output.destroyed {
@@ -114,7 +120,7 @@ fn (mut app App) update() {
 							app.elements[output_id] = output
 						}
 						else {
-							panic("Wire output not managed: ${output_id} ${output}")
+							panic('Wire output not managed: ${output_id} ${output}')
 						}
 					}
 				} else {

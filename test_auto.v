@@ -144,7 +144,19 @@ fn (mut app App) check(size int) {
 							output_x, output_y := output_coords_from_orientation(elem.orientation)
 							output_id := app.get_tile_id_at(x + output_x, y + output_y)
 							if elem.output != output_id {
-								panic("BUG: Not ${x} ${y} id:${id} output ${elem.output} is not matching world's output:${output_id}")
+								if output_id != -1 {
+									mut world_output := app.elements[output_id]
+									match mut world_output {
+										Not {
+											if world_output.orientation == elem.orientation {
+												panic("BUG: Not ${x} ${y} id:${id} output ${elem.output} is not matching world's output:${output_id}")
+											}
+										}
+										else {panic("BUG: Not ${x} ${y} id:${id} output ${elem.output} is not matching world's output:${output_id}")}
+									}
+								} else {
+									panic("BUG: Not ${x} ${y} id:${id} output ${elem.output} is not matching world's output:${output_id}")
+								}
 							}
 						}
 						Junction {
