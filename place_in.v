@@ -120,7 +120,13 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 			app.wire_groups[gwire_id].outputs << outputs
 			if app.wire_groups[gwire_id].on() {
 				if app.wire_groups[gwire_id].inputs.len == inputs.len {
-					app.queue_gwires << gwire_id // update the wire as it changed of state
+					for id_output in app.wire_groups[gwire_id].outputs {
+						mut elem := app.elements[id_output]
+						if mut elem is Not {
+							elem.state = false
+							app.queue << id_output
+						}
+					}
 				} else {
 					for id_output in outputs { // new outputs
 						mut elem := app.elements[id_output]
@@ -279,9 +285,7 @@ fn (mut app App) not_place_in(x int, y int) ! {
 						match mut other_side_input {
 							Not {
 								if other_side_input.orientation == app.build_orientation {
-									other_side_input.output = id
 									state = !other_side_input.state
-									app.elements[other_side_id] = other_side_input
 								}
 							}
 							Wire {

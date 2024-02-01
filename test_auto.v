@@ -141,6 +141,11 @@ fn (mut app App) check(size int) {
 									panic("BUG: Not ${x} ${y} id:${id} is OFF with no input")
 								}
 							}
+							output_x, output_y := output_coords_from_orientation(elem.orientation)
+							output_id := app.get_tile_id_at(x + output_x, y + output_y)
+							if elem.output != output_id {
+								panic("BUG: Not ${x} ${y} id:${id} output ${elem.output} is not matching world's output:${output_id}")
+							}
 						}
 						Junction {
 							// junctions do not have state
