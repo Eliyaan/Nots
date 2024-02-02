@@ -1,7 +1,6 @@
 import rand
 
-fn (mut app App) test() {
-	size := 5
+fn (mut app App) test(size int) {
 	for y in 0..size {
 		for x in 0..size {
 			app.delete_in(x, y) or {}

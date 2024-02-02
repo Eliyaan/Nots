@@ -93,12 +93,13 @@ fn (mut app App) delete_in(x int, y int) ! {
 								mut other_side_elem := app.elements[other_side_id]
 								match mut other_side_elem { 
 									Wire {
+										old_wire_state := app.wire_groups[other_side_elem.id_glob_wire].on()
 										inputs_i := app.wire_groups[other_side_elem.id_glob_wire].inputs.index(old_id)
 										if inputs_i != -1 {
 											app.wire_groups[other_side_elem.id_glob_wire].inputs.delete(inputs_i)
 										}
-										if old_id !in app.queue && inputs_i != -1 {  // if not: it's because it just changed of state
-											if app.wire_groups[other_side_elem.id_glob_wire].inputs.len == 0 {
+										if inputs_i != -1 && old_wire_state {  // if not: it's because it just changed of state
+											if !app.wire_groups[other_side_elem.id_glob_wire].on() {
 												app.queue_gwires << other_side_elem.id_glob_wire
 											}
 										}

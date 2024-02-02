@@ -258,7 +258,7 @@ fn on_event(e &gg.Event, mut app App) {
 				}
 				.t {
 					if app.debug_mode {
-						app.test()
+						app.test(6)
 					}
 				}
 				else {}
