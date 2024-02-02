@@ -162,3 +162,18 @@ app.place_in(4, 4)!
 app.build_selected_type = .junction
 app.place_in(0, 3)!
 app.check(5)
+
+app.build_selected_type = .not
+app.build_orientation = .south
+app.place_in(1, 2)!
+app.place_in(3, 3)!
+app.build_selected_type = .wire
+app.place_in(3, 2)!
+app.place_in(2, 3)!
+app.place_in(2, 1)!
+app.place_in(1, 1)!
+app.place_in(1, 3)!
+app.place_in(2, 2)!
+app.update()
+app.delete_in(1, 2)!
+app.check(5)

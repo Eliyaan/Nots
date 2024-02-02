@@ -95,7 +95,7 @@ fn (mut app App) check(size int) {
 									}
 									Wire {
 										if app.wire_groups[input_elem.id_glob_wire].on() == elem.state {
-											panic("BUG: Not gate ${x} ${y} id:${id} not matching its input Wire gate state id:${input_id}")
+											panic("BUG: Not gate ${x} ${y} id:${id} state:${elem.state} not matching its input Wire state:${app.wire_groups[input_elem.id_glob_wire].on()} wire_id:${input_id}")
 										}
 										if id !in app.wire_groups[input_elem.id_glob_wire].outputs {
 											panic("BUG: Not is not in the outputs of its input wire")
@@ -209,7 +209,7 @@ fn (mut app App) check(size int) {
 											panic("BUG: output of a Not ${input_elem.x} ${input_elem.y} id:${input_id} (that is in a wire's input) is connected to nothing id:${output_id}")
 										}
 									} else {
-										panic("BUG: Not ${input_elem.x} ${input_elem.y} id:${input_id} state:${input_elem.state} OFF in the inputs of a wire id:${elem.id_glob_wire} inputs:${app.wire_groups[elem.id_glob_wire].inputs}")
+										panic("BUG: Not ${input_elem.x} ${input_elem.y} id:${input_id} state:${input_elem.state} destroyed:${input_elem.destroyed} OFF in the inputs of a wire id:${elem.id_glob_wire} inputs:${app.wire_groups[elem.id_glob_wire].inputs}")
 									}
 								} else {
 									panic("BUG: not a Not in a wire's output")

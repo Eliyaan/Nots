@@ -31,7 +31,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 							if i != -1 {
 								app.wire_groups[input_elem.id_glob_wire].outputs.delete(i)
 							} else {
-								println("Very strange that the Not was not in the outputs of the wire not:${destroyed} id:${old_id} input_id:${input} outputs:${app.wire_groups[input_elem.id_glob_wire].outputs}")
+								println("Very strange that the Not ${destroyed} id:${old_id} was not in the outputs of the wire input_id:${input} outputs:${app.wire_groups[input_elem.id_glob_wire].outputs}")
 							}
 						}
 						Junction {
@@ -66,12 +66,13 @@ fn (mut app App) delete_in(x int, y int) ! {
 					mut output_elem := app.elements[destroyed.output]
 					match mut output_elem {
 						Wire {
+							old_wire_state := app.wire_groups[output_elem.id_glob_wire].on()
 							i := app.wire_groups[output_elem.id_glob_wire].inputs.index(old_id)
 							if i != -1 {
 								app.wire_groups[output_elem.id_glob_wire].inputs.delete(i)
 							}
-							if old_id !in app.queue && i != -1 {  // if not: it's because it just changed of state
-								if app.wire_groups[output_elem.id_glob_wire].inputs.len == 0 {
+							if i != -1 && old_wire_state {  // if not: it's because it just changed of state
+								if !app.wire_groups[output_elem.id_glob_wire].on() {
 									app.queue_gwires << output_elem.id_glob_wire
 								}
 							}
@@ -365,7 +366,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 					for input_id in fwire.inputs {
 						mut input := app.elements[input_id]
 						if mut input is Not {
-							if input.state && input_id !in app.queue {
+							if input.state {
 								on_inputs << input_id
 							}
 						}
@@ -680,7 +681,7 @@ fn (mut app App) delete_in(x int, y int) ! {
 					for input_id in fwire.inputs {
 						mut input := app.elements[input_id]
 						if mut input is Not {
-							if input.state && input_id !in app.queue {
+							if input.state {
 								on_inputs << input_id
 							}
 						}
