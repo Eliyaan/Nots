@@ -8,8 +8,6 @@ import ggui
 const tile_size = 128
 const theme = ggui.CatppuchinMocha{}
 const buttons_shape = ggui.RoundedShape{20, 20, 5, .top_left}
-const not_image = load_image('off_not_gate.png')
-const on_not_image = load_image('on_not_gate.png')
 
 enum Id {
 	@none

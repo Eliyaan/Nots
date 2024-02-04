@@ -1,5 +1,11 @@
 module main
 
+const not_image = load_image('off_not_gate.png')
+const on_not_image = load_image('on_not_gate.png')
+const off_wire_image = load_image('wire_off.png')
+const on_wire_image = load_image('wire_on.png')
+
+
 @[direct_array_access]
 fn (mut app App) draw_elements() {
 	scaled_tile_size := ceil(tile_size * app.scale)
@@ -13,6 +19,8 @@ fn (mut app App) draw_elements() {
 	on_not_image_scaled_south := rotate_img(on_scaled_image_not, .south, scaled_tile_size)
 	on_not_image_scaled_east := rotate_img(on_scaled_image_not, .east, scaled_tile_size)
 	on_not_image_scaled_west := rotate_img(on_scaled_image_not, .west, scaled_tile_size)
+	off_wire_scaled := scale_img(off_wire_image, app.scale, tile_size, tile_size)
+	on_wire_scaled := scale_img(on_wire_image, app.scale, tile_size, tile_size)
 	for chunk in app.chunks {
 		for line in chunk.tiles {
 			for id_element in line {
@@ -53,14 +61,14 @@ fn (mut app App) draw_elements() {
 								}
 							}
 							Wire {
-								color := if app.wire_groups[element.id_glob_wire].on() {
-									u32(0xFF12_D0_EF)
+								good_image := if app.wire_groups[element.id_glob_wire].on() {
+									&on_wire_scaled
 								} else {
-									u32(0xFF00_0000)
+									&off_wire_scaled
 								}
 								for y in 0 .. scaled_tile_size {
 									for x in 0 .. scaled_tile_size {
-										app.screen_pixels[array_pos + y * app.screen_x + x] = color
+										app.screen_pixels[array_pos + y * app.screen_x + x] = unsafe {good_image[y * scaled_tile_size + x].u32()}
 									}
 								}
 							}
