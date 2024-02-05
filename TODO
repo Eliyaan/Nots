@@ -1,17 +1,21 @@
 diodes
 
-skins
+skins + placing skins
+
+gates (saveable but via another system)
 
 save system
 
 
-very bad perf when lot of the screen covered by drawing -> replace only what needs to be replaced ?
-
-gates
-
 buttons (keyboard + click)
 levers because nice
 
+ctrl + Z
+cut/copy/paste
+
+
+very bad perf when lot of the screen covered by drawing -> replace only what needs to be replaced ?
+fix all the drawing issues + gnome issues
 
 // Rules to remember:
 Not state updated before queuing them
