@@ -60,43 +60,43 @@ fn (mut app App) draw_elements() {
 								good_image := match element.state {
 									false {
 										match element.orientation {
-											.north { &off_not_image_scaled_north }
-											.south { &off_not_image_scaled_south }
-											.east { &off_not_image_scaled_east }
-											.west { &off_not_image_scaled_west }
+											.north { off_not_image_scaled_north }
+											.south { off_not_image_scaled_south }
+											.east { off_not_image_scaled_east }
+											.west { off_not_image_scaled_west }
 										}
 									}
 									true {
 										match element.orientation {
-											.north { &on_not_image_scaled_north }
-											.south { &on_not_image_scaled_south }
-											.east { &on_not_image_scaled_east }
-											.west { &on_not_image_scaled_west }
+											.north { on_not_image_scaled_north }
+											.south { on_not_image_scaled_south }
+											.east { on_not_image_scaled_east }
+											.west { on_not_image_scaled_west }
 										}
 									}
 								}
 								for y in 0 .. scaled_tile_size {
 									for x in 0 .. scaled_tile_size {
-										app.screen_pixels[array_pos + y * app.screen_x + x] = unsafe {good_image[y * scaled_tile_size + x].u32()}
+										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[y * scaled_tile_size + x].u32()
 									}
 								}
 							}
 							Wire {
 								good_image := if app.wire_groups[element.id_glob_wire].on() {
-									&on_wire_scaled
+									on_wire_scaled
 								} else {
-									&off_wire_scaled
+									off_wire_scaled
 								}
 								for y in 0 .. scaled_tile_size {
 									for x in 0 .. scaled_tile_size {
-										app.screen_pixels[array_pos + y * app.screen_x + x] = unsafe {good_image[y * scaled_tile_size + x].u32()}
+										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[y * scaled_tile_size + x].u32()
 									}
 								}
 							}
 							Junction {
 								for y in 0 .. scaled_tile_size {
 									for x in 0 .. scaled_tile_size {
-										app.screen_pixels[array_pos + y * app.screen_x + x] = unsafe {off_junction_scaled[y * scaled_tile_size + x].u32()}
+										app.screen_pixels[array_pos + y * app.screen_x + x] = off_junction_scaled[y * scaled_tile_size + x].u32()
 									}
 								}
 							}
@@ -104,24 +104,24 @@ fn (mut app App) draw_elements() {
 								good_image := match element.state {
 									false {
 										match element.orientation {
-											.north { &off_diode_image_scaled_north }
-											.south { &off_diode_image_scaled_south }
-											.east { &off_diode_image_scaled_east }
-											.west { &off_diode_image_scaled_west }
+											.north { off_diode_image_scaled_north }
+											.south { off_diode_image_scaled_south }
+											.east { off_diode_image_scaled_east }
+											.west { off_diode_image_scaled_west }
 										}
 									}
 									true {
 										match element.orientation {
-											.north { &on_diode_image_scaled_north }
-											.south { &on_diode_image_scaled_south }
-											.east { &on_diode_image_scaled_east }
-											.west { &on_diode_image_scaled_west }
+											.north { on_diode_image_scaled_north }
+											.south { on_diode_image_scaled_south }
+											.east { on_diode_image_scaled_east }
+											.west { on_diode_image_scaled_west }
 										}
 									}
 								}
 								for y in 0 .. scaled_tile_size {
 									for x in 0 .. scaled_tile_size {
-										app.screen_pixels[array_pos + y * app.screen_x + x] = unsafe {good_image[y * scaled_tile_size + x].u32()}
+										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[y * scaled_tile_size + x].u32()
 									}
 								}
 							}
