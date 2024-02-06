@@ -238,7 +238,7 @@ fn (mut app App) check(size int) {
 											match mut other_side_elem { 
 												Wire {
 													if app.wire_groups[other_side_elem.id_glob_wire].on() != elem.state {
-														panic("BUG: Diode gate ${x} ${y} id:${id} not matching its input Wire gate state id:${other_side_id}")
+														panic("BUG: Diode gate ${x} ${y} id:${id} state:${elem.state} not matching its input Wire gate state :${app.wire_groups[other_side_elem.id_glob_wire].on()} id:${other_side_id}")
 													}
 													if id !in app.wire_groups[other_side_elem.id_glob_wire].outputs {
 														panic("BUG: Diode is not in the outputs of its input wire (through junction)")

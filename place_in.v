@@ -84,7 +84,7 @@ fn (mut app App) diode_place_in(x int, y int) ! {
 				}
 			}
 			Wire {
-				state = !app.wire_groups[elem_input.id_glob_wire].on()
+				state = app.wire_groups[elem_input.id_glob_wire].on()
 				app.wire_groups[elem_input.id_glob_wire].outputs << id
 			}
 			Junction {
@@ -106,7 +106,7 @@ fn (mut app App) diode_place_in(x int, y int) ! {
 								}
 							}
 							Wire {
-								state = !app.wire_groups[other_side_input.id_glob_wire].on()
+								state = app.wire_groups[other_side_input.id_glob_wire].on()
 								app.wire_groups[other_side_input.id_glob_wire].outputs << id
 							}
 							else {}
