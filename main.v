@@ -111,7 +111,6 @@ fn main() {
 		init_fn: graphics_init
 		sample_count: 4
 	)
-	app.build_selected_type = .wire
 	app.build_orientation = .west
 
 	app.ui_not = app.gg.create_image(os.resource_abs_path('off_not_gate.png'))!
@@ -148,8 +147,6 @@ TO NOT FORGET
 		shape: ggui.RoundedShape{100, 410, 10, .top_left}
 		color: gg.Color{100, 100, 100, 100}
 	}
-
-	app.build_selected_type = .wire
 
 	// lancement du programme/de la fenêtre
 	app.gg.run()
@@ -241,10 +238,10 @@ fn on_event(e &gg.Event, mut app App) {
 				}
 				.enter {
 					match app.build_selected_type {
-						.not { app.build_selected_type = .wire }
+						.not { app.build_selected_type = .diode }
+						.diode { app.build_selected_type = .wire }
 						.wire { app.build_selected_type = .junction }
-						.junction { app.build_selected_type = .diode }
-						.diode { app.build_selected_type = .not }
+						.junction { app.build_selected_type = .not }
 					}
 				}
 				/*
