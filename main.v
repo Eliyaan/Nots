@@ -113,7 +113,7 @@ fn main() {
 	)
 	app.build_orientation = .west
 
-	app.ui_not = app.gg.create_image(os.resource_abs_path('off_not_gate.png'))!
+	app.ui_not = app.gg.create_image(os.resource_abs_path('on_not_gate.png'))!
 	app.ui_diode = app.gg.create_image(os.resource_abs_path('off_diode.png'))!
 	app.ui_junction = app.gg.create_image(os.resource_abs_path('off_junction.png'))!
 	app.ui_wire = app.gg.create_image(os.resource_abs_path('wire_off.png'))!
