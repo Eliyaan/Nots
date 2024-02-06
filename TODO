@@ -1,6 +1,8 @@
+diff skins for junctions depending on state + placing skins     
+
 diodes
 
-skins + placing skins
+select obj bar, a gray alpha rect + images & light gray square for the selected one (right side)    
 
 gates (saveable but via another system)
 

@@ -159,9 +159,52 @@ fn (mut app App) check(size int) {
 							}
 						}
 						Junction {
-							// junctions do not have state
+							top_id := app.get_tile_id_at(int(x), int(y - 1))
+							if top_id != -1 {
+								mut top_elem := app.elements[top_id]
+								bot_id := app.get_tile_id_at(int(x), int(y + 1))
+								if bot_id != -1 {
+									mut bot_elem := app.elements[bot_id]
+									if mut top_elem is Wire && mut bot_elem is Wire {
+										if top_elem.id_glob_wire != bot_elem.id_glob_wire {
+											panic("BUG: Junction ${x} ${y} id:${id} is not connecting the top and bottom wires")
+										}
+									}
+								}
+							}
+							
+							right_id := app.get_tile_id_at(int(x + 1), int(y))
+							if right_id != -1 {
+								mut right_elem := app.elements[right_id]
+								left_id := app.get_tile_id_at(int(x - 1), int(y))
+								if left_id != -1 {
+									mut left_elem := app.elements[left_id]
+									if mut right_elem is Wire && mut left_elem is Wire {
+										if right_elem.id_glob_wire != left_elem.id_glob_wire {
+											panic("BUG: Junction ${x} ${y} id:${id} is not connecting the right and left wires")
+										}
+									}
+								}
+							}
 						}
 						Wire {
+							mut gwire_id := i64(-1) 
+							for pos in [[0, 1], [0, -1], [1, 0], [-1, 0]] {
+								adj_id := app.get_tile_id_at(x + pos[0], y + pos[1])
+								if adj_id != -1 {
+									mut adj_elem := app.elements[adj_id]
+									if mut adj_elem is Wire {
+										if gwire_id == -1 {
+											gwire_id = adj_elem.id_glob_wire
+										} else {
+											if adj_elem.id_glob_wire != gwire_id {
+												panic("BUG: Wire from the sides are not the same")
+											}
+										}
+									}
+								}
+							}
+
 							mut nb_inputs := 0
 							for input_id in app.wire_groups[elem.id_glob_wire].inputs {
 								mut input_elem := app.elements[input_id]
