@@ -14,8 +14,137 @@ fn (mut app App) place_in(x int, y int) ! {
 		.junction {
 			app.junction_place_in(x, y)!
 		}
+		.diode {
+			app.diode_place_in(x, y)!
+		}
 	}
 	app.update()
+}
+
+fn (mut app App) diode_place_in(x int, y int) ! {
+	mut id := i64(0)
+	if app.destroyed.len == 0 {
+		id = app.elements.len
+	} else { // replace the element
+		id = app.destroyed[0]
+		app.destroyed.delete(0)
+	}
+	place_chunk_id := app.get_chunk_id_at_coords(x, y)
+	place_chunk := app.chunks[place_chunk_id]
+	if place_chunk.tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] < 0 {
+		app.chunks[place_chunk_id].tiles[math.abs(y - place_chunk.y * 16)][math.abs(x - place_chunk.x * 16)] = id
+	} else {
+		return error('Not in an empty space')
+	}
+	if app.debug_mode {
+		println('app.place_in(${x}, ${y})!')
+	}
+
+	output_x, output_y := output_coords_from_orientation(app.build_orientation)
+	mut output := app.get_tile_id_at(x + output_x, y + output_y)
+
+	if output != -1 {
+		if app.elements[output].destroyed {
+			output = -1
+		} else {
+			output_elem := app.elements[output]
+			match output_elem {
+				Not {
+					if output_elem.orientation != app.build_orientation {
+						output = -1
+					}
+				}
+				Diode {
+					if output_elem.orientation != app.build_orientation {
+						output = -1
+					}
+				}
+				else {}
+			}
+		}
+	}
+
+	input_x, input_y := input_coords_from_orientation(app.build_orientation)
+	input := app.get_tile_id_at(x + input_x, y + input_y)
+
+	mut state := false // because a not gate without input is a not gate with off input
+	if input >= 0 {
+		mut elem_input := app.elements[input]
+		match mut elem_input {
+			Not {
+				if elem_input.orientation == app.build_orientation {
+					elem_input.output = id
+					state = elem_input.state
+				}
+			}
+			Diode {
+				if elem_input.orientation == app.build_orientation {
+					elem_input.output = id
+					state = elem_input.state
+				}
+			}
+			Wire {
+				state = !app.wire_groups[elem_input.id_glob_wire].on()
+				app.wire_groups[elem_input.id_glob_wire].outputs << id
+			}
+			Junction {
+				mut i := 1
+				mut other_side_id := app.get_tile_id_at(x + input_x*i, y + input_y*i)
+				for other_side_id != -1 && app.elements[other_side_id] is Junction {
+					other_side_id = app.get_tile_id_at(x + input_x*i, y + input_y*i)
+					if other_side_id != -1 {
+						mut other_side_input := app.elements[other_side_id]
+						match mut other_side_input {
+							Not {
+								if other_side_input.orientation == app.build_orientation {
+									state = other_side_input.state
+								}
+							}
+							Diode {
+								if other_side_input.orientation == app.build_orientation {
+									state = other_side_input.state
+								}
+							}
+							Wire {
+								state = !app.wire_groups[other_side_input.id_glob_wire].on()
+								app.wire_groups[other_side_input.id_glob_wire].outputs << id
+							}
+							else {}
+						}
+						i++
+					}
+				}
+			}
+			else {}
+		}
+		app.elements[input] = elem_input
+	}
+
+	if id == app.elements.len {
+		app.elements << Diode {
+			output: output
+			state: state
+			orientation: app.build_orientation
+			destroyed: false
+			in_gate: false
+			x: x
+			y: y
+		}
+	} else {
+		app.elements[id] = Diode {
+			output: output
+			state: state
+			orientation: app.build_orientation
+			destroyed: false
+			in_gate: false
+			x: x
+			y: y
+		}
+	}
+
+	if output >= 0 {
+		app.queue << id
+	}
 }
 
 fn (mut app App) junction_place_in(x int, y int) ! {
@@ -64,6 +193,18 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 								elem.output = id
 							}
 						}
+						Diode {
+							output_x, output_y := output_coords_from_orientation(elem.orientation)
+							input_x, input_y := input_coords_from_orientation(elem.orientation)
+							if pos[0] == output_x && pos[1] == output_y {
+								outputs << elem_id
+							} else if pos[0] == input_x && pos[1] == input_y {
+								if elem.state {
+									inputs << elem_id
+								}
+								elem.output = id
+							}
+						}
 						Junction {
 							mut i := 1
 							mut other_side_id := app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
@@ -73,6 +214,18 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 									mut other_side_elem := app.elements[other_side_id]
 									match mut other_side_elem {
 										Not {
+											output_x, output_y := output_coords_from_orientation(other_side_elem.orientation)
+											input_x, input_y := input_coords_from_orientation(other_side_elem.orientation)
+											if pos[0] == output_x && pos[1] == output_y {
+												outputs << other_side_id
+											} else if pos[0] == input_x && pos[1] == input_y {
+												if other_side_elem.state {
+													inputs << other_side_id
+												}
+												app.elements[other_side_id] = other_side_elem
+											}
+										}
+										Diode {
 											output_x, output_y := output_coords_from_orientation(other_side_elem.orientation)
 											input_x, input_y := input_coords_from_orientation(other_side_elem.orientation)
 											if pos[0] == output_x && pos[1] == output_y {
@@ -110,7 +263,11 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 							output.state = false
 							app.queue << output_id
 						}
-						else { panic("Not a Not in the inputs of a junction: ${output_id} ${output}")}
+						Diode {
+							output.state = true
+							app.queue << output_id
+						}
+						else { panic("Not a Not/Diode in the inputs of a junction: ${output_id} ${output}")}
 					}
 				}
 			}
@@ -125,6 +282,9 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 						if mut elem is Not {
 							elem.state = false
 							app.queue << id_output
+						} else if mut elem is Diode {
+							elem.state = true
+							app.queue << id_output
 						}
 					}
 				} else {
@@ -133,6 +293,9 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 						if mut elem is Not {
 							elem.state = false
 							app.queue << id_output // to stop thinking of it everytime I read this line, the state could only be true for a unconnected not gate
+						} else if mut elem is Diode {
+							elem.state = true
+							app.queue << id_output
 						}
 					}
 				}
@@ -163,7 +326,12 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 							elem.state = false
 							app.queue << id_output
 						}
-					}
+					} else if mut elem is Diode {
+						if !elem.state {
+							elem.state = true
+							app.queue << id_output
+						}
+					} 
 					app.elements[id_output] = elem
 				}
 			}
@@ -184,6 +352,8 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 						if mut wire is Wire {
 							wire.id_glob_wire -= 1
 							app.elements[wire_id] = wire
+						} else {
+							panic('Not a wire in a wiregroup')
 						}
 					}
 				}
@@ -253,6 +423,11 @@ fn (mut app App) not_place_in(x int, y int) ! {
 						output = -1
 					}
 				}
+				Diode {
+					if output_elem.orientation != app.build_orientation {
+						output = -1
+					}
+				}
 				else {}
 			}
 		}
@@ -271,6 +446,12 @@ fn (mut app App) not_place_in(x int, y int) ! {
 					state = !elem_input.state
 				}
 			}
+			Diode {
+				if elem_input.orientation == app.build_orientation {
+					elem_input.output = id
+					state = !elem_input.state
+				}
+			}
 			Wire {
 				state = !app.wire_groups[elem_input.id_glob_wire].on()
 				app.wire_groups[elem_input.id_glob_wire].outputs << id
@@ -284,6 +465,11 @@ fn (mut app App) not_place_in(x int, y int) ! {
 						mut other_side_input := app.elements[other_side_id]
 						match mut other_side_input {
 							Not {
+								if other_side_input.orientation == app.build_orientation {
+									state = !other_side_input.state
+								}
+							}
+							Diode {
 								if other_side_input.orientation == app.build_orientation {
 									state = !other_side_input.state
 								}
@@ -375,6 +561,18 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 							elem.output = id
 						}
 					}
+					Diode {
+						output_x, output_y := output_coords_from_orientation(elem.orientation)
+						input_x, input_y := input_coords_from_orientation(elem.orientation)
+						if pos[0] == output_x && pos[1] == output_y {
+							outputs << elem_id
+						} else if pos[0] == input_x && pos[1] == input_y {
+							if elem.state {
+								inputs << elem_id
+							}
+							elem.output = id
+						}
+					}
 					Junction {
 						mut i := 1
 						mut other_side_id := app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
@@ -395,6 +593,18 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 											app.elements[other_side_id] = other_side_elem
 										}
 									}
+									Diode {
+										output_x, output_y := output_coords_from_orientation(other_side_elem.orientation)
+										input_x, input_y := input_coords_from_orientation(other_side_elem.orientation)
+										if pos[0] == output_x && pos[1] == output_y {
+											outputs << other_side_id
+										} else if pos[0] == input_x && pos[1] == input_y {
+											if other_side_elem.state {
+												inputs << other_side_id
+											}
+											app.elements[other_side_id] = other_side_elem
+										}
+									}
 									Wire {
 										adjacent_gwire_ids << other_side_elem.id_glob_wire
 									}
@@ -404,7 +614,7 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 							}
 						}
 					}
-					else {}
+					else {panic("Elem type not supported ${elem}")}
 				}
 			}
 			app.elements[elem_id] = elem
@@ -436,6 +646,9 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 					if mut elem is Not {
 						elem.state = false
 						app.queue << id_output // to stop thinking of it everytime I read this line, the state could only be true for a unconnected not gate
+					} else if mut elem is Diode {
+						elem.state = true
+						app.queue << id_output
 					}
 				}
 			}
@@ -464,6 +677,13 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 				if mut elem is Not {
 					if elem.state {
 						elem.state = false
+						if id_output !in app.queue {
+							app.queue << id_output
+						}
+					}
+				} else if mut elem is Diode {
+					if !elem.state {
+						elem.state = true
 						if id_output !in app.queue {
 							app.queue << id_output
 						}

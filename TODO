@@ -1,6 +1,4 @@
-diff skins for junctions depending on state + placing skins     
-
-diodes
+diodes - testing
 
 select obj bar, a gray alpha rect + images & light gray square for the selected one (right side)    
 

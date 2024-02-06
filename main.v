@@ -22,6 +22,7 @@ enum Variant as u8 {
 	not
 	wire
 	junction
+	diode
 }
 
 interface Element {
@@ -221,7 +222,8 @@ fn on_event(e &gg.Event, mut app App) {
 					match app.build_selected_type {
 						.not { app.build_selected_type = .wire }
 						.wire { app.build_selected_type = .junction }
-						.junction { app.build_selected_type = .not }
+						.junction { app.build_selected_type = .diode }
+						.diode { app.build_selected_type = .not }
 						else { app.build_selected_type = .not }
 					}
 				}

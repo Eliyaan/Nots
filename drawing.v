@@ -117,6 +117,12 @@ fn (mut app App) draw_elements() {
 												top_on = top_elem.state
 											}
 										}
+										Diode {
+											input_coord_x, input_coord_y := input_coords_from_orientation(top_elem.orientation)
+											if input_coord_x == 0 && input_coord_y == -1 {
+												top_on = top_elem.state
+											}
+										}
 										Junction {
 											mut i := 1
 											mut other_side_id := app.get_tile_id_at(int(element.x), int(element.y - 1*i))
@@ -127,6 +133,12 @@ fn (mut app App) draw_elements() {
 													match mut other_side_elem {
 														Wire {top_on = app.wire_groups[other_side_elem.id_glob_wire].on()}
 														Not {
+															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
+															if input_coord_x == 0 && input_coord_y == -1 {
+																top_on = other_side_elem.state
+															}
+														}
+														Diode {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
 															if input_coord_x == 0 && input_coord_y == -1 {
 																top_on = other_side_elem.state
@@ -153,6 +165,12 @@ fn (mut app App) draw_elements() {
 												top_on = bot_elem.state
 											}
 										}
+										Diode {
+											input_coord_x, input_coord_y := input_coords_from_orientation(bot_elem.orientation)
+											if input_coord_x == 0 && input_coord_y == 1 {
+												top_on = bot_elem.state
+											}
+										}
 										Junction {
 											mut i := 1
 											mut other_side_id := app.get_tile_id_at(int(element.x), int(element.y + 1*i))
@@ -163,6 +181,12 @@ fn (mut app App) draw_elements() {
 													match mut other_side_elem {
 														Wire {top_on = app.wire_groups[other_side_elem.id_glob_wire].on()}
 														Not {
+															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
+															if input_coord_x == 0 && input_coord_y == 1 {
+																top_on = other_side_elem.state
+															}
+														}
+														Diode {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
 															if input_coord_x == 0 && input_coord_y == 1 {
 																top_on = other_side_elem.state
@@ -190,6 +214,12 @@ fn (mut app App) draw_elements() {
 												right_on = right_elem.state
 											}
 										}
+										Diode {
+											input_coord_x, input_coord_y := input_coords_from_orientation(right_elem.orientation)
+											if input_coord_x == 1 && input_coord_y == 0 {
+												right_on = right_elem.state
+											}
+										}
 										Junction {
 											mut i := 1
 											mut other_side_id := app.get_tile_id_at(int(element.x + 1*i), int(element.y))
@@ -200,6 +230,12 @@ fn (mut app App) draw_elements() {
 													match mut other_side_elem {
 														Wire {right_on = app.wire_groups[other_side_elem.id_glob_wire].on()}
 														Not {
+															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
+															if input_coord_x == 1 && input_coord_y == 0 {
+																right_on = other_side_elem.state
+															}
+														}
+														Diode {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
 															if input_coord_x == 1 && input_coord_y == 0 {
 																right_on = other_side_elem.state
@@ -226,6 +262,12 @@ fn (mut app App) draw_elements() {
 												right_on = left_elem.state
 											}
 										}
+										Diode {
+											input_coord_x, input_coord_y := input_coords_from_orientation(left_elem.orientation)
+											if input_coord_x == -1 && input_coord_y == 0 {
+												right_on = left_elem.state
+											}
+										}
 										Junction {
 											mut i := 1
 											mut other_side_id := app.get_tile_id_at(int(element.x - 1*i), int(element.y))
@@ -236,6 +278,12 @@ fn (mut app App) draw_elements() {
 													match mut other_side_elem {
 														Wire {right_on = app.wire_groups[other_side_elem.id_glob_wire].on()}
 														Not {
+															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
+															if input_coord_x == -1 && input_coord_y == 0 {
+																right_on = other_side_elem.state
+															}
+														}
+														Diode {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
 															if input_coord_x == -1 && input_coord_y == 0 {
 																right_on = other_side_elem.state
