@@ -4,7 +4,6 @@ import math
 
 fn (mut app App) place_in(x int, y int) ! {
 	match app.build_selected_type {
-		.@none {}
 		.not {
 			app.not_place_in(x, y)!
 		}

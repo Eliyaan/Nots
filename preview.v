@@ -120,12 +120,12 @@ fn (app App) tile_preview(x int, y int){
 			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), color)
 		}
 		.junction {
-			color := gg.Color{255, 0, 255, 100}
+			color := gg.Color{100, 100, 100, 100}
 			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), color)
 		}
 		.diode {
 			color := gg.Color{50, 100, 100, 100}
-			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), gg.Color{0, 100, 100, 100})
+			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), gg.Color{100, 100, 100, 100})
 			rotation := match app.build_orientation {
 				.north { -90 }
 				.south { 90 }
@@ -134,6 +134,5 @@ fn (app App) tile_preview(x int, y int){
 			}
 			app.gg.draw_polygon_filled(preview_x + half_scaled_tile_size, preview_y + half_scaled_tile_size, half_scaled_tile_size, 3, rotation, color)
 		}
-		else {}
 	}
 }
