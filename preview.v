@@ -2,11 +2,11 @@ import gg
 import math
 
 fn (mut app App) preview(){
-	if app.is_placing{
-		app.preview_line(app.mouse_down_preview_x, app.mouse_down_preview_y, app.mouse_x, app.mouse_y) or {}
+	if app.is_placing == Clicks.no{
+		app.tile_preview(app.mouse_x, app.mouse_y)
 	}
 	else{
-		app.tile_preview(app.mouse_x, app.mouse_y)
+		app.preview_line(app.mouse_down_preview_x, app.mouse_down_preview_y, app.mouse_x, app.mouse_y) or {}
 	}
 }
 
