@@ -154,25 +154,41 @@ TO NOT FORGET
 
 fn wire_select(mut app ggui.Gui) {
 	if mut app is App {
+		type_before := app.build_selected_type
 		app.build_selected_type = .wire
+		if app.build_selected_type != type_before {
+			println('app.build_selected_type = .${app.build_selected_type}')
+		}
 	}
 }
 
 fn not_select(mut app ggui.Gui) {
 	if mut app is App {
+		type_before := app.build_selected_type
 		app.build_selected_type = .not
+		if app.build_selected_type != type_before {
+			println('app.build_selected_type = .${app.build_selected_type}')
+		}
 	}
 }
 
 fn diode_select(mut app ggui.Gui) {
 	if mut app is App {
+		type_before := app.build_selected_type
 		app.build_selected_type = .diode
+		if app.build_selected_type != type_before {
+			println('app.build_selected_type = .${app.build_selected_type}')
+		}
 	}
 }
 
 fn junction_select(mut app ggui.Gui) {
 	if mut app is App {
+		type_before := app.build_selected_type
 		app.build_selected_type = .junction
+		if app.build_selected_type != type_before {
+			println('app.build_selected_type = .${app.build_selected_type}')
+		}
 	}
 }
 
