@@ -111,6 +111,10 @@ mut:
 	start_creation_y int = -1000000000
 	start_creation_mouse_x int
 	start_creation_mouse_y int
+	end_creation_x int
+	end_creation_y int
+	end_creation_mouse_x int
+	end_creation_mouse_y int
 	wait_name_save bool
 	wait_name_load bool
 
@@ -372,9 +376,11 @@ fn on_event(e &gg.Event, mut app App) {
 		}
 		.mouse_up {
 			if !(e.mouse_x < 100 && e.mouse_y < 410) {
-				if app.gate_creation && app.input_mode == .no {
+				if app.gate_creation {
 					app.wait_name_save = true
 					app.input_mode = .save_gate_name
+					app.end_creation_x, app.end_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
+					app.end_creation_mouse_x, app.end_creation_mouse_y = app.mouse_x, app.mouse_y
 				} else {
 					place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 					place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
@@ -403,7 +409,7 @@ fn on_event(e &gg.Event, mut app App) {
 				}
 				.left {					
 					if !(e.mouse_x < 100 && e.mouse_y < 410) {
-						if app.gate_creation && app.input_mode == .no {
+						if app.gate_creation {
 							app.start_creation_x, app.start_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
 							app.start_creation_mouse_x, app.start_creation_mouse_y = app.mouse_x, app.mouse_y
 						} else {

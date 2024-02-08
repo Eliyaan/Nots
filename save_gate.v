@@ -3,8 +3,8 @@ module main
 import os
 
 fn (mut app App) save_gate(name string) {
-	mut end_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
-	mut end_y := app.mouse_y- (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
+	mut end_x := app.end_creation_x
+	mut end_y := app.end_creation_y
 	if app.start_creation_x > end_x {
 		end_x, app.start_creation_x = app.start_creation_x, end_x
 	}
