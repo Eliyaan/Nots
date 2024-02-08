@@ -99,6 +99,9 @@ fn (mut app App) check(size int) {
 				id := app.get_tile_id_at(x, y)
 				if id != -1 {
 					mut elem := app.elements[id]
+					if x != elem.x || y != elem.y {
+						panic("BUG: coords not matching")
+					}
 					match mut elem {
 						Not {
 							input_x, input_y := input_coords_from_orientation(elem.orientation)
