@@ -13,6 +13,9 @@ const space = 100
 const bt_scale = 70
 const bt_offset  = 20
 const elem_button_shape = ggui.RoundedShape{bt_scale, bt_scale, 10, .top_left}
+const tcfg = gx.TextCfg {
+	size: 30
+}
 
 
 enum Id {
@@ -34,6 +37,16 @@ enum Clicks as u8 {
 	no
 	left
 	right
+}
+
+enum InputMode {
+	no
+	finished
+	save_gate_name
+	load_gate_name
+	wait_for_action
+	waiting_to_paste
+	waiting_to_load
 }
 
 interface Element {
@@ -101,6 +114,25 @@ mut:
 	ui_diode		gg.Image
 	ui_junction		gg.Image
 	ui_wire 		gg.Image
+
+	select_mode bool
+	start_creation_x int = -1000000000
+	start_creation_y int = -1000000000
+	start_creation_mouse_x int
+	start_creation_mouse_y int
+	end_creation_x int
+	end_creation_y int
+	end_creation_mouse_x int
+	end_creation_mouse_y int
+	wait_name_save bool
+	wait_name_load bool
+
+	input_mode InputMode
+	input string
+
+	copy_buffer []u8 
+	gate_x int
+	gate_y int
 }
 
 fn main() {
@@ -214,8 +246,25 @@ fn on_frame(mut app App) {
 	app.draw_elements()
 	app.draw_image()
 	app.undraw_elements()
-	if !(app.screen_mouse_x < 100 && app.screen_mouse_y < 410) {
-		app.preview()
+	if app.select_mode || app.input_mode == .waiting_to_paste || app.input_mode == .waiting_to_load  {
+		if app.input_mode == .waiting_to_paste {
+			if app.start_creation_x != -1000000000 && app.start_creation_y != -1000000000  {
+				app.box_preview()
+			}
+		} else if app.input_mode == .waiting_to_load {
+			app.cursor_preview(app.mouse_x, app.mouse_y)
+		} else {
+			if app.start_creation_x != -1000000000 && app.start_creation_y != -1000000000  {
+				app.box_preview()
+			}
+		}
+	}
+	else if app.input_mode == .waiting_to_load {
+		app.cursor_preview(app.mouse_x, app.mouse_y)
+	} else {
+		if !(app.screen_mouse_x < 100 && app.screen_mouse_y < 410) {
+			app.preview()
+		}
 	}
 	app.gui.render()
 	app.gg.draw_rounded_rect_filled(bt_offset, bt_offset + space * int(app.build_selected_type), bt_scale, bt_scale, 10, gg.Color{80, 80, 80, 150})
@@ -223,6 +272,13 @@ fn on_frame(mut app App) {
 	app.gg.draw_image(bt_offset, bt_offset + space * 1, bt_scale, bt_scale, app.ui_diode)
 	app.gg.draw_image(bt_offset, bt_offset + space * 2, bt_scale, bt_scale, app.ui_wire)
 	app.gg.draw_image(bt_offset, bt_offset + space * 3, bt_scale, bt_scale, app.ui_junction)
+	if app.input_mode != .no {
+		match app.input_mode {
+			.save_gate_name { app.gg.draw_text(110, 20, "Gate name: " + app.input, tcfg) }
+			.load_gate_name { app.gg.draw_text(110, 20, "Gate name: " + app.input, tcfg) }
+			else {}
+		}
+	}
 	app.gg.show_fps()
 	app.gg.end()
 }
@@ -236,73 +292,127 @@ fn on_event(e &gg.Event, mut app App) {
 		.key_down {
 			orientation_before := app.build_orientation
 			type_before := app.build_selected_type
-			match e.key_code {
-				/* gg doesn't detect numbers on top of keyboard
-				._1 {app.build_selected_type = .not}
-				._2 {app.build_selected_type = .diode}
-				._3 {app.build_selected_type = .wire}
-				._4 {app.build_selected_type = .junction}
-				*/
-				.escape {
-					app.gg.quit()
-				}
-				.up {
-					app.build_orientation = .north
-				}
-				.down {
-					app.build_orientation = .south
-				}
-				.left {
-					app.build_orientation = .west
-				}
-				.right {
-					app.build_orientation = .east
-				}
-				.enter {
-					match app.build_selected_type {
-						.not { app.build_selected_type = .diode }
-						.diode { app.build_selected_type = .wire }
-						.wire { app.build_selected_type = .junction }
-						.junction { app.build_selected_type = .not }
+			if app.input_mode == .no || app.input_mode == .wait_for_action {
+				match e.key_code {
+					/* gg doesn't detect numbers on top of keyboard
+					._1 {app.build_selected_type = .not}
+					._2 {app.build_selected_type = .diode}
+					._3 {app.build_selected_type = .wire}
+					._4 {app.build_selected_type = .junction}
+					*/
+					.b {
+						app.select_mode = !app.select_mode
+						if !app.select_mode {
+							app.start_creation_x = -1000000000
+							app.start_creation_y = -1000000000
+						}
 					}
-				}
-				/*
-				.w {
-					app.viewport_y += 5
-				}
-				.s {
-					app.viewport_y -= 5
-				}
-				.a {
-					app.viewport_x += 5
-				}
-				.d {
-					app.viewport_x -= 5
-				}
-				*/
-				.semicolon {
-					old := app.scale
-					if app.scale > 0.021 {
-						app.scale -= 0.01
+					.l {
+						app.input_mode = .load_gate_name
 					}
-					app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) ) 
-					app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
-				}
-				.p {
-					old := app.scale
-					app.scale += 0.01
-					app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) )
-					app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
-				}
-				.space{
-					app.place_is_turn	= 	!app.place_is_turn
-				}
-				.t {
-					if app.debug_mode {
-						app.test(6)
+					.escape {
+						if (app.start_creation_x != -1000000000 && app.start_creation_y != -1000000000) || app.input_mode == .waiting_to_paste || app.input_mode == .waiting_to_load {
+							app.start_creation_x = -1000000000
+							app.start_creation_y = -1000000000
+							app.select_mode = false
+							app.input_mode = .no
+						} else {
+							app.gg.quit()
+						}
 					}
+					.up {
+						app.build_orientation = .north
+					}
+					.down {
+						app.build_orientation = .south
+					}
+					.left {
+						app.build_orientation = .west
+					}
+					.right {
+						app.build_orientation = .east
+					}
+					.s {
+						if app.select_mode {
+							app.wait_name_save = true
+							app.input_mode = .save_gate_name
+						} 
+					}
+					.enter {
+						match app.build_selected_type {
+							.not { app.build_selected_type = .diode }
+							.diode { app.build_selected_type = .wire }
+							.wire { app.build_selected_type = .junction }
+							.junction { app.build_selected_type = .not }
+						}
+					}
+					.c {
+						if app.select_mode {
+							app.copy_buffer = app.gate_buffer()
+						}
+					}
+					/*
+					.w {
+						app.viewport_y += 5
+					}
+					.s {
+						app.viewport_y -= 5
+					}
+					.a {
+						app.viewport_x += 5
+					}
+					.d {
+						app.viewport_x -= 5
+					}
+					*/
+					.semicolon {
+						old := app.scale
+						if app.scale > 0.021 {
+							app.scale -= 0.01
+						}
+						app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) ) 
+						app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
+					}
+					.p {
+						dump("pasting")
+						app.input_mode = .waiting_to_paste
+					}
+					.space{
+						app.place_is_turn	= 	!app.place_is_turn
+					}
+					.t {
+						if app.debug_mode {
+							app.test(6)
+						}
+					}
+					else {dump(e.key_code)}
 				}
-				else {}
+			} else {
+				match e.key_code {
+					.enter {
+						if app.input.len > 0 {
+							match app.input_mode {
+								.save_gate_name {
+									app.save_gate(app.input)
+									app.input_mode = .no
+								}
+								.load_gate_name { app.input_mode = .waiting_to_load }
+								else {app.input_mode = .no}
+							}
+						}
+						dump(app.input_mode)
+						app.start_creation_x = -1000000000
+						app.start_creation_y = -1000000000
+					}
+					.escape {
+						app.start_creation_x = -1000000000
+						app.start_creation_y = -1000000000
+						app.input_mode = .no
+					}
+					.left_shift {}
+					.backspace { if app.input.len > 0 { app.input = app.input[..app.input.len-1] } }
+					else { app.input = app.input + e.key_code.str() }
+				}
 			}
 			if app.debug_mode && (app.build_orientation != orientation_before
 				|| app.build_selected_type != type_before) {
@@ -329,10 +439,64 @@ fn on_event(e &gg.Event, mut app App) {
 							app.is_placing = Clicks.no
 						}
 					}
+				}
+			}
+			if app.select_mode {
+				match e.mouse_button {
+					.left {
+						match app.input_mode {
+							.waiting_to_paste { 
+								app.place_gate(app.copy_buffer) or {} 
+								app.input_mode = .no
+
+								app.start_creation_x = -1000000000
+								app.start_creation_y = -1000000000
+							}
+							.waiting_to_load {
+								app.load_gate(app.input) or {}
+							}
+							else {								
+								app.end_creation_x, app.end_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
+								app.end_creation_mouse_x, app.end_creation_mouse_y = app.mouse_x, app.mouse_y
+								app.input_mode = .wait_for_action
+							}
+						}
+					}
 					else {}
 				}
 			} else {
-				app.gui.check_clicks(e.mouse_x, e.mouse_y)
+				if !(e.mouse_x < 100 && e.mouse_y < 410) {
+					match app.input_mode {
+						.waiting_to_paste { 
+							app.place_gate(app.copy_buffer) or {} 
+							app.input_mode = .no
+
+							app.start_creation_x = -1000000000
+							app.start_creation_y = -1000000000
+						}
+						.waiting_to_load {
+							app.load_gate(app.input) or {}
+						}
+						else {								
+							place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
+							place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
+							app.is_placing = false
+							app.mouse_up_x = place_pos_x
+							app.mouse_up_y = place_pos_y
+							match e.mouse_button {
+								.left {
+									app.line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
+								}
+								.right {
+									app.delete_line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
+								}
+								else {}
+							}
+						}
+					}
+				} else {
+					app.gui.check_clicks(e.mouse_x, e.mouse_y)
+				}
 			}
 			app.middle_click_held = false
 		}
@@ -359,7 +523,38 @@ fn on_event(e &gg.Event, mut app App) {
 						app.mouse_down_preview_y 	= app.mouse_y
 					}
 				}
-				else{}
+			}
+			if app.input_mode != .waiting_to_paste && app.input_mode != .waiting_to_load {
+				match e.mouse_button {
+					.middle {
+						app.middle_click_held = true
+					}
+					.left {					
+						if !(e.mouse_x < 100 && e.mouse_y < 410) {
+							if app.select_mode {
+								app.input_mode = .no
+								app.start_creation_x, app.start_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
+								app.start_creation_mouse_x, app.start_creation_mouse_y = app.mouse_x, app.mouse_y
+							} else {
+								app.is_placing = true
+								app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
+								app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
+								app.mouse_down_preview_x = app.mouse_x
+								app.mouse_down_preview_y = app.mouse_y
+							}
+						}
+					}
+					.right {
+						if !(e.mouse_x < 100 && e.mouse_y < 410) {
+							app.is_placing = true
+							app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
+							app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
+							app.mouse_down_preview_x	= app.mouse_x
+							app.mouse_down_preview_y 	= app.mouse_y
+						}
+					}
+					else{}
+				}
 			}
 		}
 		.mouse_scroll {
