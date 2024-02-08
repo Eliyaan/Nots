@@ -2,7 +2,7 @@ module main
 
 import os
 
-fn (mut app App) save_gate() {
+fn (mut app App) save_gate(name string) {
 	mut end_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 	mut end_y := app.mouse_y- (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
 	if app.start_creation_x > end_x {
@@ -61,8 +61,8 @@ fn (mut app App) save_gate() {
 			buffer << u8(n_nots.len >> 8)
 			buffer << u8(n_nots.len)
 			for not in n_nots {
-				x := app.start_creation_x - not.x 
-				y := app.start_creation_y - not.y
+				x := not.x - app.start_creation_x
+				y := not.y - app.start_creation_y
 				buffer << u8(x >> 8)
 				buffer << u8(x)
 				buffer << u8(y >> 8)
@@ -76,8 +76,8 @@ fn (mut app App) save_gate() {
 			buffer << u8(s_nots.len >> 8)
 			buffer << u8(s_nots.len)
 			for not in s_nots {
-				x := app.start_creation_x - not.x 
-				y := app.start_creation_y - not.y
+				x := not.x - app.start_creation_x
+				y := not.y - app.start_creation_y
 				buffer << u8(x >> 8)
 				buffer << u8(x)
 				buffer << u8(y >> 8)
@@ -91,8 +91,8 @@ fn (mut app App) save_gate() {
 			buffer << u8(w_nots.len >> 8)
 			buffer << u8(w_nots.len)
 			for not in w_nots {
-				x := app.start_creation_x - not.x
-				y := app.start_creation_y - not.y
+				x := not.x - app.start_creation_x
+				y := not.y - app.start_creation_y
 				buffer << u8(x >> 8)
 				buffer << u8(x)
 				buffer << u8(y >> 8)
@@ -106,8 +106,8 @@ fn (mut app App) save_gate() {
 			buffer << u8(e_nots.len >> 8)
 			buffer << u8(e_nots.len)
 			for not in e_nots {
-				x := app.start_creation_x - not.x 
-				y := app.start_creation_y - not.y
+				x := not.x - app.start_creation_x
+				y := not.y - app.start_creation_y
 				buffer << u8(x >> 8)
 				buffer << u8(x)
 				buffer << u8(y >> 8)
@@ -125,8 +125,8 @@ fn (mut app App) save_gate() {
 			buffer << u8(n_diodes.len >> 8)
 			buffer << u8(n_diodes.len)
 			for diode in n_diodes {
-				x := app.start_creation_x - diode.x 
-				y := app.start_creation_y - diode.y
+				x := diode.x - app.start_creation_x
+				y := diode.y - app.start_creation_y
 				buffer << u8(x >> 8)
 				buffer << u8(x)
 				buffer << u8(y >> 8)
@@ -140,8 +140,8 @@ fn (mut app App) save_gate() {
 			buffer << u8(s_diodes.len >> 8)
 			buffer << u8(s_diodes.len)
 			for diode in s_diodes {
-				x := app.start_creation_x - diode.x 
-				y := app.start_creation_y - diode.y
+				x := diode.x - app.start_creation_x
+				y := diode.y - app.start_creation_y
 				buffer << u8(x >> 8)
 				buffer << u8(x)
 				buffer << u8(y >> 8)
@@ -155,8 +155,8 @@ fn (mut app App) save_gate() {
 			buffer << u8(w_diodes.len >> 8)
 			buffer << u8(w_diodes.len)
 			for diode in w_diodes {
-				x := app.start_creation_x - diode.x 
-				y := app.start_creation_y - diode.y
+				x := diode.x - app.start_creation_x
+				y := diode.y - app.start_creation_y
 				buffer << u8(x >> 8)
 				buffer << u8(x)
 				buffer << u8(y >> 8)
@@ -170,8 +170,8 @@ fn (mut app App) save_gate() {
 			buffer << u8(e_diodes.len >> 8)
 			buffer << u8(e_diodes.len)
 			for diode in e_diodes {
-				x := app.start_creation_x - diode.x 
-				y := app.start_creation_y - diode.y
+				x := diode.x - app.start_creation_x
+				y := diode.y - app.start_creation_y
 				buffer << u8(x >> 8)
 				buffer << u8(x)
 				buffer << u8(y >> 8)
@@ -187,8 +187,8 @@ fn (mut app App) save_gate() {
 		buffer << u8(junctions.len >> 8)
 		buffer << u8(junctions.len)
 		for junction in junctions {
-			x := app.start_creation_x - junction.x 
-			y := app.start_creation_y - junction.y
+			x := junction.x - app.start_creation_x
+			y := junction.y - app.start_creation_y
 			buffer << u8(x >> 8)
 			buffer << u8(x)
 			buffer << u8(y >> 8)
@@ -202,24 +202,22 @@ fn (mut app App) save_gate() {
 		buffer << u8(wires.len >> 8)
 		buffer << u8(wires.len)
 		for wire in wires {
-			x := app.start_creation_x - wire.x 
-			y := app.start_creation_y - wire.y
+			x := wire.x - app.start_creation_x
+			y := wire.y - app.start_creation_y
 			buffer << u8(x >> 8)
 			buffer << u8(x)
 			buffer << u8(y >> 8)
 			buffer << u8(y)
 		}
 	}
-	dump(buffer)
 
-	os.write_file_array("gate", buffer) or {panic(err)}
+	os.write_file_array(name, buffer) or {panic(err)}
 }
 
-fn (mut app App) load_gate() ! {
+fn (mut app App) load_gate(name string) ! {
 	start_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 	start_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
-	buffer := os.read_bytes("gate") or {return error("File not found")}
-	dump(buffer)
+	buffer := os.read_bytes(name) or {return error("File not found")}
 	if buffer.len > 2 {
 		if buffer[0] == 0 {
 			mut pos := 1
@@ -255,9 +253,7 @@ fn (mut app App) load_gate() ! {
 								mut y := u16(buffer[pos]) << 8
 								pos += 1
 								y = buffer[pos] | y
-								dump(x)
-								dump(y)
-								app.place_in(x + start_x, y + start_y)!
+								app.place_in(x + start_x, y + start_y) or {}
 							}
 							pos += 1
 							match buffer[pos] {
@@ -300,7 +296,7 @@ fn (mut app App) load_gate() ! {
 								mut y := u16(buffer[pos]) << 8
 								pos += 1
 								y = buffer[pos] | y
-								app.place_in(x + start_x, y + start_y)!
+								app.place_in(x + start_x, y + start_y) or {}
 							}
 							pos += 1
 							match buffer[pos] {
@@ -332,11 +328,11 @@ fn (mut app App) load_gate() ! {
 							mut y := u16(buffer[pos]) << 8
 							pos += 1
 							y = buffer[pos] | y
-							app.place_in(x + start_x, y + start_y)!
+							app.place_in(x + start_x, y + start_y) or {}
 						}
 					}
 					3 {
-						app.build_selected_type = .wire
+						app.build_selected_type = .junction
 						pos += 1
 						mut nb := u32(buffer[pos]) << 24
 						pos += 1
@@ -354,7 +350,7 @@ fn (mut app App) load_gate() ! {
 							mut y := u16(buffer[pos]) << 8
 							pos += 1
 							y = buffer[pos] | y
-							app.place_in(x + start_x, y + start_y)!
+							app.place_in(x + start_x, y + start_y) or {}
 						}
 					}
 					else { panic("Should not be ${buffer[pos]}") }

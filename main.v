@@ -13,6 +13,9 @@ const space = 100
 const bt_scale = 70
 const bt_offset  = 20
 const elem_button_shape = ggui.RoundedShape{bt_scale, bt_scale, 10, .top_left}
+const tcfg = gx.TextCfg {
+
+}
 
 
 enum Id {
@@ -28,6 +31,13 @@ enum Variant as u8 {
 	diode
 	wire
 	junction
+}
+
+enum InputMode {
+	no
+	finished
+	save_gate_name
+	load_gate_name
 }
 
 interface Element {
@@ -99,6 +109,11 @@ mut:
 	gate_creation bool
 	start_creation_x int
 	start_creation_y int
+	wait_name_save bool
+	wait_name_load bool
+
+	input_mode InputMode
+	input string
 }
 
 fn main() {
@@ -221,6 +236,13 @@ fn on_frame(mut app App) {
 	app.gg.draw_image(bt_offset, bt_offset + space * 1, bt_scale, bt_scale, app.ui_diode)
 	app.gg.draw_image(bt_offset, bt_offset + space * 2, bt_scale, bt_scale, app.ui_wire)
 	app.gg.draw_image(bt_offset, bt_offset + space * 3, bt_scale, bt_scale, app.ui_junction)
+	if app.input_mode != .no {
+		match app.input_mode {
+			.save_gate_name { app.gg.draw_text(110, 20, "Gate name: " + app.input, tcfg) }
+			.load_gate_name { app.gg.draw_text(110, 20, "Gate name: " + app.input, tcfg) }
+			else {}
+		}
+	}
 	app.gg.show_fps()
 	app.gg.end()
 }
@@ -234,79 +256,94 @@ fn on_event(e &gg.Event, mut app App) {
 		.key_down {
 			orientation_before := app.build_orientation
 			type_before := app.build_selected_type
-			match e.key_code {
-				/* gg doesn't detect numbers on top of keyboard
-				._1 {app.build_selected_type = .not}
-				._2 {app.build_selected_type = .diode}
-				._3 {app.build_selected_type = .wire}
-				._4 {app.build_selected_type = .junction}
-				*/
-				.g {
-					app.gate_creation = !app.gate_creation
-				}
-				.h {
-					app.load_gate() or {panic(err)}
-				}
-				.escape {
-					app.gg.quit()
-				}
-				.up {
-					app.build_orientation = .north
-				}
-				.down {
-					app.build_orientation = .south
-				}
-				.left {
-					app.build_orientation = .west
-				}
-				.right {
-					app.build_orientation = .east
-				}
-				.enter {
-					match app.build_selected_type {
-						.not { app.build_selected_type = .diode }
-						.diode { app.build_selected_type = .wire }
-						.wire { app.build_selected_type = .junction }
-						.junction { app.build_selected_type = .not }
+			if app.input_mode == .no {
+				match e.key_code {
+					/* gg doesn't detect numbers on top of keyboard
+					._1 {app.build_selected_type = .not}
+					._2 {app.build_selected_type = .diode}
+					._3 {app.build_selected_type = .wire}
+					._4 {app.build_selected_type = .junction}
+					*/
+					.g {
+						app.gate_creation = !app.gate_creation
 					}
-				}
-				/*
-				.w {
-					app.viewport_y += 5
-				}
-				.s {
-					app.viewport_y -= 5
-				}
-				.a {
-					app.viewport_x += 5
-				}
-				.d {
-					app.viewport_x -= 5
-				}
-				*/
-				.semicolon {
-					old := app.scale
-					if app.scale > 0.021 {
-						app.scale -= 0.01
+					.h {
+						app.input_mode = .load_gate_name
 					}
-					app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) ) 
-					app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
-				}
-				.p {
-					old := app.scale
-					app.scale += 0.01
-					app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) )
-					app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
-				}
-				.space{
-					app.place_is_turn	= 	!app.place_is_turn
-				}
-				.t {
-					if app.debug_mode {
-						app.test(6)
+					.escape {
+						app.gg.quit()
 					}
+					.up {
+						app.build_orientation = .north
+					}
+					.down {
+						app.build_orientation = .south
+					}
+					.left {
+						app.build_orientation = .west
+					}
+					.right {
+						app.build_orientation = .east
+					}
+					.enter {
+						match app.build_selected_type {
+							.not { app.build_selected_type = .diode }
+							.diode { app.build_selected_type = .wire }
+							.wire { app.build_selected_type = .junction }
+							.junction { app.build_selected_type = .not }
+						}
+					}
+					/*
+					.w {
+						app.viewport_y += 5
+					}
+					.s {
+						app.viewport_y -= 5
+					}
+					.a {
+						app.viewport_x += 5
+					}
+					.d {
+						app.viewport_x -= 5
+					}
+					*/
+					.semicolon {
+						old := app.scale
+						if app.scale > 0.021 {
+							app.scale -= 0.01
+						}
+						app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) ) 
+						app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
+					}
+					.p {
+						old := app.scale
+						app.scale += 0.01
+						app.viewport_x = int(f64(app.viewport_x) * (app.scale / old) )
+						app.viewport_y = int(f64(app.viewport_y) * (app.scale / old) )
+					}
+					.space{
+						app.place_is_turn	= 	!app.place_is_turn
+					}
+					.t {
+						if app.debug_mode {
+							app.test(6)
+						}
+					}
+					else {dump(e.key_code)}
 				}
-				else {dump(e.key_code)}
+			} else {
+				match e.key_code {
+					.enter {
+						match app.input_mode {
+							.save_gate_name { app.save_gate(app.input) }
+							.load_gate_name { app.load_gate(app.input) or {} }
+							else {}
+						}
+						app.input_mode = .no
+					}
+					.backspace { if app.input.len > 0 { app.input = app.input[..app.input.len-1] } }
+					else { app.input = app.input + e.key_code.str() }
+				}
 			}
 			if app.debug_mode && (app.build_orientation != orientation_before
 				|| app.build_selected_type != type_before) {
@@ -317,7 +354,8 @@ fn on_event(e &gg.Event, mut app App) {
 		.mouse_up {
 			if !(e.mouse_x < 100 && e.mouse_y < 410) {
 				if app.gate_creation {
-					app.save_gate()
+					app.wait_name_save = true
+					app.input_mode = .save_gate_name
 				} else {
 					place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 					place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
