@@ -1,4 +1,4 @@
-select mode : -> place(copy cut paste) ./-> save
+select mode : -> place(cut paste->find why not good previews) ./-> save
 load -> name, then wait till click with box for size preview
 
 save system

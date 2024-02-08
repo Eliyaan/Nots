@@ -3,6 +3,11 @@ module main
 import os
 
 fn (mut app App) save_gate(name string) {
+	buffer := app.gate_buffer()
+	os.write_file_array(name, buffer) or {panic(err)}
+}
+
+fn (mut app App) gate_buffer() []u8 {
 	mut end_x := app.end_creation_x
 	mut end_y := app.end_creation_y
 	if app.start_creation_x > end_x {
@@ -11,6 +16,8 @@ fn (mut app App) save_gate(name string) {
 	if app.start_creation_y > end_y {
 		end_y, app.start_creation_y = app.start_creation_y, end_y
 	}
+	app.gate_x = end_x - app.start_creation_x + 1
+	app.gate_y = end_x - app.start_creation_x + 1
 	mut n_nots := []Not{}
 	mut s_nots := []Not{}
 	mut w_nots := []Not{}
@@ -210,14 +217,17 @@ fn (mut app App) save_gate(name string) {
 			buffer << u8(y)
 		}
 	}
-
-	os.write_file_array(name, buffer) or {panic(err)}
+	return buffer
 }
 
 fn (mut app App) load_gate(name string) ! {
+	buffer := os.read_bytes(name) or {return error("File not found")}
+	app.place_gate(buffer)!
+}
+
+fn (mut app App) place_gate(buffer []u8) ! {
 	start_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 	start_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
-	buffer := os.read_bytes(name) or {return error("File not found")}
 	if buffer.len > 2 {
 		if buffer[0] == 0 {
 			mut pos := 1
