@@ -107,8 +107,10 @@ mut:
 	ui_wire 		gg.Image
 
 	gate_creation bool
-	start_creation_x int
-	start_creation_y int
+	start_creation_x int = -1000000000
+	start_creation_y int = -1000000000
+	start_creation_mouse_x int
+	start_creation_mouse_y int
 	wait_name_save bool
 	wait_name_load bool
 
@@ -227,8 +229,16 @@ fn on_frame(mut app App) {
 	app.draw_elements()
 	app.draw_image()
 	app.undraw_elements()
-	if !(app.screen_mouse_x < 100 && app.screen_mouse_y < 410) {
-		app.preview()
+	if app.gate_creation {
+		if app.start_creation_x != -1000000000 && app.start_creation_y != -1000000000 {
+			if !(app.screen_mouse_x < 100 && app.screen_mouse_y < 410) {
+				app.box_preview()
+			}
+		}
+	} else {
+		if !(app.screen_mouse_x < 100 && app.screen_mouse_y < 410) {
+			app.preview()
+		}
 	}
 	app.gui.render()
 	app.gg.draw_rounded_rect_filled(bt_offset, bt_offset + space * int(app.build_selected_type), bt_scale, bt_scale, 10, gg.Color{80, 80, 80, 150})
@@ -334,11 +344,20 @@ fn on_event(e &gg.Event, mut app App) {
 			} else {
 				match e.key_code {
 					.enter {
-						match app.input_mode {
-							.save_gate_name { app.save_gate(app.input) }
-							.load_gate_name { app.load_gate(app.input) or {} }
-							else {}
+						if app.input.len > 0 {
+							match app.input_mode {
+								.save_gate_name { app.save_gate(app.input) }
+								.load_gate_name { app.load_gate(app.input) or {} }
+								else {}
+							}
 						}
+						app.start_creation_x = -1000000000
+						app.start_creation_y = -1000000000
+						app.input_mode = .no
+					}
+					.escape {
+						app.start_creation_x = -1000000000
+						app.start_creation_y = -1000000000
 						app.input_mode = .no
 					}
 					.backspace { if app.input.len > 0 { app.input = app.input[..app.input.len-1] } }
@@ -353,7 +372,7 @@ fn on_event(e &gg.Event, mut app App) {
 		}
 		.mouse_up {
 			if !(e.mouse_x < 100 && e.mouse_y < 410) {
-				if app.gate_creation {
+				if app.gate_creation && app.input_mode == .no {
 					app.wait_name_save = true
 					app.input_mode = .save_gate_name
 				} else {
@@ -384,8 +403,9 @@ fn on_event(e &gg.Event, mut app App) {
 				}
 				.left {					
 					if !(e.mouse_x < 100 && e.mouse_y < 410) {
-						if app.gate_creation {
+						if app.gate_creation && app.input_mode == .no {
 							app.start_creation_x, app.start_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
+							app.start_creation_mouse_x, app.start_creation_mouse_y = app.mouse_x, app.mouse_y
 						} else {
 							app.is_placing = true
 							app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 

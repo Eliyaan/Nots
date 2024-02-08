@@ -136,3 +136,17 @@ fn (app App) tile_preview(x int, y int){
 		}
 	}
 }
+
+fn (mut app App) box_preview() {
+	mut preview_start_x := f32(app.start_creation_mouse_x * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
+	mut preview_start_y := f32(app.start_creation_mouse_y * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
+	mut preview_end_x := f32((app.mouse_x + 1) * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
+	mut preview_end_y := f32((app.mouse_y + 1) * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
+	if preview_start_x > preview_end_x {
+		preview_end_x, preview_start_x = preview_start_x, preview_end_x
+	}
+	if preview_start_y > preview_end_y {
+		preview_end_y, preview_start_y = preview_start_y, preview_end_y
+	}
+	app.gg.draw_rect_filled(preview_start_x, preview_start_y, preview_end_x - preview_start_x, preview_end_y - preview_start_y, gg.Color{100, 100, 100, 100})
+}
