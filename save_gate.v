@@ -17,7 +17,7 @@ fn (mut app App) gate_buffer() []u8 {
 		end_y, app.start_creation_y = app.start_creation_y, end_y
 	}
 	app.gate_x = end_x - app.start_creation_x + 1
-	app.gate_y = end_x - app.start_creation_x + 1
+	app.gate_y = end_y - app.start_creation_y + 1
 	mut n_nots := []Not{}
 	mut s_nots := []Not{}
 	mut w_nots := []Not{}

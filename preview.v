@@ -137,6 +137,14 @@ fn (app App) tile_preview(x int, y int){
 	}
 }
 
+fn (app App) cursor_preview(x int, y int){
+	preview_x := f32(x * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
+	preview_y := f32(y * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
+
+	color := gg.Color{100, 0, 0, 100}
+	app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), color)
+}
+
 fn (mut app App) box_preview() {
 	if app.input_mode == .waiting_to_paste {
 		mut preview_start_x := f32(app.mouse_x * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))

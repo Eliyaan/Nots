@@ -40,6 +40,7 @@ enum InputMode {
 	load_gate_name
 	wait_for_action
 	waiting_to_paste
+	waiting_to_load
 }
 
 interface Element {
@@ -124,8 +125,6 @@ mut:
 	input string
 
 	copy_buffer []u8 
-	waiting_to_paste bool
-	waiting_to_load bool
 	gate_x int
 	gate_y int
 }
@@ -241,10 +240,21 @@ fn on_frame(mut app App) {
 	app.draw_elements()
 	app.draw_image()
 	app.undraw_elements()
-	if app.select_mode || app.input_mode == .waiting_to_paste {
-		if (app.start_creation_x != -1000000000 && app.start_creation_y != -1000000000) || app.input_mode == .waiting_to_paste {
-			app.box_preview()
+	if app.select_mode || app.input_mode == .waiting_to_paste || app.input_mode == .waiting_to_load  {
+		if app.input_mode == .waiting_to_paste {
+			if app.start_creation_x != -1000000000 && app.start_creation_y != -1000000000  {
+				app.box_preview()
+			}
+		} else if app.input_mode == .waiting_to_load {
+			app.cursor_preview(app.mouse_x, app.mouse_y)
+		} else {
+			if app.start_creation_x != -1000000000 && app.start_creation_y != -1000000000  {
+				app.box_preview()
+			}
 		}
+	}
+	else if app.input_mode == .waiting_to_load {
+		app.cursor_preview(app.mouse_x, app.mouse_y)
 	} else {
 		if !(app.screen_mouse_x < 100 && app.screen_mouse_y < 410) {
 			app.preview()
@@ -291,11 +301,11 @@ fn on_event(e &gg.Event, mut app App) {
 							app.start_creation_y = -1000000000
 						}
 					}
-					.h {
+					.l {
 						app.input_mode = .load_gate_name
 					}
 					.escape {
-						if (app.start_creation_x != -1000000000 && app.start_creation_y != -1000000000) || app.input_mode == .waiting_to_paste  {
+						if (app.start_creation_x != -1000000000 && app.start_creation_y != -1000000000) || app.input_mode == .waiting_to_paste || app.input_mode == .waiting_to_load {
 							app.start_creation_x = -1000000000
 							app.start_creation_y = -1000000000
 							app.select_mode = false
@@ -376,14 +386,17 @@ fn on_event(e &gg.Event, mut app App) {
 					.enter {
 						if app.input.len > 0 {
 							match app.input_mode {
-								.save_gate_name { app.save_gate(app.input) }
-								.load_gate_name { app.load_gate(app.input) or {} }
-								else {}
+								.save_gate_name {
+									app.save_gate(app.input)
+									app.input_mode = .no
+								}
+								.load_gate_name { app.input_mode = .waiting_to_load }
+								else {app.input_mode = .no}
 							}
 						}
+						dump(app.input_mode)
 						app.start_creation_x = -1000000000
 						app.start_creation_y = -1000000000
-						app.input_mode = .no
 					}
 					.escape {
 						app.start_creation_x = -1000000000
@@ -407,12 +420,14 @@ fn on_event(e &gg.Event, mut app App) {
 					.left {
 						match app.input_mode {
 							.waiting_to_paste { 
-								dump("pasting")
 								app.place_gate(app.copy_buffer) or {} 
 								app.input_mode = .no
 
 								app.start_creation_x = -1000000000
 								app.start_creation_y = -1000000000
+							}
+							.waiting_to_load {
+								app.load_gate(app.input) or {}
 							}
 							else {								
 								app.end_creation_x, app.end_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
@@ -427,12 +442,14 @@ fn on_event(e &gg.Event, mut app App) {
 				if !(e.mouse_x < 100 && e.mouse_y < 410) {
 					match app.input_mode {
 						.waiting_to_paste { 
-							dump("pasting")
 							app.place_gate(app.copy_buffer) or {} 
 							app.input_mode = .no
 
 							app.start_creation_x = -1000000000
 							app.start_creation_y = -1000000000
+						}
+						.waiting_to_load {
+							app.load_gate(app.input) or {}
 						}
 						else {								
 							place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
@@ -458,7 +475,7 @@ fn on_event(e &gg.Event, mut app App) {
 			app.middle_click_held = false
 		}
 		.mouse_down {
-			if app.input_mode != .waiting_to_paste {
+			if app.input_mode != .waiting_to_paste && app.input_mode != .waiting_to_load {
 				match e.mouse_button {
 					.middle {
 						app.middle_click_held = true
@@ -466,9 +483,9 @@ fn on_event(e &gg.Event, mut app App) {
 					.left {					
 						if !(e.mouse_x < 100 && e.mouse_y < 410) {
 							if app.select_mode {
-									app.input_mode = .no
-									app.start_creation_x, app.start_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
-									app.start_creation_mouse_x, app.start_creation_mouse_y = app.mouse_x, app.mouse_y
+								app.input_mode = .no
+								app.start_creation_x, app.start_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
+								app.start_creation_mouse_x, app.start_creation_mouse_y = app.mouse_x, app.mouse_y
 							} else {
 								app.is_placing = true
 								app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
