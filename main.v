@@ -286,7 +286,7 @@ fn on_event(e &gg.Event, mut app App) {
 		.key_down {
 			orientation_before := app.build_orientation
 			type_before := app.build_selected_type
-			if app.input_mode == .no || app.input_mode == .wait_for_action {
+			if app.input_mode == .no || app.input_mode == .wait_for_action || app.input_mode == .waiting_to_load {
 				match e.key_code {
 					/* gg doesn't detect numbers on top of keyboard
 					._1 {app.build_selected_type = .not}
@@ -394,7 +394,6 @@ fn on_event(e &gg.Event, mut app App) {
 								else {app.input_mode = .no}
 							}
 						}
-						dump(app.input_mode)
 						app.start_creation_x = -1000000000
 						app.start_creation_y = -1000000000
 					}
