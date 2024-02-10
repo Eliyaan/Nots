@@ -91,7 +91,7 @@ mut:
 	build_selected_type Variant
 	build_orientation   Orientation
 
-	debug_mode bool = true
+	debug_mode bool
 
 	istream_idx   int
 	screen_pixels []u32
@@ -242,9 +242,7 @@ fn on_frame(mut app App) {
 	app.undraw_elements()
 	if app.select_mode || app.input_mode == .waiting_to_paste || app.input_mode == .waiting_to_load  {
 		if app.input_mode == .waiting_to_paste {
-			if app.start_creation_x != -1000000000 && app.start_creation_y != -1000000000  {
-				app.box_preview()
-			}
+			app.box_preview()
 		} else if app.input_mode == .waiting_to_load {
 			app.cursor_preview(app.mouse_x, app.mouse_y)
 		} else {
@@ -357,7 +355,7 @@ fn on_event(e &gg.Event, mut app App) {
 						}
 					}
 					.c {
-						if app.select_mode {
+						if app.select_mode && app.start_creation_y != -1000000000 && app.start_creation_y != -1000000000 {
 							app.copy_buffer = app.gate_buffer()
 						}
 					}
