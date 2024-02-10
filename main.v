@@ -457,14 +457,24 @@ fn on_event(e &gg.Event, mut app App) {
 				if !(e.mouse_x < 100 && e.mouse_y < 410) {
 					match app.input_mode {
 						.waiting_to_paste { 
-							app.place_gate(app.copy_buffer) or {} 
-							app.input_mode = .no
+							match e.mouse_button {
+								.left {
+									app.place_gate(app.copy_buffer) or {} 
+									app.input_mode = .no
 
-							app.start_creation_x = -1000000000
-							app.start_creation_y = -1000000000
+									app.start_creation_x = -1000000000
+									app.start_creation_y = -1000000000
+								}
+								else {}
+							}
 						}
 						.waiting_to_load {
-							app.load_gate(app.input) or {}
+							match e.mouse_button {
+								.left {
+									app.load_gate(app.input) or {}
+								}
+								else {}
+							}
 						}
 						else {								
 							place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
