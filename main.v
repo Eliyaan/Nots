@@ -310,8 +310,6 @@ fn on_event(e &gg.Event, mut app App) {
 							app.start_creation_y = -1000000000
 							app.select_mode = false
 							app.input_mode = .no
-						} else {
-							app.gg.quit()
 						}
 					}
 					.up {
@@ -330,6 +328,24 @@ fn on_event(e &gg.Event, mut app App) {
 						if app.select_mode {
 							app.wait_name_save = true
 							app.input_mode = .save_gate_name
+						} 
+					}
+					.delete {
+						if app.select_mode && app.start_creation_y != -1000000000 && app.start_creation_y != -1000000000 {
+							if app.start_creation_x > app.end_creation_x {
+								app.end_creation_x, app.start_creation_x = app.start_creation_x, app.end_creation_x
+							}
+							if app.start_creation_y > app.end_creation_y {
+								app.end_creation_y, app.start_creation_y = app.start_creation_y, app.end_creation_y
+							}
+							for y in app.start_creation_y .. app.end_creation_y + 1 {
+								for x in app.start_creation_x .. app.end_creation_x + 1 {
+									app.delete_in(x, y) or {}
+								}
+							}
+							app.start_creation_x = -1000000000
+							app.start_creation_y = -1000000000
+							app.input_mode = .no
 						} 
 					}
 					.enter {
