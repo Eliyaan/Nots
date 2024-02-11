@@ -33,6 +33,12 @@ enum Variant as u8 {
 	junction
 }
 
+enum Clicks as u8 {
+	no
+	left
+	right
+}
+
 enum InputMode {
 	no
 	finished
@@ -77,7 +83,7 @@ mut:
 	screen_mouse_y int
 
 	//Used for preview
-	is_placing		bool
+	is_placing					Clicks
 	mouse_down_preview_x		int
 	mouse_down_preview_y		int
 
@@ -477,15 +483,20 @@ fn on_event(e &gg.Event, mut app App) {
 						else {								
 							place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 							place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
-							app.is_placing = false
 							app.mouse_up_x = place_pos_x
 							app.mouse_up_y = place_pos_y
 							match e.mouse_button {
 								.left {
-									app.line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
+									if app.is_placing == Clicks.left{
+										app.line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
+										app.is_placing = Clicks.no
+									}
 								}
 								.right {
-									app.delete_line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
+									if app.is_placing == Clicks.right{
+										app.delete_line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
+										app.is_placing = Clicks.no
+									}
 								}
 								else {}
 							}
@@ -509,8 +520,9 @@ fn on_event(e &gg.Event, mut app App) {
 								app.input_mode = .no
 								app.start_creation_x, app.start_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
 								app.start_creation_mouse_x, app.start_creation_mouse_y = app.mouse_x, app.mouse_y
-							} else {
-								app.is_placing = true
+							}
+							else if app.is_placing == Clicks.no {
+								app.is_placing = Clicks.left
 								app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 								app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
 								app.mouse_down_preview_x = app.mouse_x
@@ -519,8 +531,8 @@ fn on_event(e &gg.Event, mut app App) {
 						}
 					}
 					.right {
-						if !(e.mouse_x < 100 && e.mouse_y < 410) {
-							app.is_placing = true
+						if !(e.mouse_x < 100 && e.mouse_y < 410) && app.is_placing == Clicks.no {
+							app.is_placing = Clicks.right
 							app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 							app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
 							app.mouse_down_preview_x	= app.mouse_x
