@@ -460,7 +460,6 @@ fn on_event(e &gg.Event, mut app App) {
 						else {								
 							place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 							place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
-							app.is_placing = Clicks.no
 							app.mouse_up_x = place_pos_x
 							app.mouse_up_y = place_pos_y
 							match e.mouse_button {
