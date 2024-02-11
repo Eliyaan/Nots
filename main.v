@@ -477,12 +477,6 @@ fn on_event(e &gg.Event, mut app App) {
 									}
 								}
 								else {}
-					.right {
-						
-					}
-					else{}
-				}
-			}
 							}
 						}
 					}
