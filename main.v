@@ -13,6 +13,7 @@ const space = 100
 const bt_scale = 70
 const bt_offset  = 20
 const elem_button_shape = ggui.RoundedShape{bt_scale, bt_scale, 10, .top_left}
+const lil_button_shape = ggui.RoundedShape{bt_scale/2, bt_scale/2, 10, .top_left}
 const tcfg = gx.TextCfg {
 	size: 30
 }
@@ -81,6 +82,7 @@ mut:
 	mouse_y        int
 	screen_mouse_x int
 	screen_mouse_y int
+	click_move bool = true
 
 	//Used for preview
 	is_placing					Clicks
@@ -159,6 +161,7 @@ fn main() {
 	// calculate the rotations of the image
 
 	// do your test/base placings here if needed
+	app.place_in(0, 0)!
 
 	empty_text := ggui.Text{0, 0, 0, '', gx.TextCfg{
 		color: theme.base
@@ -172,6 +175,8 @@ fn main() {
 	app.clickables << ggui.Button{0, bt_offset, bt_offset + space * 1, elem_button_shape, empty_text, gg.Color{200, 200, 200, 100}, diode_select}
 	app.clickables << ggui.Button{0, bt_offset, bt_offset + space * 2, elem_button_shape, empty_text, gg.Color{200, 200, 200, 100}, wire_select}
 	app.clickables << ggui.Button{0, bt_offset, bt_offset + space * 3, elem_button_shape, empty_text, gg.Color{200, 200, 200, 100}, junction_select}
+
+	app.clickables << ggui.Button{0, bt_offset, bt_offset + space * 4, lil_button_shape, empty_text, gg.Color{200, 200, 200, 100}, click_move}
 
 /*
 TO NOT FORGET 
@@ -228,6 +233,20 @@ fn junction_select(mut app ggui.Gui) {
 			println('app.build_selected_type = .${app.build_selected_type}')
 		}
 	}
+}
+
+fn click_move(mut app ggui.Gui) {
+	if mut app is App {
+		if app.click_move {
+			app.click_move = false
+			app.middle_click_held = false
+		} else {
+			app.click_move = true
+		}
+		dump(app.click_move)
+		dump(app.middle_click_held)
+	}
+	dump('éaa')
 }
 
 fn on_frame(mut app App) {
@@ -434,113 +453,132 @@ fn on_event(e &gg.Event, mut app App) {
 			}
 		}
 		.mouse_up {
-			if app.select_mode {
-				match e.mouse_button {
-					.left {
-						match app.input_mode {
-							.waiting_to_paste { 
-								app.place_gate(app.copy_buffer) or {} 
-								app.input_mode = .no
-
-								app.start_creation_x = -1000000000
-								app.start_creation_y = -1000000000
-							}
-							.waiting_to_load {
-								app.load_gate(app.input) or {}
-							}
-							else {								
-								app.end_creation_x, app.end_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
-								app.end_creation_mouse_x, app.end_creation_mouse_y = app.mouse_x, app.mouse_y
-								app.input_mode = .wait_for_action
-							}
-						}
-					}
-					else {}
-				}
-			} else {
-				if !(e.mouse_x < 100 && e.mouse_y < 410) {
-					match app.input_mode {
-						.waiting_to_paste { 
-							match e.mouse_button {
-								.left {
+			if !app.click_move {
+				if app.select_mode {
+					match e.mouse_button {
+						.left {
+							match app.input_mode {
+								.waiting_to_paste { 
 									app.place_gate(app.copy_buffer) or {} 
 									app.input_mode = .no
 
 									app.start_creation_x = -1000000000
 									app.start_creation_y = -1000000000
 								}
-								else {}
-							}
-						}
-						.waiting_to_load {
-							match e.mouse_button {
-								.left {
+								.waiting_to_load {
 									app.load_gate(app.input) or {}
 								}
-								else {}
+								else {								
+									app.end_creation_x, app.end_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
+									app.end_creation_mouse_x, app.end_creation_mouse_y = app.mouse_x, app.mouse_y
+									app.input_mode = .wait_for_action
+								}
 							}
 						}
-						else {								
-							place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
-							place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
-							app.mouse_up_x = place_pos_x
-							app.mouse_up_y = place_pos_y
-							match e.mouse_button {
-								.left {
-									if app.is_placing == Clicks.left{
-										app.line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
-										app.is_placing = Clicks.no
-									}
-								}
-								.right {
-									if app.is_placing == Clicks.right{
-										app.delete_line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
-										app.is_placing = Clicks.no
-									}
-								}
-								else {}
-							}
-						}
+						else {}
 					}
 				} else {
-					app.gui.check_clicks(e.mouse_x, e.mouse_y)
+					if !(e.mouse_x < 100 && e.mouse_y < 410) {
+						match app.input_mode {
+							.waiting_to_paste { 
+								match e.mouse_button {
+									.left {
+										app.place_gate(app.copy_buffer) or {} 
+										app.input_mode = .no
+
+										app.start_creation_x = -1000000000
+										app.start_creation_y = -1000000000
+									}
+									else {}
+								}
+							}
+							.waiting_to_load {
+								match e.mouse_button {
+									.left {
+										app.load_gate(app.input) or {}
+									}
+									else {}
+								}
+							}
+							else {								
+								place_pos_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
+								place_pos_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
+								app.mouse_up_x = place_pos_x
+								app.mouse_up_y = place_pos_y
+								match e.mouse_button {
+									.left {
+										if app.is_placing == Clicks.left{
+											app.line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
+											app.is_placing = Clicks.no
+											app.gui.check_clicks(e.mouse_x, e.mouse_y)
+										}
+									}
+									.right {
+										if app.is_placing == Clicks.right{
+											app.delete_line_in(app.mouse_down_x, app.mouse_down_y, app.mouse_up_x, app.mouse_up_y) or {}
+											app.is_placing = Clicks.no
+										}
+									}
+									else {}
+								}
+							}
+						}
+					} else {
+						match e.mouse_button {
+							.left {
+								app.gui.check_clicks(e.mouse_x, e.mouse_y)
+							}
+							else {}
+						}
+					}
+				}
+			} else {
+				match e.mouse_button {
+					.left {
+						app.gui.check_clicks(e.mouse_x, e.mouse_y)
+					}
+					else {}
 				}
 			}
 			app.middle_click_held = false
 		}
 		.mouse_down {
-			if app.input_mode != .waiting_to_paste && app.input_mode != .waiting_to_load {
-				match e.mouse_button {
-					.middle {
-						app.middle_click_held = true
-					}
-					.left {					
-						if !(e.mouse_x < 100 && e.mouse_y < 410) {
-							if app.select_mode {
-								app.input_mode = .no
-								app.start_creation_x, app.start_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
-								app.start_creation_mouse_x, app.start_creation_mouse_y = app.mouse_x, app.mouse_y
+			if !app.click_move {
+				if app.input_mode != .waiting_to_paste && app.input_mode != .waiting_to_load {
+					match e.mouse_button {
+						.middle {
+							app.middle_click_held = true
+						}
+						.left {					
+							if !(e.mouse_x < 100 && e.mouse_y < 410) {
+								if app.select_mode {
+									app.input_mode = .no
+									app.start_creation_x, app.start_creation_y = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) , app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale) 
+									app.start_creation_mouse_x, app.start_creation_mouse_y = app.mouse_x, app.mouse_y
+								}
+								else if app.is_placing == Clicks.no {
+									app.is_placing = Clicks.left
+									app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
+									app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
+									app.mouse_down_preview_x = app.mouse_x
+									app.mouse_down_preview_y = app.mouse_y
+								}
 							}
-							else if app.is_placing == Clicks.no {
-								app.is_placing = Clicks.left
+						}
+						.right {
+							if !(e.mouse_x < 100 && e.mouse_y < 410) && app.is_placing == Clicks.no {
+								app.is_placing = Clicks.right
 								app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
 								app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
-								app.mouse_down_preview_x = app.mouse_x
-								app.mouse_down_preview_y = app.mouse_y
+								app.mouse_down_preview_x	= app.mouse_x
+								app.mouse_down_preview_y 	= app.mouse_y
 							}
 						}
+						else{}
 					}
-					.right {
-						if !(e.mouse_x < 100 && e.mouse_y < 410) && app.is_placing == Clicks.no {
-							app.is_placing = Clicks.right
-							app.mouse_down_x = app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
-							app.mouse_down_y = app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
-							app.mouse_down_preview_x	= app.mouse_x
-							app.mouse_down_preview_y 	= app.mouse_y
-						}
-					}
-					else{}
 				}
+			} else {
+				app.middle_click_held = true
 			}
 		}
 		.mouse_scroll {
