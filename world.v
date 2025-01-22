@@ -1,4 +1,5 @@
-module main 
+module main
+
 import math
 
 @[heap]

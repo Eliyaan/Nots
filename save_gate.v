@@ -4,7 +4,7 @@ import os
 
 fn (mut app App) save_gate(name string) {
 	buffer := app.gate_buffer()
-	os.write_file_array(name, buffer) or {panic(err)}
+	os.write_file_array(name, buffer) or { panic(err) }
 }
 
 fn (mut app App) gate_buffer() []u8 {
@@ -50,9 +50,15 @@ fn (mut app App) gate_buffer() []u8 {
 							.east { e_diodes << elem }
 						}
 					}
-					Junction { junctions << elem }
-					Wire { wires << elem }
-					else {panic("Elem type not supported")}
+					Junction {
+						junctions << elem
+					}
+					Wire {
+						wires << elem
+					}
+					else {
+						panic('Elem type not supported')
+					}
 				}
 			}
 		}
@@ -221,13 +227,13 @@ fn (mut app App) gate_buffer() []u8 {
 }
 
 fn (mut app App) load_gate(name string) ! {
-	buffer := os.read_bytes(name) or {return error("File not found")}
+	buffer := os.read_bytes(name) or { return error('File not found') }
 	app.place_gate(buffer)!
 }
 
 fn (mut app App) place_gate(buffer []u8) ! {
-	start_x := app.mouse_x - (app.viewport_x + app.screen_x/2) / ceil(tile_size * app.scale) 
-	start_y := app.mouse_y - (app.viewport_y + app.screen_y/2) / ceil(tile_size * app.scale)
+	start_x := app.mouse_x - (app.viewport_x + app.screen_x / 2) / ceil(tile_size * app.scale)
+	start_y := app.mouse_y - (app.viewport_y + app.screen_y / 2) / ceil(tile_size * app.scale)
 	if buffer.len > 2 {
 		if buffer[0] == 0 {
 			mut pos := 1
@@ -238,12 +244,12 @@ fn (mut app App) place_gate(buffer []u8) ! {
 						mut loop := true
 						pos += 1
 						match buffer[pos] {
-							0 {	app.build_orientation = .north }
-							1 {	app.build_orientation = .south }
-							2 {	app.build_orientation = .east }
-							3 {	app.build_orientation = .west }
+							0 { app.build_orientation = .north }
+							1 { app.build_orientation = .south }
+							2 { app.build_orientation = .east }
+							3 { app.build_orientation = .west }
 							255 { loop = false }
-							else {panic("Should not get ${buffer[pos]}")}
+							else { panic('Should not get ${buffer[pos]}') }
 						}
 						for loop {
 							pos += 1
@@ -267,12 +273,12 @@ fn (mut app App) place_gate(buffer []u8) ! {
 							}
 							pos += 1
 							match buffer[pos] {
-								0 {	app.build_orientation = .north }
-								1 {	app.build_orientation = .south }
-								2 {	app.build_orientation = .east }
-								3 {	app.build_orientation = .west }
+								0 { app.build_orientation = .north }
+								1 { app.build_orientation = .south }
+								2 { app.build_orientation = .east }
+								3 { app.build_orientation = .west }
 								255 { loop = false }
-								else {panic("Should not get ${buffer[pos]}")}
+								else { panic('Should not get ${buffer[pos]}') }
 							}
 						}
 					}
@@ -281,12 +287,12 @@ fn (mut app App) place_gate(buffer []u8) ! {
 						mut loop := true
 						pos += 1
 						match buffer[pos] {
-							0 {	app.build_orientation = .north }
-							1 {	app.build_orientation = .south }
-							2 {	app.build_orientation = .east }
-							3 {	app.build_orientation = .west }
+							0 { app.build_orientation = .north }
+							1 { app.build_orientation = .south }
+							2 { app.build_orientation = .east }
+							3 { app.build_orientation = .west }
 							255 { loop = false }
-							else {panic("Should not get ${buffer[pos]}")}
+							else { panic('Should not get ${buffer[pos]}') }
 						}
 						for loop {
 							pos += 1
@@ -310,12 +316,12 @@ fn (mut app App) place_gate(buffer []u8) ! {
 							}
 							pos += 1
 							match buffer[pos] {
-								0 {	app.build_orientation = .north }
-								1 {	app.build_orientation = .south }
-								2 {	app.build_orientation = .east }
-								3 {	app.build_orientation = .west }
+								0 { app.build_orientation = .north }
+								1 { app.build_orientation = .south }
+								2 { app.build_orientation = .east }
+								3 { app.build_orientation = .west }
 								255 { loop = false }
-								else {panic("Should not get ${buffer[pos]}")}
+								else { panic('Should not get ${buffer[pos]}') }
 							}
 						}
 					}
@@ -363,12 +369,14 @@ fn (mut app App) place_gate(buffer []u8) ! {
 							app.place_in(x + start_x, y + start_y) or {}
 						}
 					}
-					else { panic("Should not be ${buffer[pos]}") }
+					else {
+						panic('Should not be ${buffer[pos]}')
+					}
 				}
 				pos += 1
 			}
 		} else {
-			return error("Save version not supported / Not supposed to happen")
+			return error('Save version not supported / Not supposed to happen')
 		}
 	}
 }

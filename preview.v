@@ -1,12 +1,12 @@
 import gg
 import math
 
-fn (mut app App) preview(){
-	if app.is_placing == Clicks.no{
+fn (mut app App) preview() {
+	if app.is_placing == Clicks.no {
 		app.tile_preview(app.mouse_x, app.mouse_y)
-	}
-	else{
-		app.preview_line(app.mouse_down_preview_x, app.mouse_down_preview_y, app.mouse_x, app.mouse_y) or {}
+	} else {
+		app.preview_line(app.mouse_down_preview_x, app.mouse_down_preview_y, app.mouse_x,
+			app.mouse_y) or {}
 	}
 }
 
@@ -27,7 +27,7 @@ fn (mut app App) preview_line(start_x int, start_y int, end_x int, end_y int) ! 
 	} else if y > 0 {
 		direction_y = 1
 	}
-	
+
 	if !app.place_is_turn {
 		if x > y {
 			for i in 0 .. x + 1 {
@@ -48,7 +48,7 @@ fn (mut app App) preview_line(start_x int, start_y int, end_x int, end_y int) ! 
 				app.tile_preview(start_x, start_y + i * direction_y)
 			}
 		}
-	}else if x > y{
+	} else if x > y {
 		for i in 0 .. x {
 			if direction_x == 1 {
 				app.build_orientation = .east
@@ -71,16 +71,17 @@ fn (mut app App) preview_line(start_x int, start_y int, end_x int, end_y int) ! 
 				}
 				app.tile_preview(end_x, start_y + i * direction_y)
 			}
-		}else{app.tile_preview(end_x, end_y)}
-		
-	}else{
+		} else {
+			app.tile_preview(end_x, end_y)
+		}
+	} else {
 		for i in 0 .. y {
 			if direction_y == 1 {
 				app.build_orientation = .south
 			} else if direction_y == -1 {
 				app.build_orientation = .north
 			}
-			app.tile_preview(start_x , start_y + i * direction_y)
+			app.tile_preview(start_x, start_y + i * direction_y)
 		}
 
 		tempo := app.build_selected_type
@@ -99,47 +100,57 @@ fn (mut app App) preview_line(start_x int, start_y int, end_x int, end_y int) ! 
 	}
 }
 
-fn (app App) tile_preview(x int, y int){
+fn (app App) tile_preview(x int, y int) {
 	half_scaled_tile_size := f32(ceil(tile_size * app.scale)) * 0.5
-	preview_x := f32(x * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
-	preview_y := f32(y * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
+	preview_x := f32(x * ceil(tile_size * app.scale) + (app.viewport_x +
+		app.screen_x / 2) % ceil(tile_size * app.scale))
+	preview_y := f32(y * ceil(tile_size * app.scale) + (app.viewport_y +
+		app.screen_y / 2) % ceil(tile_size * app.scale))
 	match app.build_selected_type {
 		.not {
 			color := gg.Color{50, 100, 100, 100}
-			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), gg.Color{100, 100, 100, 100})
+			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale),
+				gg.Color{100, 100, 100, 100})
 			rotation := match app.build_orientation {
 				.north { -90 }
 				.south { 90 }
 				.east { 0 }
 				.west { 180 }
 			}
-			app.gg.draw_polygon_filled(preview_x + half_scaled_tile_size, preview_y + half_scaled_tile_size, half_scaled_tile_size, 3, rotation, color)
+			app.gg.draw_polygon_filled(preview_x + half_scaled_tile_size, preview_y +
+				half_scaled_tile_size, half_scaled_tile_size, 3, rotation, color)
 		}
 		.wire {
 			color := gg.Color{100, 100, 100, 100}
-			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), color)
+			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale),
+				color)
 		}
 		.junction {
 			color := gg.Color{100, 100, 100, 100}
-			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), color)
+			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale),
+				color)
 		}
 		.diode {
 			color := gg.Color{50, 100, 100, 100}
-			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), gg.Color{100, 100, 100, 100})
+			app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale),
+				gg.Color{100, 100, 100, 100})
 			rotation := match app.build_orientation {
 				.north { -90 }
 				.south { 90 }
 				.east { 0 }
 				.west { 180 }
 			}
-			app.gg.draw_polygon_filled(preview_x + half_scaled_tile_size, preview_y + half_scaled_tile_size, half_scaled_tile_size, 3, rotation, color)
+			app.gg.draw_polygon_filled(preview_x + half_scaled_tile_size, preview_y +
+				half_scaled_tile_size, half_scaled_tile_size, 3, rotation, color)
 		}
 	}
 }
 
-fn (app App) cursor_preview(x int, y int){
-	preview_x := f32(x * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
-	preview_y := f32(y * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
+fn (app App) cursor_preview(x int, y int) {
+	preview_x := f32(x * ceil(tile_size * app.scale) + (app.viewport_x +
+		app.screen_x / 2) % ceil(tile_size * app.scale))
+	preview_y := f32(y * ceil(tile_size * app.scale) + (app.viewport_y +
+		app.screen_y / 2) % ceil(tile_size * app.scale))
 
 	color := gg.Color{100, 0, 0, 100}
 	app.gg.draw_square_filled(preview_x, preview_y, ceil(tile_size * app.scale), color)
@@ -147,17 +158,26 @@ fn (app App) cursor_preview(x int, y int){
 
 fn (mut app App) box_preview() {
 	if app.input_mode == .waiting_to_paste {
-		mut preview_start_x := f32(app.mouse_x * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
-		mut preview_start_y := f32(app.mouse_y * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
-		app.gg.draw_rect_filled(preview_start_x, preview_start_y, app.gate_x * ceil(tile_size * app.scale), app.gate_y * ceil(tile_size * app.scale), gg.Color{100, 100, 100, 100})
+		mut preview_start_x := f32(app.mouse_x * ceil(tile_size * app.scale) + (app.viewport_x +
+			app.screen_x / 2) % ceil(tile_size * app.scale))
+		mut preview_start_y := f32(app.mouse_y * ceil(tile_size * app.scale) + (app.viewport_y +
+			app.screen_y / 2) % ceil(tile_size * app.scale))
+		app.gg.draw_rect_filled(preview_start_x, preview_start_y, app.gate_x * ceil(tile_size * app.scale),
+			app.gate_y * ceil(tile_size * app.scale), gg.Color{100, 100, 100, 100})
 	} else {
-		mut preview_start_x := f32(app.start_creation_mouse_x * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
-		mut preview_start_y := f32(app.start_creation_mouse_y * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
-		mut preview_end_x := f32((app.mouse_x) * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
-		mut preview_end_y := f32((app.mouse_y) * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
+		mut preview_start_x := f32(app.start_creation_mouse_x * ceil(tile_size * app.scale) +
+			(app.viewport_x + app.screen_x / 2) % ceil(tile_size * app.scale))
+		mut preview_start_y := f32(app.start_creation_mouse_y * ceil(tile_size * app.scale) +
+			(app.viewport_y + app.screen_y / 2) % ceil(tile_size * app.scale))
+		mut preview_end_x := f32((app.mouse_x) * ceil(tile_size * app.scale) + (app.viewport_x +
+			app.screen_x / 2) % ceil(tile_size * app.scale))
+		mut preview_end_y := f32((app.mouse_y) * ceil(tile_size * app.scale) + (app.viewport_y +
+			app.screen_y / 2) % ceil(tile_size * app.scale))
 		if app.input_mode == .wait_for_action || app.input_mode == .save_gate_name {
-			preview_end_x = f32((app.end_creation_mouse_x) * ceil(tile_size * app.scale) + (app.viewport_x + app.screen_x/2) % ceil(tile_size * app.scale))
-			preview_end_y = f32((app.end_creation_mouse_y) * ceil(tile_size * app.scale) + (app.viewport_y + app.screen_y/2) % ceil(tile_size * app.scale))
+			preview_end_x = f32((app.end_creation_mouse_x) * ceil(tile_size * app.scale) +
+				(app.viewport_x + app.screen_x / 2) % ceil(tile_size * app.scale))
+			preview_end_y = f32((app.end_creation_mouse_y) * ceil(tile_size * app.scale) +
+				(app.viewport_y + app.screen_y / 2) % ceil(tile_size * app.scale))
 		}
 		if preview_start_x > preview_end_x {
 			preview_end_x, preview_start_x = preview_start_x, preview_end_x
@@ -165,6 +185,8 @@ fn (mut app App) box_preview() {
 		if preview_start_y > preview_end_y {
 			preview_end_y, preview_start_y = preview_start_y, preview_end_y
 		}
-		app.gg.draw_rect_filled(preview_start_x, preview_start_y, preview_end_x - preview_start_x + ceil(tile_size * app.scale), preview_end_y - preview_start_y + ceil(tile_size * app.scale), gg.Color{100, 100, 100, 100})
+		app.gg.draw_rect_filled(preview_start_x, preview_start_y, preview_end_x - preview_start_x +
+			ceil(tile_size * app.scale), preview_end_y - preview_start_y +
+			ceil(tile_size * app.scale), gg.Color{100, 100, 100, 100})
 	}
 }

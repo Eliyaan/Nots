@@ -1,4 +1,4 @@
-module main 
+module main
 
 enum Orientation as u8 {
 	north

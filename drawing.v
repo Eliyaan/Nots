@@ -6,11 +6,10 @@ const off_diode_image = load_image('off_diode.png')
 const on_diode_image = load_image('on_diode.png')
 const off_wire_image = load_image('wire_off.png')
 const on_wire_image = load_image('wire_on.png')
-const off_junction = load_image("off_junction.png")
-const on_off_junction = load_image("on_off_junction.png")
-const off_on_junction = load_image("off_on_junction.png")
-const on_junction = load_image("on_junction.png")
-
+const off_junction = load_image('off_junction.png')
+const on_off_junction = load_image('on_off_junction.png')
+const off_on_junction = load_image('off_on_junction.png')
+const on_junction = load_image('on_junction.png')
 
 @[direct_array_access]
 fn (mut app App) draw_elements() {
@@ -55,12 +54,16 @@ fn (mut app App) draw_elements() {
 					mut element := &app.elements[id_element]
 					scaled_elem_x := element.x * scaled_tile_size
 					scaled_elem_y := element.y * scaled_tile_size
-					place_x := scaled_elem_x + scaled_tile_size - 1 + app.viewport_x + app.screen_x/2
-					place_y := scaled_elem_y + scaled_tile_size - 1 + app.viewport_y + app.screen_y/2
+					place_x := scaled_elem_x + scaled_tile_size - 1 + app.viewport_x +
+						app.screen_x / 2
+					place_y := scaled_elem_y + scaled_tile_size - 1 + app.viewport_y +
+						app.screen_y / 2
 
 					if place_x >= scaled_tile_size - 1 && place_x < app.screen_x
 						&& place_y >= scaled_tile_size - 1 && place_y < app.screen_y {
-						array_pos := (scaled_elem_y + app.viewport_y + app.screen_y/2) * app.screen_x + scaled_elem_x + app.viewport_x + app.screen_x/2
+						array_pos := (scaled_elem_y + app.viewport_y +
+							app.screen_y / 2) * app.screen_x + scaled_elem_x + app.viewport_x +
+							app.screen_x / 2
 						match mut element {
 							Not {
 								good_image := match element.state {
@@ -83,7 +86,8 @@ fn (mut app App) draw_elements() {
 								}
 								for y in 0 .. scaled_tile_size {
 									for x in 0 .. scaled_tile_size {
-										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[y * scaled_tile_size + x].u32()
+										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[
+											y * scaled_tile_size + x].u32()
 									}
 								}
 							}
@@ -95,7 +99,8 @@ fn (mut app App) draw_elements() {
 								}
 								for y in 0 .. scaled_tile_size {
 									for x in 0 .. scaled_tile_size {
-										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[y * scaled_tile_size + x].u32()
+										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[
+											y * scaled_tile_size + x].u32()
 									}
 								}
 							}
@@ -125,22 +130,29 @@ fn (mut app App) draw_elements() {
 										}
 										Junction {
 											mut i := 1
-											mut other_side_id := app.get_tile_id_at(int(element.x), int(element.y - 1*i))
-											for other_side_id != -1 && app.elements[other_side_id] is Junction {
-												other_side_id = app.get_tile_id_at(int(element.x), int(element.y - 1*i))
+											mut other_side_id := app.get_tile_id_at(int(element.x),
+												int(element.y - 1 * i))
+											for other_side_id != -1
+												&& app.elements[other_side_id] is Junction {
+												other_side_id = app.get_tile_id_at(int(element.x),
+													int(element.y - 1 * i))
 												if other_side_id != -1 {
 													mut other_side_elem := app.elements[other_side_id]
 													match mut other_side_elem {
-														Wire {top_on = app.wire_groups[other_side_elem.id_glob_wire].on()}
+														Wire {
+															top_on = app.wire_groups[other_side_elem.id_glob_wire].on()
+														}
 														Not {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
-															if input_coord_x == 0 && input_coord_y == -1 {
+															if input_coord_x == 0
+																&& input_coord_y == -1 {
 																top_on = other_side_elem.state
 															}
 														}
 														Diode {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
-															if input_coord_x == 0 && input_coord_y == -1 {
+															if input_coord_x == 0
+																&& input_coord_y == -1 {
 																top_on = other_side_elem.state
 															}
 														}
@@ -150,8 +162,10 @@ fn (mut app App) draw_elements() {
 												i++
 											}
 										}
-										else {panic("Elem type not supported")}
-									} 
+										else {
+											panic('Elem type not supported')
+										}
+									}
 								}
 								if bot_id != -1 {
 									mut bot_elem := app.elements[bot_id]
@@ -173,22 +187,29 @@ fn (mut app App) draw_elements() {
 										}
 										Junction {
 											mut i := 1
-											mut other_side_id := app.get_tile_id_at(int(element.x), int(element.y + 1*i))
-											for other_side_id != -1 && app.elements[other_side_id] is Junction {
-												other_side_id = app.get_tile_id_at(int(element.x), int(element.y + 1*i))
+											mut other_side_id := app.get_tile_id_at(int(element.x),
+												int(element.y + 1 * i))
+											for other_side_id != -1
+												&& app.elements[other_side_id] is Junction {
+												other_side_id = app.get_tile_id_at(int(element.x),
+													int(element.y + 1 * i))
 												if other_side_id != -1 {
 													mut other_side_elem := app.elements[other_side_id]
 													match mut other_side_elem {
-														Wire {top_on = app.wire_groups[other_side_elem.id_glob_wire].on()}
+														Wire {
+															top_on = app.wire_groups[other_side_elem.id_glob_wire].on()
+														}
 														Not {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
-															if input_coord_x == 0 && input_coord_y == 1 {
+															if input_coord_x == 0
+																&& input_coord_y == 1 {
 																top_on = other_side_elem.state
 															}
 														}
 														Diode {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
-															if input_coord_x == 0 && input_coord_y == 1 {
+															if input_coord_x == 0
+																&& input_coord_y == 1 {
 																top_on = other_side_elem.state
 															}
 														}
@@ -198,7 +219,9 @@ fn (mut app App) draw_elements() {
 												i++
 											}
 										}
-										else {panic("Elem type not supported")}
+										else {
+											panic('Elem type not supported')
+										}
 									}
 								}
 								mut right_on := false
@@ -222,22 +245,29 @@ fn (mut app App) draw_elements() {
 										}
 										Junction {
 											mut i := 1
-											mut other_side_id := app.get_tile_id_at(int(element.x + 1*i), int(element.y))
-											for other_side_id != -1 && app.elements[other_side_id] is Junction {
-												other_side_id = app.get_tile_id_at(int(element.x + 1*i), int(element.y))
+											mut other_side_id := app.get_tile_id_at(int(element.x +
+												1 * i), int(element.y))
+											for other_side_id != -1
+												&& app.elements[other_side_id] is Junction {
+												other_side_id = app.get_tile_id_at(int(element.x +
+													1 * i), int(element.y))
 												if other_side_id != -1 {
 													mut other_side_elem := app.elements[other_side_id]
 													match mut other_side_elem {
-														Wire {right_on = app.wire_groups[other_side_elem.id_glob_wire].on()}
+														Wire {
+															right_on = app.wire_groups[other_side_elem.id_glob_wire].on()
+														}
 														Not {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
-															if input_coord_x == 1 && input_coord_y == 0 {
+															if input_coord_x == 1
+																&& input_coord_y == 0 {
 																right_on = other_side_elem.state
 															}
 														}
 														Diode {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
-															if input_coord_x == 1 && input_coord_y == 0 {
+															if input_coord_x == 1
+																&& input_coord_y == 0 {
 																right_on = other_side_elem.state
 															}
 														}
@@ -247,7 +277,9 @@ fn (mut app App) draw_elements() {
 												i++
 											}
 										}
-										else {panic("Elem type not supported")}
+										else {
+											panic('Elem type not supported')
+										}
 									}
 								}
 								if left_id != -1 {
@@ -270,22 +302,29 @@ fn (mut app App) draw_elements() {
 										}
 										Junction {
 											mut i := 1
-											mut other_side_id := app.get_tile_id_at(int(element.x - 1*i), int(element.y))
-											for other_side_id != -1 && app.elements[other_side_id] is Junction {
-												other_side_id = app.get_tile_id_at(int(element.x - 1*i), int(element.y))
+											mut other_side_id := app.get_tile_id_at(int(element.x - 1 * i),
+												int(element.y))
+											for other_side_id != -1
+												&& app.elements[other_side_id] is Junction {
+												other_side_id = app.get_tile_id_at(int(element.x - 1 * i),
+													int(element.y))
 												if other_side_id != -1 {
 													mut other_side_elem := app.elements[other_side_id]
 													match mut other_side_elem {
-														Wire {right_on = app.wire_groups[other_side_elem.id_glob_wire].on()}
+														Wire {
+															right_on = app.wire_groups[other_side_elem.id_glob_wire].on()
+														}
 														Not {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
-															if input_coord_x == -1 && input_coord_y == 0 {
+															if input_coord_x == -1
+																&& input_coord_y == 0 {
 																right_on = other_side_elem.state
 															}
 														}
 														Diode {
 															input_coord_x, input_coord_y := input_coords_from_orientation(other_side_elem.orientation)
-															if input_coord_x == -1 && input_coord_y == 0 {
+															if input_coord_x == -1
+																&& input_coord_y == 0 {
 																right_on = other_side_elem.state
 															}
 														}
@@ -295,7 +334,9 @@ fn (mut app App) draw_elements() {
 												i++
 											}
 										}
-										else {panic("Elem type not supported")}
+										else {
+											panic('Elem type not supported')
+										}
 									}
 								}
 								good_image := if right_on {
@@ -313,7 +354,8 @@ fn (mut app App) draw_elements() {
 								}
 								for y in 0 .. scaled_tile_size {
 									for x in 0 .. scaled_tile_size {
-										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[y * scaled_tile_size + x].u32()
+										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[
+											y * scaled_tile_size + x].u32()
 									}
 								}
 							}
@@ -338,7 +380,8 @@ fn (mut app App) draw_elements() {
 								}
 								for y in 0 .. scaled_tile_size {
 									for x in 0 .. scaled_tile_size {
-										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[y * scaled_tile_size + x].u32()
+										app.screen_pixels[array_pos + y * app.screen_x + x] = good_image[
+											y * scaled_tile_size + x].u32()
 									}
 								}
 							}
@@ -361,12 +404,16 @@ fn (mut app App) undraw_elements() {
 					mut element := &app.elements[id_element]
 					scaled_elem_x := element.x * scaled_tile_size
 					scaled_elem_y := element.y * scaled_tile_size
-					place_x := scaled_elem_x + scaled_tile_size - 1 + app.viewport_x + app.screen_x/2
-					place_y := scaled_elem_y + scaled_tile_size - 1 + app.viewport_y + app.screen_y/2
+					place_x := scaled_elem_x + scaled_tile_size - 1 + app.viewport_x +
+						app.screen_x / 2
+					place_y := scaled_elem_y + scaled_tile_size - 1 + app.viewport_y +
+						app.screen_y / 2
 
-					if place_x >= scaled_tile_size - 1 && place_x < app.screen_x 
+					if place_x >= scaled_tile_size - 1 && place_x < app.screen_x
 						&& place_y >= scaled_tile_size - 1 && place_y < app.screen_y {
-						array_pos := (scaled_elem_y + app.viewport_y + app.screen_y/2) * app.screen_x + scaled_elem_x + app.viewport_x + app.screen_x/2
+						array_pos := (scaled_elem_y + app.viewport_y +
+							app.screen_y / 2) * app.screen_x + scaled_elem_x + app.viewport_x +
+							app.screen_x / 2
 						match mut element {
 							Not {
 								for y in 0 .. scaled_tile_size {

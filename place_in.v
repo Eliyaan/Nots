@@ -88,9 +88,9 @@ fn (mut app App) diode_place_in(x int, y int) ! {
 			}
 			Junction {
 				mut i := 1
-				mut other_side_id := app.get_tile_id_at(x + input_x*i, y + input_y*i)
+				mut other_side_id := app.get_tile_id_at(x + input_x * i, y + input_y * i)
 				for other_side_id != -1 && app.elements[other_side_id] is Junction {
-					other_side_id = app.get_tile_id_at(x + input_x*i, y + input_y*i)
+					other_side_id = app.get_tile_id_at(x + input_x * i, y + input_y * i)
 					if other_side_id != -1 {
 						mut other_side_input := app.elements[other_side_id]
 						match mut other_side_input {
@@ -120,24 +120,24 @@ fn (mut app App) diode_place_in(x int, y int) ! {
 	}
 
 	if id == app.elements.len {
-		app.elements << Diode {
-			output: output
-			state: state
+		app.elements << Diode{
+			output:      output
+			state:       state
 			orientation: app.build_orientation
-			destroyed: false
-			in_gate: false
-			x: x
-			y: y
+			destroyed:   false
+			in_gate:     false
+			x:           x
+			y:           y
 		}
 	} else {
-		app.elements[id] = Diode {
-			output: output
-			state: state
+		app.elements[id] = Diode{
+			output:      output
+			state:       state
 			orientation: app.build_orientation
-			destroyed: false
-			in_gate: false
-			x: x
-			y: y
+			destroyed:   false
+			in_gate:     false
+			x:           x
+			y:           y
 		}
 	}
 
@@ -206,9 +206,9 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 						}
 						Junction {
 							mut i := 1
-							mut other_side_id := app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+							mut other_side_id := app.get_tile_id_at(x + pos[0] * i, y + pos[1] * i)
 							for other_side_id != -1 && app.elements[other_side_id] is Junction {
-								other_side_id = app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+								other_side_id = app.get_tile_id_at(x + pos[0] * i, y + pos[1] * i)
 								if other_side_id != -1 {
 									mut other_side_elem := app.elements[other_side_id]
 									match mut other_side_elem {
@@ -266,7 +266,9 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 							output.state = true
 							app.queue << output_id
 						}
-						else { panic("Not a Not/Diode in the inputs of a junction: ${output_id} ${output}")}
+						else {
+							panic('Not a Not/Diode in the inputs of a junction: ${output_id} ${output}')
+						}
 					}
 				}
 			}
@@ -330,7 +332,7 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 							elem.state = true
 							app.queue << id_output
 						}
-					} 
+					}
 					app.elements[id_output] = elem
 				}
 			}
@@ -371,20 +373,19 @@ fn (mut app App) junction_place_in(x int, y int) ! {
 		}
 	}
 
-
 	if id == app.elements.len {
-		app.elements << Junction {
+		app.elements << Junction{
 			destroyed: false
-			in_gate: false
-			x: x
-			y: y
+			in_gate:   false
+			x:         x
+			y:         y
 		}
 	} else {
-		app.elements[id] = Junction {
+		app.elements[id] = Junction{
 			destroyed: false
-			in_gate: false
-			x: x
-			y: y
+			in_gate:   false
+			x:         x
+			y:         y
 		}
 	}
 }
@@ -457,9 +458,9 @@ fn (mut app App) not_place_in(x int, y int) ! {
 			}
 			Junction {
 				mut i := 1
-				mut other_side_id := app.get_tile_id_at(x + input_x*i, y + input_y*i)
+				mut other_side_id := app.get_tile_id_at(x + input_x * i, y + input_y * i)
 				for other_side_id != -1 && app.elements[other_side_id] is Junction {
-					other_side_id = app.get_tile_id_at(x + input_x*i, y + input_y*i)
+					other_side_id = app.get_tile_id_at(x + input_x * i, y + input_y * i)
 					if other_side_id != -1 {
 						mut other_side_input := app.elements[other_side_id]
 						match mut other_side_input {
@@ -490,23 +491,23 @@ fn (mut app App) not_place_in(x int, y int) ! {
 
 	if id == app.elements.len {
 		app.elements << Not{
-			output: output
-			state: state
+			output:      output
+			state:       state
 			orientation: app.build_orientation
-			destroyed: false
-			in_gate: false
-			x: x
-			y: y
+			destroyed:   false
+			in_gate:     false
+			x:           x
+			y:           y
 		}
 	} else {
 		app.elements[id] = Not{
-			output: output
-			state: state
+			output:      output
+			state:       state
 			orientation: app.build_orientation
-			destroyed: false
-			in_gate: false
-			x: x
-			y: y
+			destroyed:   false
+			in_gate:     false
+			x:           x
+			y:           y
 		}
 	}
 
@@ -574,9 +575,9 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 					}
 					Junction {
 						mut i := 1
-						mut other_side_id := app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+						mut other_side_id := app.get_tile_id_at(x + pos[0] * i, y + pos[1] * i)
 						for other_side_id != -1 && app.elements[other_side_id] is Junction {
-							other_side_id = app.get_tile_id_at(x + pos[0]*i, y + pos[1]*i)
+							other_side_id = app.get_tile_id_at(x + pos[0] * i, y + pos[1] * i)
 							if other_side_id != -1 {
 								mut other_side_elem := app.elements[other_side_id]
 								match mut other_side_elem {
@@ -613,7 +614,9 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 							}
 						}
 					}
-					else {panic("Elem type not supported ${elem}")}
+					else {
+						panic('Elem type not supported ${elem}')
+					}
 				}
 			}
 			app.elements[elem_id] = elem
@@ -624,8 +627,8 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 	if adjacent_gwire_ids.len == 0 {
 		gwire_id = app.wire_groups.len
 		app.wire_groups << GlobalWire{
-			wires: [id]
-			inputs: inputs
+			wires:   [id]
+			inputs:  inputs
 			outputs: outputs
 		}
 		if outputs.len > 0 {
@@ -729,18 +732,18 @@ fn (mut app App) wire_place_in(x int, y int) ! {
 	if id == app.elements.len {
 		app.elements << Wire{
 			id_glob_wire: gwire_id
-			destroyed: false
-			in_gate: false
-			x: x
-			y: y
+			destroyed:    false
+			in_gate:      false
+			x:            x
+			y:            y
 		}
 	} else {
 		app.elements[id] = Wire{
 			id_glob_wire: gwire_id
-			destroyed: false
-			in_gate: false
-			x: x
-			y: y
+			destroyed:    false
+			in_gate:      false
+			x:            x
+			y:            y
 		}
 	}
 }
@@ -750,10 +753,9 @@ fn (mut app App) line_in(start_x int, start_y int, end_x int, end_y int) ! {
 	mut y := end_y - start_y
 	mut direction_x := 1
 	mut direction_y := 1
-	if x == 0 && y == 0{
+	if x == 0 && y == 0 {
 		app.place_in(start_x, start_y) or {}
-	}
-	else{
+	} else {
 		if x < 0 {
 			x = math.abs(x)
 			direction_x = -1
@@ -764,19 +766,18 @@ fn (mut app App) line_in(start_x int, start_y int, end_x int, end_y int) ! {
 		}
 		if !app.place_is_turn {
 			app.straight_line(start_x, start_y, x, y, direction_x, direction_y)
-		} 
-		else {
+		} else {
 			app.turn_line(start_x, start_y, end_x, end_y, x, y, direction_x, direction_y)
 		}
 	}
-	//Reset
-	app.mouse_down_x	= 0
-	app.mouse_down_y	= 0
-	app.mouse_up_x		= 0
-	app.mouse_up_y		= 0
+	// Reset
+	app.mouse_down_x = 0
+	app.mouse_down_y = 0
+	app.mouse_up_x = 0
+	app.mouse_up_y = 0
 }
 
-fn (mut app App) straight_line(start_x int, start_y int, x int, y int, direction_x int, direction_y int){
+fn (mut app App) straight_line(start_x int, start_y int, x int, y int, direction_x int, direction_y int) {
 	if x > y {
 		for i in 0 .. x + 1 {
 			if direction_x == 1 {
@@ -798,8 +799,8 @@ fn (mut app App) straight_line(start_x int, start_y int, x int, y int, direction
 	}
 }
 
-fn (mut app App) turn_line(start_x int, start_y int, end_x int, end_y int, x int, y int, direction_x int, direction_y int){
-	if x > y{
+fn (mut app App) turn_line(start_x int, start_y int, end_x int, end_y int, x int, y int, direction_x int, direction_y int) {
+	if x > y {
 		for i in 0 .. x {
 			if direction_x == 1 {
 				app.build_orientation = .east
@@ -822,16 +823,17 @@ fn (mut app App) turn_line(start_x int, start_y int, end_x int, end_y int, x int
 				}
 				app.place_in(end_x, start_y + i * direction_y) or {}
 			}
-		}else{app.place_in(end_x, end_y) or {}}
-		
-	}else{
+		} else {
+			app.place_in(end_x, end_y) or {}
+		}
+	} else {
 		for i in 0 .. y {
 			if direction_y == 1 {
 				app.build_orientation = .south
 			} else if direction_y == -1 {
 				app.build_orientation = .north
 			}
-			app.place_in(start_x , start_y + i * direction_y) or {}
+			app.place_in(start_x, start_y + i * direction_y) or {}
 		}
 
 		tempo := app.build_selected_type
