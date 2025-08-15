@@ -1,7 +1,6 @@
 module main
 
 import gg
-import gx
 import ggui
 import os
 
@@ -13,7 +12,7 @@ const bt_scale = 70
 const bt_offset = 20
 const elem_button_shape = ggui.RoundedShape{bt_scale, bt_scale, 10, .top_left}
 const lil_button_shape = ggui.RoundedShape{bt_scale / 2, bt_scale / 2, 10, .top_left}
-const tcfg = gx.TextCfg{
+const tcfg = gg.TextCfg{
 	size: 30
 }
 
@@ -143,7 +142,7 @@ fn main() {
 		create_window: true
 		window_title:  '- Nots -'
 		user_data:     app
-		bg_color:      gx.Color{187, 187, 187, 255}
+		bg_color:      gg.Color{187, 187, 187, 255}
 		frame_fn:      on_frame
 		event_fn:      on_event
 		init_fn:       graphics_init
@@ -161,7 +160,7 @@ fn main() {
 	// do your test/base placings here if needed
 	app.place_in(0, 0)!
 
-	empty_text := ggui.Text{0, 0, 0, '', gx.TextCfg{
+	empty_text := ggui.Text{0, 0, 0, '', gg.TextCfg{
 		color:          theme.base
 		size:           20
 		align:          .center
